@@ -29,7 +29,7 @@ export default function Dashboard() {
   useEffect(() => {
     // Redirect to auth if not authenticated (Replace with real auth check)
     if (!localStorage.getItem("authToken")) {
-      // router.push("/auth");
+      router.push("/auth");
     }
   }, []);
 
