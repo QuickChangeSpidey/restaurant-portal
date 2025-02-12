@@ -67,7 +67,7 @@ export default function Dashboard() {
     <div className="flex h-screen bg-white text-black">
       {/* Sidebar Menu */}
       <div className="w-64 bg-green-500 text-white p-5">
-        <h2 className="text-2xl font-bold mb-5">Dashboard</h2>
+        <h2 className="text-2xl font-bold mb-5">BOGO NINJA</h2>
         <ul>
           {menuItems.map(({ name, icon, action }) => (
             <li

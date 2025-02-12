@@ -53,6 +53,9 @@ export default function AuthPage() {
                         <a href="https://play.google.com/store" className="p-2 bg-black text-white rounded flex justify-center items-center">
                             <img src="/android.png" alt="Google Play" className="h-6 mr-2" /> Get it on Google Play
                         </a>
+                        <p className="mt-2 text-center">
+                        <span className="text-blue-500 cursor-pointer" onClick={() => setUserType("")}>Go Back?</span>
+                    </p>
                     </div>
                 </div>
             ) : userType === "restaurant" ? (
