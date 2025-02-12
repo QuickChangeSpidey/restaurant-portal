@@ -27,6 +27,8 @@ export default function AuthPage() {
     const handleSignup = (e) => {
         e.preventDefault();
         console.log("Signing up with", { ...formData, userType: "Restaurant" });
+        localStorage.setItem("policyAccepted", "false"); // Mark policy as not accepted
+        router.push("/policy"); // Redirect to policy acceptance page
     };
 
     const handleForgotPassword = (e) => {
