@@ -36,29 +36,23 @@ export default function AuthPage() {
 
     const [userType, setUserType] = useState<"" | "customer" | "restaurant">("");
 
-    if (userType === "customer") {
-        return (
-            <div className="flex items-center justify-center h-screen bg-green-500 text-white">
+    return (
+        <div className="flex flex-col items-center justify-center h-screen bg-green-500 text-white">
+            <h1 className="text-4xl font-bold mb-6">BOGO NINJA</h1>
+            {userType === "customer" ? (
                 <div className="bg-white text-black p-8 rounded-lg shadow-lg w-96 text-center">
                     <h2 className="text-2xl font-bold mb-4">Download Our App</h2>
                     <p className="mb-4">Please download the mobile app to continue.</p>
                     <div className="flex flex-col space-y-4">
                         <a href="https://apps.apple.com" className="p-2 bg-black text-white rounded flex justify-center items-center">
-                            <img src="/apple-logo.png" alt="Apple Store" className="h-6 mr-2" /> Download on App Store
+                            <img src="/apple.png" alt="Apple Store" className="h-6 mr-2" /> Download on App Store
                         </a>
                         <a href="https://play.google.com/store" className="p-2 bg-black text-white rounded flex justify-center items-center">
-                            <img src="/google-play-logo.png" alt="Google Play" className="h-6 mr-2" /> Get it on Google Play
+                            <img src="/android.png" alt="Google Play" className="h-6 mr-2" /> Get it on Google Play
                         </a>
                     </div>
                 </div>
-            </div>
-        );
-    }
-
-    if (userType === "restaurant") {
-        return (
-            <div className="flex flex-col items-center justify-center h-screen bg-green-500 text-white">
-                <h1 className="text-4xl font-bold mb-6">BOGO NINJA</h1>
+            ) : userType === "restaurant" ? (
                 <div className="bg-white text-black p-8 rounded-lg shadow-lg w-96">
                     {showSignup ? (
                         <form onSubmit={handleSignup}>
@@ -130,21 +124,17 @@ export default function AuthPage() {
                         </form>
                     )}
                 </div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="flex items-center justify-center h-screen bg-green-500 text-white">
-            <div className="bg-white text-black p-8 rounded-lg shadow-lg w-96 text-center">
-                <h2 className="text-2xl font-bold mb-4">Who Are You?</h2>
-                <button className="w-full p-2 bg-green-500 text-white rounded mb-4" onClick={() => setUserType("customer")}>
-                    I am a Customer
-                </button>
-                <button className="w-full p-2 bg-green-500 text-white rounded" onClick={() => setUserType("restaurant")}>
-                    I am a Restaurant
-                </button>
-            </div>
+            ) : (
+                <div className="bg-white text-black p-8 rounded-lg shadow-lg w-96 text-center">
+                    <h2 className="text-2xl font-bold mb-4">Who Are You?</h2>
+                    <button className="w-full p-2 bg-green-500 text-white rounded mb-4" onClick={() => setUserType("customer")}>
+                        I am a Customer
+                    </button>
+                    <button className="w-full p-2 bg-green-500 text-white rounded" onClick={() => setUserType("restaurant")}>
+                        I am a Restaurant
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
