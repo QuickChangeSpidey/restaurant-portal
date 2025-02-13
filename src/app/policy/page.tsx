@@ -1,23 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function PolicyPage() {
     const router = useRouter();
     const [checked, setChecked] = useState(false);
 
-    useEffect(() => {
-        const accepted = localStorage.getItem("policyAccepted");
-        if (accepted === "true") {
-            router.push("/verify");
-        }
-    }, [router]);
+    const searchParams = useSearchParams();
+
+    const email = searchParams.get("email") || "";
+
+    const handleAcceptPolicy = () => {
+        // Store policy acceptance status
+        localStorage.setItem("policyAccepted", "true");
+
+        // Redirect to Verify Page with email
+        router.push(`/verify?email=${encodeURIComponent(email)}`);
+    };
 
     const handleAccept = () => {
         if (checked) {
+            // Store policy acceptance status
             localStorage.setItem("policyAccepted", "true");
-            router.push("/verify");
+
+            // Redirect to Verify Page with email
+            router.push(`/verify?email=${encodeURIComponent(email)}`);
         }
     };
 

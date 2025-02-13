@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function VerifyPage() {
     const router = useRouter();
     const [verificationCode, setVerificationCode] = useState("");
+    const searchParams = useSearchParams();
 
+    const email = searchParams.get("email") || "";
     const handleVerify = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
 
@@ -21,7 +23,7 @@ export default function VerifyPage() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ code: verificationCode }),
+                body: JSON.stringify({ email, groupName:'Restaurant', code: verificationCode }),
             });
 
             if (!response.ok) {
