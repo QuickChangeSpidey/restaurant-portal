@@ -3,11 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-interface LoginResponse {
-    token: string;
-    message?: string;
-}
-
 export default function AuthPage() {
     const router = useRouter();
     const [email, setEmail] = useState("");
@@ -42,10 +37,10 @@ export default function AuthPage() {
                 throw new Error(errorData.message || "Login failed");
             }
 
-            const data: LoginResponse = await response.json();
+            const data: any = await response.json();
 
             if (data.token) {
-                localStorage.setItem("authToken", data.token);
+                localStorage.setItem("authToken", data.token.AccessToken);
                 router.push("/dashboard");
             } else {
                 throw new Error("No token received. Login unsuccessful.");

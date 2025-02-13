@@ -33,9 +33,42 @@ export default function Dashboard() {
     }
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("authToken"); // Remove auth token
-    router.push("/auth"); // Redirect to login page
+  const handleLogout = async () => {
+    const token:any = localStorage.getItem("authToken");
+
+    if (!token) {
+      alert("No authentication token found. Redirecting to login...");
+      router.push("/auth");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`, // Attach token
+        },
+      });
+
+      if (!response.ok) {
+        const errorData: { message?: string } = await response.json();
+        throw new Error(errorData.message || "Logout failed");
+      }
+
+      // Remove token from localStorage
+      localStorage.removeItem("authToken");
+
+      alert("Logout successful. Redirecting to login...");
+      router.push("/auth");
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert((error as Error).message);
+
+      // Ensure the token is cleared even if the API fails
+      localStorage.removeItem("authToken");
+      router.push("/auth");
+    }
   };
 
   const handleVerifyEmail = () => {
@@ -92,7 +125,7 @@ export default function Dashboard() {
           {/* Greeting */}
           {/* Location Selector & Date/Time */}
           <div className="flex justify-between items-center w-full bg-green-500 text-white px-4 py-3 rounded-lg shadow-md">
-          <h1 className="text-4xl font-bold">Hello, {username}</h1>
+            <h1 className="text-4xl font-bold">Hello, {username}</h1>
             <div>
               <p className="text-sm">{new Date().toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" })}</p>
               <p className="text-sm">{new Date().toLocaleDateString("en-US", { weekday: "long" })}, {new Date().toLocaleTimeString("en-US", { hour12: false })}</p>

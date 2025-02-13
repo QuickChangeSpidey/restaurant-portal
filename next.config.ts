@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
                 source: "/api/auth/verify",
                 destination: "https://bogoninja.com/auth/verify",
             },
+            {
+                source: "/api/auth/logout",
+                destination: "https://bogoninja.com/auth/logout",
+            },
         ];
     },
 };
