@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+interface LoginResponse {
+    token: string;
+    message?: string;
+}
+
 export default function AuthPage() {
     const router = useRouter();
     const [email, setEmail] = useState("");
@@ -20,22 +25,124 @@ export default function AuthPage() {
         phoneNumber: "",
     });
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
-        console.log("Logging in with", { email, password });
+
+        try {
+            const response = await fetch("/api/auth/signin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (!response.ok) {
+                const errorData: { message?: string } = await response.json();
+                throw new Error(errorData.message || "Login failed");
+            }
+
+            const data: LoginResponse = await response.json();
+
+            if (data.token) {
+                localStorage.setItem("authToken", data.token);
+                router.push("/dashboard");
+            } else {
+                throw new Error("No token received. Login unsuccessful.");
+            }
+        } catch (error) {
+            console.error("Error logging in:", error);
+            alert((error as Error).message);
+        }
     };
 
-    const handleSignup = (e) => {
+    const handleSignup = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
-        console.log("Signing up with", { ...formData, userType: "Restaurant" });
-        localStorage.setItem("policyAccepted", "false"); // Mark policy as not accepted
-        router.push("/policy"); // Redirect to policy acceptance page
+
+        if (!formData.email || !formData.password || !formData.confirmPassword) {
+            alert("Please fill out all required fields.");
+            return;
+        }
+
+        if (formData.password !== formData.confirmPassword) {
+            alert("Passwords do not match.");
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/auth/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: formData.email,
+                    password: formData.password,
+                    userType: "Restaurant",
+                    additionalAttributes: {
+                        address: formData.address,
+                        birthdate: formData.birthdate,
+                        phoneNumber: formData.phoneNumber,
+                        givenName: formData.givenName,
+                        familyName: formData.familyName,
+                    },
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData: { message?: string } = await response.json();
+                throw new Error(errorData.message || "Signup failed");
+            }
+
+            const data = await response.json();
+            console.log("Signup successful:", data);
+
+            alert("Signup successful! Redirecting...");
+
+            // Save policy acceptance status
+            localStorage.setItem("policyAccepted", "false");
+
+            // Redirect to policy acceptance page
+            router.push("/policy");
+        } catch (error) {
+            console.error("Error signing up:", error);
+            alert((error as Error).message);
+        }
     };
 
-    const handleForgotPassword = (e) => {
+
+    const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
-        console.log("Resetting password for", email);
+
+        if (!email) {
+            alert("Please enter your email.");
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/auth/reset-password", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email }),
+            });
+
+            if (!response.ok) {
+                const errorData: { message?: string } = await response.json();
+                throw new Error(errorData.message || "Failed to reset password");
+            }
+
+            const data = await response.json();
+            console.log("Password reset link sent:", data);
+
+            alert("A password reset link has been sent to your email.");
+        } catch (error) {
+            console.error("Error resetting password:", error);
+            alert((error as Error).message);
+        }
     };
+
 
     const [userType, setUserType] = useState<"" | "customer" | "restaurant">("");
 
@@ -54,43 +161,44 @@ export default function AuthPage() {
                             <img src="/android.png" alt="Google Play" className="h-6 mr-2" /> Get it on Google Play
                         </a>
                         <p className="mt-2 text-center">
-                        <span className="text-blue-500 cursor-pointer" onClick={() => setUserType("")}>Go Back?</span>
-                    </p>
+                            <span className="text-blue-500 cursor-pointer" onClick={() => setUserType("")}>Go Back?</span>
+                        </p>
                     </div>
                 </div>
             ) : userType === "restaurant" ? (
                 <div className="bg-white text-black p-8 rounded-lg shadow-lg w-96">
                     {showSignup ? (
-                    <form onSubmit={handleSignup}>
-                    <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
-                    {Object.keys(formData).map((key) => (
-                        <input
-                            key={key}
-                            type={
-                                key === "email" ? "email" :
-                                key === "password" || "confirmPassword" ? "password" :
-                                key === "phoneNumber" ? "tel" :
-                                key === "birthdate" ? "text" :
-                                "text"
-                            }
-                            placeholder={
-                                key === "birthdate" ? "Birth Day (DD-MM-YYYY)" :
-                                key.charAt(0).toUpperCase() + key.slice(1)
-                            }
-                            value={formData[key]}
-                            onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
-                            className="w-full p-2 mb-2 border rounded"
-                            required
-                        />
-                    ))}
-                    <button className="w-full p-2 bg-green-500 text-white rounded" type="submit">
-                        Sign Up
-                    </button>
-                    <p className="mt-2 text-center">
-                        Already have an account? <span className="text-blue-500 cursor-pointer" onClick={() => setShowSignup(false)}>Login</span>
-                    </p>
-                </form>
-                
+                        <form onSubmit={handleSignup}>
+                            <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
+                            {Object.keys(formData).map((key) => (
+                                <input
+                                    key={key}
+                                    type={
+                                        key === "email" ? "email" :
+                                            key === "password" ? "password" :
+                                                key === "confirmPassword" ? "password" :
+                                                    key === "phoneNumber" ? "tel" :
+                                                        key === "birthdate" ? "text" :
+                                                            "text"
+                                    }
+                                    placeholder={
+                                        key === "birthdate" ? "Birth Day (YYYY-MM-DD)" :
+                                            key.charAt(0).toUpperCase() + key.slice(1)
+                                    }
+                                    value={formData[key]}
+                                    onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+                                    className="w-full p-2 mb-2 border rounded"
+                                    required
+                                />
+                            ))}
+                            <button className="w-full p-2 bg-green-500 text-white rounded" type="submit">
+                                Sign Up
+                            </button>
+                            <p className="mt-2 text-center">
+                                Already have an account? <span className="text-blue-500 cursor-pointer" onClick={() => setShowSignup(false)}>Login</span>
+                            </p>
+                        </form>
+
                     ) : showForgot ? (
                         <form onSubmit={handleForgotPassword}>
                             <h2 className="text-2xl font-bold mb-4">Forgot Password</h2>
