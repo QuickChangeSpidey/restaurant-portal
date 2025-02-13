@@ -13,6 +13,7 @@ import {
   LifebuoyIcon as HeadsetIcon,
   UserIcon,
   ArrowLeftOnRectangleIcon, // Logout icon
+  UserGroupIcon
 } from "@heroicons/react/24/outline";
 
 export default function Dashboard() {
@@ -85,6 +86,7 @@ export default function Dashboard() {
 
   const menuItems = [
     { name: "Home", icon: <HomeIcon className="w-5 h-5 mr-2" /> },
+    { name: "Customer", icon: <UserGroupIcon className="w-5 h-5 mr-2" /> },
     { name: "Analytics", icon: <BarChartIcon className="w-5 h-5 mr-2" /> },
     { name: "Coupons", icon: <TicketIcon className="w-5 h-5 mr-2" /> },
     { name: "Menu", icon: <ClipboardListIcon className="w-5 h-5 mr-2" /> },

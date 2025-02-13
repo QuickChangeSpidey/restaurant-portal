@@ -6,9 +6,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 export default function VerifyPage() {
     const router = useRouter();
     const [verificationCode, setVerificationCode] = useState("");
+    const [isResending, setIsResending] = useState(false);
     const searchParams = useSearchParams();
 
     const email = searchParams.get("email") || "";
+    
     const handleVerify = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
 
@@ -23,7 +25,7 @@ export default function VerifyPage() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email, groupName:'Restaurant', code: verificationCode }),
+                body: JSON.stringify({ email, groupName: 'Restaurant', code: verificationCode }),
             });
 
             if (!response.ok) {
@@ -41,6 +43,36 @@ export default function VerifyPage() {
         } catch (error) {
             console.error("Error verifying code:", error);
             alert((error as Error).message);
+        }
+    };
+
+    const handleResend = async (): Promise<void> => {
+        if (!email) {
+            alert("Invalid email. Please try again.");
+            return;
+        }
+        
+        setIsResending(true);
+        try {
+            const response = await fetch("/api/auth/reset-password", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email }),
+            });
+
+            if (!response.ok) {
+                const errorData: { message?: string } = await response.json();
+                throw new Error(errorData.message || "Failed to resend code");
+            }
+
+            alert("Verification code resent successfully!");
+        } catch (error) {
+            console.error("Error resending code:", error);
+            alert((error as Error).message);
+        } finally {
+            setIsResending(false);
         }
     };
 
@@ -64,7 +96,13 @@ export default function VerifyPage() {
                     </button>
                 </form>
                 <p className="mt-4 text-center">
-                    Didn't receive the code? <span className="text-blue-500 cursor-pointer">Resend</span>
+                    Didn't receive the code? 
+                    <span 
+                        className={`text-blue-500 cursor-pointer ${isResending ? 'opacity-50' : ''}`} 
+                        onClick={isResending ? undefined : handleResend}
+                    >
+                        {isResending ? " Resending..." : " Resend"}
+                    </span>
                 </p>
             </div>
         </div>
