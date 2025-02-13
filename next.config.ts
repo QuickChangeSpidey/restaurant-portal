@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
                 source: "/api/auth/signup",
                 destination: "https://bogoninja.com/auth/signup",
             },
+            {
+                source: "/api/auth/confirm-signup",
+                destination: "https://bogoninja.com/auth/confirm-signup",
+            },
         ];
     },
 };

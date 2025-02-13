@@ -5,20 +5,19 @@ import { useRouter } from "next/navigation";
 
 export default function PolicyPage() {
     const router = useRouter();
-    const [policyAccepted, setPolicyAccepted] = useState(false);
     const [checked, setChecked] = useState(false);
 
     useEffect(() => {
         const accepted = localStorage.getItem("policyAccepted");
         if (accepted === "true") {
-            router.push("/dashboard");
+            router.push("/verify");
         }
     }, [router]);
 
     const handleAccept = () => {
         if (checked) {
             localStorage.setItem("policyAccepted", "true");
-            router.push("/dashboard");
+            router.push("/verify");
         }
     };
 
