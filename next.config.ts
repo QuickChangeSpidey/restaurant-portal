@@ -27,6 +27,10 @@ const nextConfig: NextConfig = {
                 source: "/api/auth/logout",
                 destination: "https://bogoninja.com/auth/logout",
             },
+            {
+                source: "/api/auth/confirm-reset-password",
+                destination: "https://bogoninja.com/auth/confirm-reset-password",
+            },
         ];
     },
 };

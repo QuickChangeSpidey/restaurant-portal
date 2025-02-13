@@ -127,6 +127,7 @@ export default function AuthPage() {
             console.log("Password reset link sent:", data);
 
             alert("A password reset link has been sent to your email.");
+            router.push('/reset')
         } catch (error) {
             console.error("Error resetting password:", error);
             alert((error as Error).message);
