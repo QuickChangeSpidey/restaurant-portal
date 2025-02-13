@@ -53,17 +53,17 @@ export default function AuthPage() {
 
     const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-    
+
         if (!formData.email || !formData.password || !formData.confirmPassword) {
             alert("Please fill out all required fields.");
             return;
         }
-    
+
         if (formData.password !== formData.confirmPassword) {
             alert("Passwords do not match.");
             return;
         }
-    
+
         try {
             const response = await fetch("/api/auth/signup", {
                 method: "POST",
@@ -83,14 +83,14 @@ export default function AuthPage() {
                     },
                 }),
             });
-    
+
             if (!response.ok) {
                 const errorData: { message?: string } = await response.json();
                 throw new Error(errorData.message || "Signup failed");
             }
-    
+
             alert("Signup successful! Please accept the policy.");
-            
+
             // Redirect to policy page with email in query params
             router.push(`/policy?email=${encodeURIComponent(formData.email)}`);
         } catch (error) {
@@ -98,7 +98,7 @@ export default function AuthPage() {
             alert((error as Error).message);
         }
     };
-    
+
 
 
     const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
@@ -176,8 +176,18 @@ export default function AuthPage() {
                                         key === "birthdate" ? "Birth Day (YYYY-MM-DD)" :
                                             key.charAt(0).toUpperCase() + key.slice(1)
                                     }
-                                    value={formData[key]}
-                                    onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+                                    value={
+                                        key === "phoneNumber" && !formData[key].startsWith("+1")
+                                            ? `+1${formData[key]}`
+                                            : formData[key]
+                                    }
+                                    onChange={(e) => {
+                                        let value = e.target.value;
+                                        if (key === "phoneNumber") {
+                                            value = value.startsWith("+1") ? value : `+1${value.replace(/^\+?1?/, '')}`;
+                                        }
+                                        setFormData({ ...formData, [key]: value });
+                                    }}
                                     className="w-full p-2 mb-2 border rounded"
                                     required
                                 />
