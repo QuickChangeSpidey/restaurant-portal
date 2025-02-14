@@ -21,9 +21,7 @@ export default function Dashboard() {
   const [username, setUsername] = useState("User"); // Replace with real user data
   const [selectedLocation, setSelectedLocation] = useState("Location 1");
   const locations = ["Location 1", "Location 2", "Location 3"]; // Replace with real locations
-  const [emailVerified, setEmailVerified] = useState(false); // Replace with real verification status
   const [phoneVerified, setPhoneVerified] = useState(false); // Replace with real verification status
-  const [showEmailDialog, setShowEmailDialog] = useState(false);
   const [showPhoneDialog, setShowPhoneDialog] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
 
@@ -34,8 +32,9 @@ export default function Dashboard() {
     }
   }, []);
 
+
   const handleLogout = async () => {
-    const token:any = localStorage.getItem("authToken");
+    const token: any = localStorage.getItem("authToken");
 
     if (!token) {
       alert("No authentication token found. Redirecting to login...");
@@ -72,16 +71,53 @@ export default function Dashboard() {
     }
   };
 
-  const handleVerifyEmail = () => {
-    // Implement email verification logic
-    setEmailVerified(true);
-    setShowEmailDialog(false);
+  const getVerificationCode = async () => {
+    try {
+      const token = localStorage.getItem("authToken")
+      const response = await fetch("/api/auth/verify-attribute", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token
+        },
+        body: JSON.stringify({
+          attributeName: "phone_number",
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to send verification code");
+      }
+
+      alert("Verification code sent to your phone!");
+    } catch (error: any) {
+      alert(error.message);
+    }
   };
 
-  const handleVerifyPhone = () => {
-    // Implement phone verification logic
-    setPhoneVerified(true);
-    setShowPhoneDialog(false);
+  const handleVerifyPhone = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch("/api/auth/confirm-phone-or-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ attributeName: "phone_number", code: verificationCode }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Phone verification failed");
+      }
+
+      localStorage.setItem("phoneVerified", "true");
+      setPhoneVerified(true);
+      setShowPhoneDialog(false);
+      localStorage.setItem("phone_verified", "true")
+      alert("Phone verification successful!");
+    } catch (error:any) {
+      alert(error.message);
+    }
   };
 
   const menuItems = [
@@ -145,16 +181,11 @@ export default function Dashboard() {
 
           {/* Confirmation Alerts */}
           <div className="space-y-2 w-1/3">
-            {!emailVerified && (
-              <div className="flex items-center justify-start bg-green-500 text-white px-4 py-3 rounded-lg shadow-md cursor-pointer" onClick={() => setShowEmailDialog(true)}>
-                <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M4.93 19.07a10 10 0 1114.14 0M12 3v.01"></path>
-                </svg>
-                Confirm your email
-              </div>
-            )}
             {!phoneVerified && (
-              <div className="flex items-center justify-start bg-green-500 text-white px-4 py-3 rounded-lg shadow-md cursor-pointer" onClick={() => setShowPhoneDialog(true)}>
+              <div className="flex items-center justify-start bg-green-500 text-white px-4 py-3 rounded-lg shadow-md cursor-pointer" onClick={() => {
+                setShowPhoneDialog(true);
+                getVerificationCode();
+              }}>
                 <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M4.93 19.07a10 10 0 1114.14 0M12 3v.01"></path>
                 </svg>
@@ -163,24 +194,6 @@ export default function Dashboard() {
             )}
           </div>
         </div>
-        {/* Email Verification Dialog */}
-        {showEmailDialog && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-5 rounded shadow-lg">
-              <h2 className="text-xl font-bold mb-2">Verify Email</h2>
-              <input
-                type="text"
-                placeholder="Enter verification code"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)}
-                className="w-full p-2 mb-2 border rounded"
-              />
-              <button className="w-full p-2 bg-green-500 text-white rounded" onClick={handleVerifyEmail}>
-                Verify
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Phone Verification Dialog */}
         {showPhoneDialog && (
@@ -196,6 +209,9 @@ export default function Dashboard() {
               />
               <button className="w-full p-2 bg-green-500 text-white rounded" onClick={handleVerifyPhone}>
                 Verify
+              </button>
+              <button className="w-full p-2 bg-red-500 text-white rounded mt-2" onClick={() => setShowPhoneDialog(false)}>
+                Dismiss
               </button>
             </div>
           </div>
