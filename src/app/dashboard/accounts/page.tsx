@@ -23,7 +23,7 @@ const AccountPage: React.FC = () => {
     phone: "123-456-7890",
     password: "********",
     address: "123 Main Street, City, Country",
-    email: "akshay.pandey.ca@gmail.com"
+    email: "akshay.pandey.ca@gmail.com",
   };
 
   // Modal state management for editing fields
@@ -59,11 +59,11 @@ const AccountPage: React.FC = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": token || "",
+          Authorization: token || "",
         },
         body: JSON.stringify({
           attributeName: "phone_number",
-          phone: phoneInput, // you can send the phone number if your API requires it
+          phone: phoneInput, // if your API requires the phone number
         }),
       });
       if (!response.ok) {
@@ -83,7 +83,7 @@ const AccountPage: React.FC = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           attributeName: "phone_number",
@@ -108,21 +108,17 @@ const AccountPage: React.FC = () => {
       <Head>
         <title>My Account - Restaurant App</title>
       </Head>
-      <div className="flex min-h-screen">
-        {/* Main Content Area */}
-        <main className="flex-1 bg-white p-6 relative">
+      
+        {/* Main Content Area: scrollable */}
+        <main className="flex-1 p-6 overflow-y-auto">
           <section className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
-            <h2 className="text-2xl text-gray-800 font-semibold mb-6">
-              My Account
-            </h2>
+            <h2 className="text-2xl text-gray-800 font-semibold mb-6">My Account</h2>
             <div className="space-y-4">
               {/* First Name */}
               <div className="flex justify-between items-center border-b pb-2">
                 <div>
                   <p className="text-gray-600">First Name</p>
-                  <p className="text-gray-800 font-medium">
-                    {userInfo.firstName}
-                  </p>
+                  <p className="text-gray-800 font-medium">{userInfo.firstName}</p>
                 </div>
                 <button onClick={() => handleEdit("firstName", userInfo.firstName)}>
                   <PencilIcon className="h-5 w-5 text-gray-500" />
@@ -132,9 +128,7 @@ const AccountPage: React.FC = () => {
               <div className="flex justify-between items-center border-b pb-2">
                 <div>
                   <p className="text-gray-600">Last Name</p>
-                  <p className="text-gray-800 font-medium">
-                    {userInfo.lastName}
-                  </p>
+                  <p className="text-gray-800 font-medium">{userInfo.lastName}</p>
                 </div>
                 <button onClick={() => handleEdit("lastName", userInfo.lastName)}>
                   <PencilIcon className="h-5 w-5 text-gray-500" />
@@ -150,15 +144,12 @@ const AccountPage: React.FC = () => {
                   <PencilIcon className="h-5 w-5 text-gray-500" />
                 </button>
               </div>
-              
               {/* Phone */}
               <div className="flex justify-between items-center border-b pb-2">
                 <div>
                   <p className="text-gray-600">Phone</p>
                   <p className="text-gray-800 font-medium">{userInfo.phone}</p>
-                  {phoneVerified && (
-                    <span className="text-green-600 text-sm">Verified</span>
-                  )}
+                  {phoneVerified && <span className="text-green-600 text-sm">Verified</span>}
                 </div>
                 <div className="flex space-x-2">
                   <button
@@ -172,48 +163,37 @@ const AccountPage: React.FC = () => {
                   </button>
                 </div>
               </div>
-
               {/* Password */}
               <div className="flex justify-between items-center border-b pb-2">
                 <div>
                   <p className="text-gray-600">Password</p>
-                  <p className="text-gray-800 font-medium">
-                    {userInfo.password}
-                  </p>
+                  <p className="text-gray-800 font-medium">{userInfo.password}</p>
                 </div>
                 <button onClick={() => handleEdit("password", userInfo.password)}>
                   <PencilIcon className="h-5 w-5 text-gray-500" />
                 </button>
               </div>
-
-
               {/* Email */}
               <div className="flex justify-between items-center border-b pb-2">
                 <div>
                   <p className="text-gray-600">Email</p>
-                  <p className="text-gray-800 font-medium">
-                    {userInfo.email}
-                  </p>
+                  <p className="text-gray-800 font-medium">{userInfo.email}</p>
                 </div>
                 <button onClick={() => handleEdit("email", userInfo.email)}>
                   <PencilIcon className="h-5 w-5 text-gray-500" />
                 </button>
               </div>
-
               {/* Address */}
               <div className="flex justify-between items-center border-b pb-2">
                 <div>
                   <p className="text-gray-600">Address</p>
-                  <p className="text-gray-800 font-medium">
-                    {userInfo.address}
-                  </p>
+                  <p className="text-gray-800 font-medium">{userInfo.address}</p>
                 </div>
                 <button onClick={() => handleEdit("address", userInfo.address)}>
                   <PencilIcon className="h-5 w-5 text-gray-500" />
                 </button>
               </div>
             </div>
-
             {/* Delete Account Button */}
             <div className="mt-6">
               <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
@@ -222,11 +202,10 @@ const AccountPage: React.FC = () => {
             </div>
           </section>
         </main>
-      </div>
 
       {/* Modal Dialog for Editing Fields */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black opacity-50"
@@ -235,8 +214,7 @@ const AccountPage: React.FC = () => {
           {/* Modal Content */}
           <div className="bg-white rounded-lg shadow-lg p-6 z-50 w-96">
             <h3 className="text-xl font-semibold mb-4">
-              Edit{" "}
-              {editingField.charAt(0).toUpperCase() + editingField.slice(1)}
+              Edit {editingField.charAt(0).toUpperCase() + editingField.slice(1)}
             </h3>
             <input
               type="text"
@@ -264,7 +242,7 @@ const AccountPage: React.FC = () => {
 
       {/* Modal Dialog for Phone Verification */}
       {showPhoneDialog && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black opacity-50"
@@ -275,9 +253,7 @@ const AccountPage: React.FC = () => {
             <h3 className="text-xl font-semibold mb-4">Verify Phone Number</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-gray-600 mb-1">
-                  Phone Number
-                </label>
+                <label className="block text-gray-600 mb-1">Phone Number</label>
                 <input
                   type="text"
                   value={phoneInput}
@@ -292,9 +268,7 @@ const AccountPage: React.FC = () => {
                 Send Verification Code
               </button>
               <div>
-                <label className="block text-gray-600 mb-1">
-                  Verification Code
-                </label>
+                <label className="block text-gray-600 mb-1">Verification Code</label>
                 <input
                   type="text"
                   value={verificationCode}

@@ -13,11 +13,8 @@ const SupportPage: React.FC = () => {
           rel="stylesheet"
         />
       </Head>
-      <div className="flex min-h-screen">
-
-
+      <div className="flex">
         {/* Main Content Area */}
-        <main className="flex-1 bg-white p-6 relative overflow-y-auto">
           <section className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
             <h2 className="text-2xl text-gray-800 font-semibold mb-6">
               Need Help? We&apos;re Here for You!
@@ -109,7 +106,6 @@ const SupportPage: React.FC = () => {
               </p>
             </div>
           </section>
-        </main>
       </div>
     </>
   );

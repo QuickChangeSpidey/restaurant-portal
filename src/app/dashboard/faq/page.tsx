@@ -435,7 +435,7 @@ const FAQPage: React.FC = () => {
         />
       </Head>
 
-      <div className="flex min-h-screen">
+      <div className="flex">
         {/* Main Content Area */}
         <main className="flex-1 bg-white p-6">
           {/* FAQ Section */}
