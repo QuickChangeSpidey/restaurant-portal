@@ -3,18 +3,17 @@
 import Head from "next/head";
 import PencilIcon from "@heroicons/react/24/outline/PencilIcon";
 import { useEffect, useState } from "react";
-import { deleteUser, getUserInfo } from "@/app/lib/auth";
+import { deleteUser, getUserInfo, updateUserAttribute } from "@/app/lib/auth";
 
 interface UserInfo {
-  firstName: string;
-  lastName: string;
-  dob: string;
-  phone: string;
-  phoneVerified: boolean;
+  family_name: string;
+  given_name: string;
+  birthdate: string;
+  phone_number: string;
+  phone_number_verified: boolean;
   address: string;
   email: string;
-  emailVerified: boolean;
-  userType: string;
+  email_verified: boolean;
   username: string;
 }
 
@@ -39,15 +38,14 @@ const AccountPage: React.FC = () => {
 
       if (data) {
         const mappedUser: UserInfo = {
-          firstName: data.UserAttributes?.find(attr => attr.Name === "given_name")?.Value || "N/A",
-          lastName: data.UserAttributes?.find(attr => attr.Name === "family_name")?.Value || "N/A",
-          dob: data.UserAttributes?.find(attr => attr.Name === "birthdate")?.Value || "N/A",
-          phone: data.UserAttributes?.find(attr => attr.Name === "phone_number")?.Value || "N/A",
-          phoneVerified: data.UserAttributes?.find(attr => attr.Name === "phone_number_verified")?.Value === "true",
+          given_name: data.UserAttributes?.find(attr => attr.Name === "given_name")?.Value || "N/A",
+          family_name: data.UserAttributes?.find(attr => attr.Name === "family_name")?.Value || "N/A",
+          birthdate: data.UserAttributes?.find(attr => attr.Name === "birthdate")?.Value || "N/A",
+          phone_number: data.UserAttributes?.find(attr => attr.Name === "phone_number")?.Value || "N/A",
+          phone_number_verified: data.UserAttributes?.find(attr => attr.Name === "phone_number_verified")?.Value === "true",
           address: data.UserAttributes?.find(attr => attr.Name === "address")?.Value || "N/A",
           email: data.UserAttributes?.find(attr => attr.Name === "email")?.Value || "N/A",
-          emailVerified: data.UserAttributes?.find(attr => attr.Name === "email_verified")?.Value === "true",
-          userType: data.UserAttributes?.find(attr => attr.Name === "custom:user_type")?.Value || "N/A",
+          email_verified: data.UserAttributes?.find(attr => attr.Name === "email_verified")?.Value === "true",
           username: data.Username || "",
         };
         setUserInfo(mappedUser);
@@ -66,10 +64,15 @@ const AccountPage: React.FC = () => {
     setIsEditing(true);
   };
 
-  // Save edited value
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editingField && userInfo) {
-      setUserInfo({ ...userInfo, [editingField]: fieldValue });
+      const success = await updateUserAttribute(editingField, fieldValue);
+      if (success) {
+        setUserInfo({ ...userInfo, [editingField]: fieldValue });
+        alert(`${editingField} updated successfully!`);
+      } else {
+        alert(`Failed to update ${editingField}. Please try again.`);
+      }
     }
     setIsEditing(false);
   };
@@ -99,21 +102,21 @@ const AccountPage: React.FC = () => {
           <h2 className="text-2xl text-gray-800 font-semibold mb-6">My Account</h2>
           <div className="space-y-4">
             {/* User Details */}
-            <UserDetail label="First Name" value={userInfo.firstName} onEdit={() => handleEdit("firstName")} />
-            <UserDetail label="Last Name" value={userInfo.lastName} onEdit={() => handleEdit("lastName")} />
-            <UserDetail label="Date of Birth" value={userInfo.dob} onEdit={() => handleEdit("dob")} />
+            <UserDetail label="First Name" value={userInfo.family_name} onEdit={() => handleEdit("family_name")} />
+            <UserDetail label="Last Name" value={userInfo.given_name} onEdit={() => handleEdit("given_name")} />
+            <UserDetail label="Date of Birth" value={userInfo.birthdate} onEdit={() => handleEdit("birthdate")} />
 
             {/* Phone with Verified/Unverified Badge */}
             <UserDetail
               label="Phone"
-              value={`${userInfo.phone} (${userInfo.phoneVerified ? "Verified" : "Unverified"})`}
-              onEdit={() => handleEdit("phone")}
+              value={`${userInfo.phone_number} (${userInfo.phone_number_verified ? "Verified" : "Unverified"})`}
+              onEdit={() => handleEdit("phone_number")}
             />
 
             {/* Email with Verified/Unverified Badge */}
             <UserDetail
               label="Email"
-              value={`${userInfo.email} (${userInfo.emailVerified ? "Verified" : "Unverified"})`}
+              value={`${userInfo.email} (${userInfo.email_verified ? "Verified" : "Unverified"})`}
               onEdit={() => handleEdit("email")}
             />
 

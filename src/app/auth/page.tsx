@@ -38,7 +38,7 @@ export default function AuthPage() {
             }
 
             const data: any = await response.json();
-
+            
             if (data.token) {
                 localStorage.setItem("authToken", data.token.AccessToken);
                 router.push("/dashboard/locations");

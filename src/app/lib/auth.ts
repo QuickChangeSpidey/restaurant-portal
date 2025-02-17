@@ -33,7 +33,6 @@ export const getUserInfo = async () => {
 
   try {
     const userData = await cognitoIdentityServiceProvider.getUser(params).promise();
-    console.log("User Data:", userData);
     return userData;
   } catch (error) {
     console.error("Error fetching user data:", error);
@@ -56,3 +55,31 @@ export const deleteUser = async () => {
     alert("Failed to delete account. Please try again.");
   }
 }
+
+export const updateUserAttribute = async (fieldName: string, newValue: string): Promise<boolean> => {
+  try {
+    const accessToken = localStorage.getItem("authToken");
+    if (!accessToken) {
+      console.error("User is not authenticated.");
+      return false;
+    }
+
+    const params = {
+      AccessToken: accessToken,
+      UserAttributes: [
+        {
+          Name: fieldName, // Example: "email", "phone_number", "custom:address"
+          Value: newValue,
+        },
+      ],
+    };
+
+    await cognitoIdentityServiceProvider.updateUserAttributes(params).promise();
+    console.log(`Successfully updated ${fieldName} in Cognito.`);
+    return true;
+  } catch (error) {
+    console.error("Error updating user attribute:", error);
+    return false;
+  }
+};
+
