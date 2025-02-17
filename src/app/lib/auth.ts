@@ -40,3 +40,19 @@ export const getUserInfo = async () => {
     return null;
   }
 };
+
+
+export const deleteUser = async () => {
+  try {
+    const accessToken = localStorage.getItem("authToken");
+    if (!accessToken) throw new Error("User is not authenticated");
+
+    await cognitoIdentityServiceProvider.deleteUser({ AccessToken: accessToken }).promise();
+    alert("Account deleted successfully");
+    localStorage.removeItem("authToken");
+    window.location.href = "/"; // Redirect to home page
+  } catch (error) {
+    console.error("Error deleting account:", error);
+    alert("Failed to delete account. Please try again.");
+  }
+}
