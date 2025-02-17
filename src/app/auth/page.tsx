@@ -41,7 +41,7 @@ export default function AuthPage() {
 
             if (data.token) {
                 localStorage.setItem("authToken", data.token.AccessToken);
-                router.push("/dashboard");
+                router.push("/dashboard/locations");
             } else {
                 throw new Error("No token received. Login unsuccessful.");
             }

@@ -1,233 +1,174 @@
-// "use client";
+"use client"
 
-// import { useState, useEffect } from "react";
-// import { useRouter } from "next/navigation";
-// import {
-//   ChartBarIcon as BarChartIcon,
-//   TicketIcon,
-//   ClipboardDocumentListIcon as ClipboardListIcon,
-//   MapPinIcon,
-//   PlayIcon as VideoIcon,
-//   CreditCardIcon,
-//   LifebuoyIcon as HeadsetIcon,
-//   UserIcon,
-//   ArrowLeftOnRectangleIcon, // Logout icon
-//   UserGroupIcon
-// } from "@heroicons/react/24/outline";
+import Head from "next/head";
+import PencilIcon from "@heroicons/react/24/outline/PencilIcon";
+import { useState } from "react";
 
-// export default function Dashboard() {
-//   const router = useRouter();
-//   const [username, setUsername] = useState("User"); // Replace with real user data
-//   const [selectedLocation, setSelectedLocation] = useState("Location 1");
-//   const locations = ["Location 1", "Location 2", "Location 3"]; // Replace with real locations
-//   const [phoneVerified, setPhoneVerified] = useState(false); // Replace with real verification status
-//   const [showPhoneDialog, setShowPhoneDialog] = useState(false);
-//   const [verificationCode, setVerificationCode] = useState("");
-
-//   useEffect(() => {
-//     // Redirect to auth if not authenticated (Replace with real auth check)
-//     if (!localStorage.getItem("authToken")) {
-//       router.push("/auth");
-//     }
-//   }, []);
-
-
-//   const handleLogout = async () => {
-//     const token: any = localStorage.getItem("authToken");
-
-//     if (!token) {
-//       alert("No authentication token found. Redirecting to login...");
-//       router.push("/auth");
-//       return;
-//     }
-
-//     try {
-//       const response = await fetch("/api/auth/logout", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//           "Authorization": `Bearer ${token}`, // Attach token
-//         },
-//       });
-
-//       if (!response.ok) {
-//         const errorData: { message?: string } = await response.json();
-//         throw new Error(errorData.message || "Logout failed");
-//       }
-
-//       // Remove token from localStorage
-//       localStorage.removeItem("authToken");
-
-//       alert("Logout successful. Redirecting to login...");
-//       router.push("/auth");
-//     } catch (error) {
-//       console.error("Logout error:", error);
-//       alert((error as Error).message);
-
-//       // Ensure the token is cleared even if the API fails
-//       localStorage.removeItem("authToken");
-//       router.push("/auth");
-//     }
-//   };
-
-//   const getVerificationCode = async () => {
-//     try {
-//       const token = localStorage.getItem("authToken")
-//       const response = await fetch("/api/auth/verify-attribute", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//           "Authorization": token
-//         },
-//         body: JSON.stringify({
-//           attributeName: "phone_number",
-//         }),
-//       });
-//       if (!response.ok) {
-//         throw new Error("Failed to send verification code");
-//       }
-
-//       alert("Verification code sent to your phone!");
-//     } catch (error: any) {
-//       alert(error.message);
-//     }
-//   };
-
-//   const handleVerifyPhone = async () => {
-//     try {
-//       const token = localStorage.getItem("authToken");
-//       const response = await fetch("/api/auth/confirm-phone-or-email", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//           "Authorization": `Bearer ${token}`,
-//         },
-//         body: JSON.stringify({ attributeName: "phone_number", code: verificationCode }),
-//       });
-
-//       if (!response.ok) {
-//         throw new Error("Phone verification failed");
-//       }
-
-//       localStorage.setItem("phoneVerified", "true");
-//       setPhoneVerified(true);
-//       setShowPhoneDialog(false);
-//       localStorage.setItem("phone_verified", "true")
-//       alert("Phone verification successful!");
-//     } catch (error:any) {
-//       alert(error.message);
-//     }
-//   };
-
-//   const menuItems = [
-//     { name: "Locations", icon: <MapPinIcon className="w-5 h-5 mr-2" /> },
-//     { name: "Customer", icon: <UserGroupIcon className="w-5 h-5 mr-2" /> },
-//     { name: "Analytics", icon: <BarChartIcon className="w-5 h-5 mr-2" /> },
-//     { name: "Coupons", icon: <TicketIcon className="w-5 h-5 mr-2" /> },
-//     { name: "Menu", icon: <ClipboardListIcon className="w-5 h-5 mr-2" /> },
-//     { name: "Ads", icon: <VideoIcon className="w-5 h-5 mr-2" /> },
-//     { name: "Payment", icon: <CreditCardIcon className="w-5 h-5 mr-2" /> },
-//     { name: "Support", icon: <HeadsetIcon className="w-5 h-5 mr-2" /> },
-//     { name: "Account", icon: <UserIcon className="w-5 h-5 mr-2" /> },
-//     { name: "Logout", icon: <ArrowLeftOnRectangleIcon className="w-5 h-5 mr-2" />, action: "logout" },
-//   ];
-
-//   return (
-//     <div className="flex h-screen bg-white text-black">
-//       {/* Sidebar Menu */}
-//       <div className="w-64 bg-green-500 text-white p-5">
-//         <h2 className="text-2xl font-bold mb-5">BOGO NINJA</h2>
-//         <ul>
-//           {menuItems.map(({ name, icon, action }) => (
-//             <li
-//               key={name}
-//               className="flex items-center py-2 px-4 hover:bg-green-600 rounded cursor-pointer"
-//               onClick={() => {
-//                 if (action === "logout") {
-//                   handleLogout();
-//                 }
-//               }}
-//             >
-//               {icon} {name}
-//             </li>
-//           ))}
-//         </ul>
-//       </div>
-
-//       {/* Main Content */}
-//       <div className="flex-1 p-10">
-//         {/* Top Bar */}
-//         <div className="flex flex-col space-y-3">
-//           {/* Greeting */}
-//           {/* Location Selector & Date/Time */}
-//           <div className="flex justify-between items-center w-full bg-green-500 text-white px-4 py-3 rounded-lg shadow-md">
-//             <h1 className="text-4xl font-bold">Hello, {username}</h1>
-//             <div>
-//               <p className="text-sm">{new Date().toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" })}</p>
-//               <p className="text-sm">{new Date().toLocaleDateString("en-US", { weekday: "long" })}, {new Date().toLocaleTimeString("en-US", { hour12: false })}</p>
-//             </div>
-//             <select
-//               className="p-2 bg-white text-black border rounded"
-//               value={selectedLocation}
-//               onChange={(e) => setSelectedLocation(e.target.value)}
-//             >
-//               {locations.map((loc) => (
-//                 <option key={loc} value={loc}>{loc}</option>
-//               ))}
-//             </select>
-//           </div>
-
-//           {/* Confirmation Alerts */}
-//           <div className="space-y-2 w-1/3">
-//             {!phoneVerified && (
-//               <div className="flex items-center justify-start bg-green-500 text-white px-4 py-3 rounded-lg shadow-md cursor-pointer" onClick={() => {
-//                 setShowPhoneDialog(true);
-//                 getVerificationCode();
-//               }}>
-//                 <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-//                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M4.93 19.07a10 10 0 1114.14 0M12 3v.01"></path>
-//                 </svg>
-//                 Confirm your phone
-//               </div>
-//             )}
-//           </div>
-//         </div>
-
-//         {/* Phone Verification Dialog */}
-//         {showPhoneDialog && (
-//           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-//             <div className="bg-white p-5 rounded shadow-lg">
-//               <h2 className="text-xl font-bold mb-2">Verify Phone</h2>
-//               <input
-//                 type="text"
-//                 placeholder="Enter verification code"
-//                 value={verificationCode}
-//                 onChange={(e) => setVerificationCode(e.target.value)}
-//                 className="w-full p-2 mb-2 border rounded"
-//               />
-//               <button className="w-full p-2 bg-green-500 text-white rounded" onClick={handleVerifyPhone}>
-//                 Verify
-//               </button>
-//               <button className="w-full p-2 bg-red-500 text-white rounded mt-2" onClick={() => setShowPhoneDialog(false)}>
-//                 Dismiss
-//               </button>
-//             </div>
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// app/dashboard/locations/page.tsx
-"use client";
-
-export default function AccountsPage() {
-  return (
-    <div>
-      <h1 className="text-4xl font-bold">Accounts</h1>
-      {/* Locations content goes here */}
-    </div>
-  );
+interface UserInfo {
+  firstName: string;
+  lastName: string;
+  dob: string;
+  phone: string;
+  password: string;
+  address: string;
 }
 
+const AccountPage: React.FC = () => {
+  // Dummy user data (you might fetch this from your API or context)
+  const userInfo: UserInfo = {
+    firstName: "John",
+    lastName: "Doe",
+    dob: "1990-01-01",
+    phone: "123-456-7890",
+    password: "********",
+    address: "123 Main Street, City, Country",
+  };
+
+  // Modal state management
+  const [showModal, setShowModal] = useState(false);
+  const [editingField, setEditingField] = useState<keyof UserInfo | "">("");
+  const [fieldValue, setFieldValue] = useState("");
+
+  // Handle edit button click
+  const handleEdit = (field: keyof UserInfo, currentValue: string) => {
+    setEditingField(field);
+    setFieldValue(currentValue);
+    setShowModal(true);
+  };
+
+  // Dummy save handler (replace with your update logic)
+  const handleSave = () => {
+    console.log(`Saving ${editingField}: ${fieldValue}`);
+    // Save the new value here
+    setShowModal(false);
+  };
+
+  return (
+    <>
+      <Head>
+        <title>My Account - Restaurant App</title>
+      </Head>
+      <div className="flex min-h-screen">
+        {/* Main Content Area */}
+        <main className="flex-1 bg-white p-6 relative overflow-y-auto">
+          <section className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
+            <h2 className="text-2xl text-gray-800 font-semibold mb-6">My Account</h2>
+            <div className="space-y-4">
+              {/* First Name */}
+              <div className="flex justify-between items-center border-b pb-2">
+                <div>
+                  <p className="text-gray-600">First Name</p>
+                  <p className="text-gray-800 font-medium">{userInfo.firstName}</p>
+                </div>
+                <button onClick={() => handleEdit("firstName", userInfo.firstName)}>
+                  <PencilIcon className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+              {/* Last Name */}
+              <div className="flex justify-between items-center border-b pb-2">
+                <div>
+                  <p className="text-gray-600">Last Name</p>
+                  <p className="text-gray-800 font-medium">{userInfo.lastName}</p>
+                </div>
+                <button onClick={() => handleEdit("lastName", userInfo.lastName)}>
+                  <PencilIcon className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+              {/* Date of Birth */}
+              <div className="flex justify-between items-center border-b pb-2">
+                <div>
+                  <p className="text-gray-600">Date of Birth</p>
+                  <p className="text-gray-800 font-medium">{userInfo.dob}</p>
+                </div>
+                <button onClick={() => handleEdit("dob", userInfo.dob)}>
+                  <PencilIcon className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+              {/* Phone */}
+              <div className="flex justify-between items-center border-b pb-2">
+                <div>
+                  <p className="text-gray-600">Phone</p>
+                  <p className="text-gray-800 font-medium">{userInfo.phone}</p>
+                </div>
+                <div className="flex space-x-2">
+                  <button onClick={() => handleEdit("phone", userInfo.phone)}>
+                    <PencilIcon className="h-5 w-5 text-gray-500" />
+                  </button>
+                  <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                    Verify
+                  </button>
+                </div>
+              </div>
+              {/* Password */}
+              <div className="flex justify-between items-center border-b pb-2">
+                <div>
+                  <p className="text-gray-600">Password</p>
+                  <p className="text-gray-800 font-medium">{userInfo.password}</p>
+                </div>
+                <button onClick={() => handleEdit("password", userInfo.password)}>
+                  <PencilIcon className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+              {/* Address */}
+              <div className="flex justify-between items-center border-b pb-2">
+                <div>
+                  <p className="text-gray-600">Address</p>
+                  <p className="text-gray-800 font-medium">{userInfo.address}</p>
+                </div>
+                <button onClick={() => handleEdit("address", userInfo.address)}>
+                  <PencilIcon className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+            </div>
+
+            {/* Delete Account Button */}
+            <div className="mt-6">
+              <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                Delete Account
+              </button>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      {/* Modal Dialog for Editing Fields */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black opacity-50"
+            onClick={() => setShowModal(false)}
+          ></div>
+          {/* Modal Content */}
+          <div className="bg-white rounded-lg shadow-lg p-6 z-50 w-96">
+            <h3 className="text-xl font-semibold mb-4">
+              Edit {editingField.charAt(0).toUpperCase() + editingField.slice(1)}
+            </h3>
+            <input
+              type="text"
+              value={fieldValue}
+              onChange={(e) => setFieldValue(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                className="px-4 py-2 bg-gray-300 rounded"
+                onClick={() => setShowModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-green-500 text-white rounded"
+                onClick={handleSave}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default AccountPage;
