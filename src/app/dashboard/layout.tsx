@@ -12,6 +12,7 @@ import {
   LifebuoyIcon,
   UserIcon,
   ArrowLeftOnRectangleIcon,
+  BookOpenIcon,
 } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 
@@ -65,6 +66,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: "Menu", icon: <ClipboardDocumentListIcon className="w-5 h-5 mr-2" />, href: "/dashboard/menu-items" },
     { name: "Ads", icon: <VideoCameraIcon className="w-5 h-5 mr-2" />, href: "/dashboard/ads" },
     // { name: "Payment", icon: <CreditCardIcon className="w-5 h-5 mr-2" />, href: "/dashboard/payment" },
+    { name: "FAQ", icon: <BookOpenIcon className="w-5 h-5 mr-2" />, href: "/dashboard/faq" },
     { name: "Support", icon: <LifebuoyIcon className="w-5 h-5 mr-2" />, href: "/dashboard/support" },
     { name: "Account", icon: <UserIcon className="w-5 h-5 mr-2" />, href: "/dashboard/accounts" },
     { name: "Logout", icon: <ArrowLeftOnRectangleIcon className="w-5 h-5 mr-2" />, action: "logout" },
