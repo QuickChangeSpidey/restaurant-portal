@@ -60,11 +60,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const menuItems = [
     { name: "Locations", icon: <MapPinIcon className="w-7 h-7 mr-3" />, href: "/dashboard/locations" },
     { name: "Customers", icon: <UserGroupIcon className="w-7 h-7 mr-3" />, href: "/dashboard/customers" },
-    // { name: "Analytics", icon: <ChartBarIcon className="w-7 h-7 mr-3" />, href: "/dashboard/analytics" },
     { name: "Coupons", icon: <TicketIcon className="w-7 h-7 mr-3" />, href: "/dashboard/coupons" },
     { name: "Menu", icon: <ClipboardDocumentListIcon className="w-7 h-7 mr-3" />, href: "/dashboard/menu-items" },
     // { name: "Ads", icon: <VideoCameraIcon className="w-7 h-7 mr-3" />, href: "/dashboard/ads" },
     // { name: "Payment", icon: <CreditCardIcon className="w-7 h-7 mr-3" />, href: "/dashboard/payment" },
+    // { name: "Analytics", icon: <ChartBarIcon className="w-7 h-7 mr-3" />, href: "/dashboard/analytics" },
     { name: "FAQ", icon: <BookOpenIcon className="w-7 h-7 mr-3" />, href: "/dashboard/faq" },
     { name: "Support", icon: <LifebuoyIcon className="w-7 h-7 mr-3" />, href: "/dashboard/support" },
     { name: "Account", icon: <UserIcon className="w-7 h-7 mr-3" />, href: "/dashboard/accounts" },

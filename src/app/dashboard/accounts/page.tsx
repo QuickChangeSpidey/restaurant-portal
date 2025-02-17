@@ -17,6 +17,13 @@ interface UserInfo {
   username: string;
 }
 
+interface UserDetailProps {
+  label: string;
+  value: string;
+  onEdit?: () => void;
+  onVerify?: () => void;
+}
+
 const AccountPage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,6 +36,12 @@ const AccountPage: React.FC = () => {
   // Delete Account state
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [confirmText, setConfirmText] = useState("");
+
+    // Verification modal state for phone/email
+    const [showVerifyDialog, setShowVerifyDialog] = useState(false);
+    const [verifyField, setVerifyField] = useState<"email" | "phone_number" | null>(null);
+    const [verifyValue, setVerifyValue] = useState("");
+    const [verificationCode, setVerificationCode] = useState("");
 
   // Fetch user data
   useEffect(() => {
@@ -56,6 +69,14 @@ const AccountPage: React.FC = () => {
 
     fetchUserData();
   }, []);
+
+    // Open verification dialog for email or phone
+    const handleVerify = (field: "email" | "phone_number") => {
+      setVerifyField(field);
+      // Pre-fill the field with the current value from userInfo if available
+      setVerifyValue(userInfo ? userInfo[field] : "");
+      setShowVerifyDialog(true);
+    };
 
   // Open edit modal
   const handleEdit = (field: keyof UserInfo) => {
@@ -102,8 +123,8 @@ const AccountPage: React.FC = () => {
           <h2 className="text-2xl text-gray-800 font-semibold mb-6">My Account</h2>
           <div className="space-y-4">
             {/* User Details */}
-            <UserDetail label="First Name" value={userInfo.family_name} onEdit={() => handleEdit("family_name")} />
-            <UserDetail label="Last Name" value={userInfo.given_name} onEdit={() => handleEdit("given_name")} />
+            <UserDetail label="Family Name" value={userInfo.family_name} onEdit={() => handleEdit("family_name")} />
+            <UserDetail label="Given Name" value={userInfo.given_name} onEdit={() => handleEdit("given_name")} />
             <UserDetail label="Date of Birth" value={userInfo.birthdate} onEdit={() => handleEdit("birthdate")} />
 
             {/* Phone with Verified/Unverified Badge */}
@@ -111,6 +132,7 @@ const AccountPage: React.FC = () => {
               label="Phone"
               value={`${userInfo.phone_number} (${userInfo.phone_number_verified ? "Verified" : "Unverified"})`}
               onEdit={() => handleEdit("phone_number")}
+              onVerify={!userInfo.phone_number_verified ? () => handleVerify("phone_number") : undefined}
             />
 
             {/* Email with Verified/Unverified Badge */}
@@ -139,7 +161,7 @@ const AccountPage: React.FC = () => {
       {isEditing && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-xl font-semibold mb-4">Edit {editingField}</h3>
+            <h3 className="text-xl font-semibold mb-4">Edit Field</h3>
             <input
               type="text"
               value={fieldValue}
@@ -149,6 +171,47 @@ const AccountPage: React.FC = () => {
             <div className="flex justify-end space-x-2">
               <button className="px-4 py-2 bg-gray-300 rounded" onClick={() => setIsEditing(false)}>Cancel</button>
               <button className="px-4 py-2 bg-green-500 text-white rounded" onClick={handleSave}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+       {/* Verify Modal */}
+       {showVerifyDialog && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h3 className="text-xl font-semibold mb-4">
+              Verify {verifyField === "phone_number" ? "Phone Number" : "Email"}
+            </h3>
+            <input
+              type="text"
+              placeholder={`Enter new ${verifyField}`}
+              value={verifyValue}
+              onChange={(e) => setVerifyValue(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+            />
+            <button onClick={()=>{}} className="w-full bg-blue-500 text-white px-3 py-2 rounded">
+              Send Code
+            </button>
+            <input
+              type="text"
+              placeholder="Enter verification code"
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 mt-4"
+            />
+            <div className="flex justify-end space-x-2 mt-2">
+              <button
+                className="px-4 py-2 bg-gray-300 rounded"
+                onClick={() => setShowVerifyDialog(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-green-500 text-white rounded"
+                onClick={()=>{}}              >
+                Confirm
+              </button>
             </div>
           </div>
         </div>
@@ -183,16 +246,28 @@ const AccountPage: React.FC = () => {
   );
 };
 
-const UserDetail: React.FC<{ label: string; value: string; onEdit: () => void }> = ({ label, value, onEdit }) => (
-  <div className="flex justify-between items-center border-b pb-2">
-    <div>
-      <p className="text-gray-600">{label}</p>
-      <p className="text-gray-800 font-medium">{value}</p>
+
+const UserDetail: React.FC<UserDetailProps> = ({ label, value, onEdit, onVerify }) => {
+  // Check if "unverified" exists anywhere in the value (case-insensitive)
+  const isUnverified = /unverified/i.test(value);
+
+  return (
+    <div className="flex justify-between items-center border-b pb-2">
+      <div>
+        <p className="text-gray-600">{label}</p>
+        <p className="text-gray-800 font-medium">{value}</p>
+      </div>
+      {isUnverified && (
+        <button onClick={onVerify} className="px-4 py-2 bg-green-500 text-white rounded"
+        >
+          Verify
+        </button>
+      )}
+      <button onClick={onEdit}>
+        <PencilIcon className="h-5 w-5 text-gray-500" />
+      </button>
     </div>
-    <button onClick={onEdit}>
-      <PencilIcon className="h-5 w-5 text-gray-500" />
-    </button>
-  </div>
-);
+  );
+};
 
 export default AccountPage;
