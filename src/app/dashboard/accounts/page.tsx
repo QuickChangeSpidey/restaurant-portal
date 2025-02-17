@@ -2,7 +2,8 @@
 
 import Head from "next/head";
 import PencilIcon from "@heroicons/react/24/outline/PencilIcon";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getUserInfo } from "@/app/lib/auth";
 
 interface UserInfo {
   firstName: string;
@@ -25,6 +26,10 @@ const AccountPage: React.FC = () => {
     address: "123 Main Street, City, Country",
     email: "akshay.pandey.ca@gmail.com",
   };
+
+  useEffect(() => {
+    getUserInfo()
+  },[userInfo])
 
   // Modal state management for editing fields
   const [showModal, setShowModal] = useState(false);
@@ -108,100 +113,100 @@ const AccountPage: React.FC = () => {
       <Head>
         <title>My Account - Restaurant App</title>
       </Head>
-      
-        {/* Main Content Area: scrollable */}
-        <main className="flex-1 p-6 overflow-y-auto">
-          <section className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
-            <h2 className="text-2xl text-gray-800 font-semibold mb-6">My Account</h2>
-            <div className="space-y-4">
-              {/* First Name */}
-              <div className="flex justify-between items-center border-b pb-2">
-                <div>
-                  <p className="text-gray-600">First Name</p>
-                  <p className="text-gray-800 font-medium">{userInfo.firstName}</p>
-                </div>
-                <button onClick={() => handleEdit("firstName", userInfo.firstName)}>
-                  <PencilIcon className="h-5 w-5 text-gray-500" />
-                </button>
+
+      {/* Main Content Area: scrollable */}
+      <main className="flex-1 p-6 overflow-y-auto">
+        <section className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
+          <h2 className="text-2xl text-gray-800 font-semibold mb-6">My Account</h2>
+          <div className="space-y-4">
+            {/* First Name */}
+            <div className="flex justify-between items-center border-b pb-2">
+              <div>
+                <p className="text-gray-600">First Name</p>
+                <p className="text-gray-800 font-medium">{userInfo.firstName}</p>
               </div>
-              {/* Last Name */}
-              <div className="flex justify-between items-center border-b pb-2">
-                <div>
-                  <p className="text-gray-600">Last Name</p>
-                  <p className="text-gray-800 font-medium">{userInfo.lastName}</p>
-                </div>
-                <button onClick={() => handleEdit("lastName", userInfo.lastName)}>
-                  <PencilIcon className="h-5 w-5 text-gray-500" />
-                </button>
-              </div>
-              {/* Date of Birth */}
-              <div className="flex justify-between items-center border-b pb-2">
-                <div>
-                  <p className="text-gray-600">Date of Birth</p>
-                  <p className="text-gray-800 font-medium">{userInfo.dob}</p>
-                </div>
-                <button onClick={() => handleEdit("dob", userInfo.dob)}>
-                  <PencilIcon className="h-5 w-5 text-gray-500" />
-                </button>
-              </div>
-              {/* Phone */}
-              <div className="flex justify-between items-center border-b pb-2">
-                <div>
-                  <p className="text-gray-600">Phone</p>
-                  <p className="text-gray-800 font-medium">{userInfo.phone}</p>
-                  {phoneVerified && <span className="text-green-600 text-sm">Verified</span>}
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                    onClick={() => setShowPhoneDialog(true)}
-                  >
-                    Verify
-                  </button>
-                  <button onClick={() => handleEdit("phone", userInfo.phone)}>
-                    <PencilIcon className="h-5 w-5 text-gray-500" />
-                  </button>
-                </div>
-              </div>
-              {/* Password */}
-              <div className="flex justify-between items-center border-b pb-2">
-                <div>
-                  <p className="text-gray-600">Password</p>
-                  <p className="text-gray-800 font-medium">{userInfo.password}</p>
-                </div>
-                <button onClick={() => handleEdit("password", userInfo.password)}>
-                  <PencilIcon className="h-5 w-5 text-gray-500" />
-                </button>
-              </div>
-              {/* Email */}
-              <div className="flex justify-between items-center border-b pb-2">
-                <div>
-                  <p className="text-gray-600">Email</p>
-                  <p className="text-gray-800 font-medium">{userInfo.email}</p>
-                </div>
-                <button onClick={() => handleEdit("email", userInfo.email)}>
-                  <PencilIcon className="h-5 w-5 text-gray-500" />
-                </button>
-              </div>
-              {/* Address */}
-              <div className="flex justify-between items-center border-b pb-2">
-                <div>
-                  <p className="text-gray-600">Address</p>
-                  <p className="text-gray-800 font-medium">{userInfo.address}</p>
-                </div>
-                <button onClick={() => handleEdit("address", userInfo.address)}>
-                  <PencilIcon className="h-5 w-5 text-gray-500" />
-                </button>
-              </div>
-            </div>
-            {/* Delete Account Button */}
-            <div className="mt-6">
-              <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-                Delete Account
+              <button onClick={() => handleEdit("firstName", userInfo.firstName)}>
+                <PencilIcon className="h-5 w-5 text-gray-500" />
               </button>
             </div>
-          </section>
-        </main>
+            {/* Last Name */}
+            <div className="flex justify-between items-center border-b pb-2">
+              <div>
+                <p className="text-gray-600">Last Name</p>
+                <p className="text-gray-800 font-medium">{userInfo.lastName}</p>
+              </div>
+              <button onClick={() => handleEdit("lastName", userInfo.lastName)}>
+                <PencilIcon className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            {/* Date of Birth */}
+            <div className="flex justify-between items-center border-b pb-2">
+              <div>
+                <p className="text-gray-600">Date of Birth</p>
+                <p className="text-gray-800 font-medium">{userInfo.dob}</p>
+              </div>
+              <button onClick={() => handleEdit("dob", userInfo.dob)}>
+                <PencilIcon className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            {/* Phone */}
+            <div className="flex justify-between items-center border-b pb-2">
+              <div>
+                <p className="text-gray-600">Phone</p>
+                <p className="text-gray-800 font-medium">{userInfo.phone}</p>
+                {phoneVerified && <span className="text-green-600 text-sm">Verified</span>}
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                  onClick={() => setShowPhoneDialog(true)}
+                >
+                  Verify
+                </button>
+                <button onClick={() => handleEdit("phone", userInfo.phone)}>
+                  <PencilIcon className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+            </div>
+            {/* Password */}
+            <div className="flex justify-between items-center border-b pb-2">
+              <div>
+                <p className="text-gray-600">Password</p>
+                <p className="text-gray-800 font-medium">{userInfo.password}</p>
+              </div>
+              <button onClick={() => handleEdit("password", userInfo.password)}>
+                <PencilIcon className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            {/* Email */}
+            <div className="flex justify-between items-center border-b pb-2">
+              <div>
+                <p className="text-gray-600">Email</p>
+                <p className="text-gray-800 font-medium">{userInfo.email}</p>
+              </div>
+              <button onClick={() => handleEdit("email", userInfo.email)}>
+                <PencilIcon className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            {/* Address */}
+            <div className="flex justify-between items-center border-b pb-2">
+              <div>
+                <p className="text-gray-600">Address</p>
+                <p className="text-gray-800 font-medium">{userInfo.address}</p>
+              </div>
+              <button onClick={() => handleEdit("address", userInfo.address)}>
+                <PencilIcon className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+          </div>
+          {/* Delete Account Button */}
+          <div className="mt-6">
+            <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+              Delete Account
+            </button>
+          </div>
+        </section>
+      </main>
 
       {/* Modal Dialog for Editing Fields */}
       {showModal && (

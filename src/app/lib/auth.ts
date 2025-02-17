@@ -1,8 +1,42 @@
+import AWS from "aws-sdk";
+
+// Ensure AWS SDK is properly configured
+AWS.config.update({ region: process.env.NEXT_PUBLIC_AWS_REGION || "us-east-2" });
+
+const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
+
+// Function to check if the user is authenticated
 export function isAuthenticated(): boolean {
-    // Placeholder: Replace this with actual auth logic (JWT, cookies, session, etc.)
-    if (typeof window !== "undefined") {
-      return !!localStorage.getItem("authToken"); // Example using localStorage
-    }
-    return false;
+  if (typeof window !== "undefined") {
+    return !!localStorage.getItem("authToken"); // Example using localStorage
   }
+  return false;
+}
+
+// Function to get user info from Cognito
+export const getUserInfo = async () => {
+  if (typeof window === "undefined") {
+    console.error("getUserInfo cannot be called on the server-side");
+    return null;
+  }
+
+  const accessToken = localStorage.getItem("authToken");
   
+  if (!accessToken) {
+    console.error("No access token found in localStorage");
+    return null;
+  }
+
+  const params = {
+    AccessToken: accessToken
+  };
+
+  try {
+    const userData = await cognitoIdentityServiceProvider.getUser(params).promise();
+    console.log("User Data:", userData);
+    return userData;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return null;
+  }
+};
