@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect } from "react";
 import Modal from "../../components/Modal";
 import { GoogleMap, LoadScript, Autocomplete, Marker } from "@react-google-maps/api";
 import HoursOfOperation from "@/app/components/HoursOfOperation";
@@ -8,8 +8,10 @@ import HoursOfOperation from "@/app/components/HoursOfOperation";
 const googleMapsApiKey = "AIzaSyBxeae0ftXUhPZ8bZWE1-xgaWEkJFKGjek";
 
 export default function LocationsPage() {
-  const [locations, setLocations] = useState<{ _id: string; name: string; address: string; geolocation: { coordinates: [number, number] } }[]>([]);
+  const [locations, setLocations] = useState<{ _id: string; name: string; address: string; geolocation: { coordinates: [number, number] }; hours: string }[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewHoursModalOpen, setViewHoursModalOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<{ name: string; hours: string } | null>(null);
   const [step, setStep] = useState(1);
 
   // Form fields
@@ -39,7 +41,7 @@ export default function LocationsPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setLocations(data);
+        setLocations(data.map((loc: any) => ({ ...loc, hours: loc.hours || "Not Available" })));
       }
     } catch (error) {
       console.error("Error fetching locations", error);
@@ -123,6 +125,16 @@ export default function LocationsPage() {
     }
   };
 
+  const handleViewHours = (location: { name: string; hours: string }) => {
+    setSelectedLocation(location);
+    setViewHoursModalOpen(true); // Open the View Hours modal
+  };
+
+  const closeViewHoursModal = () => {
+    setViewHoursModalOpen(false);
+    setSelectedLocation(null); // Clear the selected location
+  };
+
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
@@ -141,8 +153,7 @@ export default function LocationsPage() {
           <tr className="bg-gray-100">
             <th className="border p-2">Name</th>
             <th className="border p-2">Address</th>
-            <th className="border p-2">Latitude</th>
-            <th className="border p-2">Longitude</th>
+            <th className="border p-2">Geo(Lat/Long)</th>
             <th className="border p-2">Actions</th>
           </tr>
         </thead>
@@ -151,10 +162,12 @@ export default function LocationsPage() {
             <tr key={loc._id}>
               <td className="border p-2">{loc.name}</td>
               <td className="border p-2">{loc.address}</td>
-              <td className="border p-2">{loc.geolocation.coordinates[1]}</td>
-              <td className="border p-2">{loc.geolocation.coordinates[0]}</td>
+              <td className="border p-2">{loc.geolocation.coordinates[1]} {loc.geolocation.coordinates[0]}</td>
               <td className="border p-2">
                 <button className="text-blue-600 mr-2">Edit</button>
+                <button className="text-green-600 mr-2" onClick={() => handleViewHours({ name: loc.name, hours: loc.hours })}>
+                  Hours
+                </button>
                 <button className="text-red-600" onClick={() => handleDeleteLocation(loc._id)}>
                   Delete
                 </button>
@@ -163,6 +176,21 @@ export default function LocationsPage() {
           ))}
         </tbody>
       </table>
+
+      {/* View Hours Modal */}
+      {viewHoursModalOpen && selectedLocation && (
+        <Modal onClose={closeViewHoursModal}>
+          <div className="p-4">
+            <h2 className="text-black font-bold mb-4">{selectedLocation.name} - Hours of Operation</h2>
+            <p className="text-black">{selectedLocation.hours}</p>
+            <div className="flex justify-end mt-4">
+              <button className="bg-gray-400 text-white px-4 py-2 rounded" onClick={closeViewHoursModal}>
+                Close
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Modal */}
       {isModalOpen && (
@@ -234,7 +262,7 @@ export default function LocationsPage() {
             )}
             {step === 3 && (
               <div>
-                <HoursOfOperation onHoursChange={handleHoursChange}/>
+                <HoursOfOperation onHoursChange={handleHoursChange} />
                 <div className="flex justify-between">
                   <button
                     className="bg-gray-400 text-white px-4 py-2 rounded"

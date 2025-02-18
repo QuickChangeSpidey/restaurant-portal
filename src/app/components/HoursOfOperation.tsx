@@ -37,7 +37,7 @@ const HoursOfOperation: React.FC<HoursOfOperationProps> = ({ onHoursChange }) =>
       .map((day, index) => {
         const startTime = convertTo12HourFormat(startTimes[index]);
         const endTime = convertTo12HourFormat(endTimes[index]);
-        return `${startTime} to ${endTime}: ${day}`;
+        return `${day}: ${startTime} to ${endTime}`;
       })
       .join(', ');
   };
@@ -65,7 +65,7 @@ const HoursOfOperation: React.FC<HoursOfOperationProps> = ({ onHoursChange }) =>
                   onChange={(e) => handleStartTimeChange(index, e.target.value)}
                   className="border p-2 w-24 text-black"
                 />
-                <span className="mx-2">to</span>
+                <span className="mx-2 text-black">to</span>
                 <input
                   type="time"
                   value={endTimes[index]}
