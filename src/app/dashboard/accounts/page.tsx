@@ -37,11 +37,11 @@ const AccountPage: React.FC = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [confirmText, setConfirmText] = useState("");
 
-    // Verification modal state for phone/email
-    const [showVerifyDialog, setShowVerifyDialog] = useState(false);
-    const [verifyField, setVerifyField] = useState<"email" | "phone_number" | null>(null);
-    const [verifyValue, setVerifyValue] = useState("");
-    const [verificationCode, setVerificationCode] = useState("");
+  // Verification modal state for phone/email
+  const [showVerifyDialog, setShowVerifyDialog] = useState(false);
+  const [verifyField, setVerifyField] = useState<"email" | "phone_number" | null>(null);
+  const [verifyValue, setVerifyValue] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
 
   // Fetch user data
   useEffect(() => {
@@ -70,18 +70,65 @@ const AccountPage: React.FC = () => {
     fetchUserData();
   }, []);
 
-    // Open verification dialog for email or phone
-    const handleVerify = (field: "email" | "phone_number") => {
-      setVerifyField(field);
-      // Pre-fill the field with the current value from userInfo if available
-      setVerifyValue(userInfo ? userInfo[field] : "");
-      setShowVerifyDialog(true);
-    };
+  const getVerificationCode = async () => {
+    try {
+      const token = localStorage.getItem("authToken")
+      const response = await fetch("/api/auth/verify-attribute", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token || ""
+        },
+        body: JSON.stringify({
+          attributeName: "phone_number",
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to send verification code");
+      }
+
+      alert("Verification code sent to your phone!");
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
+  const handleVerifyPhone = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch("/api/auth/confirm-phone-or-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ attributeName: "phone_number", code: verificationCode }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Phone verification failed");
+      }
+
+      alert("Phone verification successful!");
+      setShowVerifyDialog(false);
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
+
+  // Open verification dialog for email or phone
+  const handleVerify = (field: "email" | "phone_number") => {
+    setVerifyField(field);
+    // Pre-fill the field with the current value from userInfo if available
+    setVerifyValue(userInfo ? userInfo[field] : "");
+    setShowVerifyDialog(true);
+  };
 
   // Open edit modal
   const handleEdit = (field: keyof UserInfo) => {
     setEditingField(field);
-    setFieldValue(userInfo ? userInfo[field] : "");
+    setFieldValue(userInfo ? String(userInfo[field]) : "");
     setIsEditing(true);
   };
 
@@ -176,8 +223,8 @@ const AccountPage: React.FC = () => {
         </div>
       )}
 
-       {/* Verify Modal */}
-       {showVerifyDialog && (
+      {/* Verify Modal */}
+      {showVerifyDialog && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h3 className="text-xl font-semibold mb-4">
@@ -190,7 +237,7 @@ const AccountPage: React.FC = () => {
               onChange={(e) => setVerifyValue(e.target.value)}
               className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
             />
-            <button onClick={()=>{}} className="w-full bg-blue-500 text-white px-3 py-2 rounded">
+            <button onClick={() => getVerificationCode()} className="w-full bg-blue-500 text-white px-3 py-2 rounded">
               Send Code
             </button>
             <input
@@ -209,7 +256,7 @@ const AccountPage: React.FC = () => {
               </button>
               <button
                 className="px-4 py-2 bg-green-500 text-white rounded"
-                onClick={()=>{}}              >
+                onClick={() => { handleVerifyPhone() }}              >
                 Confirm
               </button>
             </div>
