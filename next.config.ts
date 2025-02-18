@@ -43,6 +43,14 @@ const nextConfig: NextConfig = {
                 source: "/api/auth/confirm-phone-or-email",
                 destination: "https://bogoninja.com/auth/confirm-phone-or-email",
             },
+            {
+                source: "/api/auth/getRestaurantLocations",
+                destination: "http://localhost:5000/api/restaurant/locations",
+            },
+            {
+                source: "/api/auth/AddLocations",
+                destination: "http://localhost:5000/api/locations",
+            },
         ];
     },
 };

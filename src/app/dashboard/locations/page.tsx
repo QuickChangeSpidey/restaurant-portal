@@ -25,21 +25,29 @@ export default function LocationsPage() {
   }, []);
 
   async function fetchLocations() {
+    const token = localStorage.getItem("authToken");
+  
     try {
-      const res = await fetch("/api/restaurant/locations", { credentials: "include" });
+      const res = await fetch("/api/auth/getRestaurantLocations", {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
       if (res.ok) {
         const data = await res.json();
-        setLocations(data);
+        // Process your data...
       }
     } catch (error) {
       console.error("Error fetching locations", error);
     }
   }
+  
 
   // Handler for adding a new location
   async function handleAddLocation() {
     try {
-      const res = await fetch("/api/locations", {
+      const res = await fetch("/api/auth/Addlocations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
