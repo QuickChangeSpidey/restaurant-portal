@@ -1,32 +1,35 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import Modal from "../../components/Modal";
 import { GoogleMap, LoadScript, Autocomplete, Marker } from "@react-google-maps/api";
+import HoursOfOperation from "@/app/components/HoursOfOperation";
 
 const googleMapsApiKey = "AIzaSyBxeae0ftXUhPZ8bZWE1-xgaWEkJFKGjek";
 
 export default function LocationsPage() {
-  // State for locations list
   const [locations, setLocations] = useState<{ _id: string; name: string; address: string; geolocation: { coordinates: [number, number] } }[]>([]);
-  // Modal open/close state
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // Multi-step modal state
   const [step, setStep] = useState(1);
+
   // Form fields
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const [autocomplete, setAutocomplete] = useState<AutocompleteInstance | null>(null);
+  const [hours, setHours] = useState("");
+  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
   const [geo, setGeo] = useState({ lat: 0, lng: 0 });
 
-  // Fetch locations when component mounts
+  const handleHoursChange = (hours: string) => {
+    setHours(hours); // Update the parent state with the selected hours
+  };
+
   useEffect(() => {
     fetchLocations();
   }, []);
 
   async function fetchLocations() {
     const token = localStorage.getItem("authToken");
-  
+
     try {
       const res = await fetch("/api/auth/getRestaurantLocations", {
         headers: {
@@ -36,21 +39,43 @@ export default function LocationsPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        // Process your data...
+        setLocations(data);
       }
     } catch (error) {
       console.error("Error fetching locations", error);
     }
   }
-  
+
+  // Handler for deleting a location
+  async function handleDeleteLocation(id: string) {
+    const token = localStorage.getItem("authToken");
+
+    try {
+      const res = await fetch(`/api/auth/deletelocation/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+      if (res.ok) {
+        fetchLocations();
+      }
+    } catch (error) {
+      console.error("Error deleting location", error);
+    }
+  }
 
   // Handler for adding a new location
   async function handleAddLocation() {
+    const token = localStorage.getItem("authToken");
+
     try {
       const res = await fetch("/api/auth/Addlocations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         credentials: "include",
         body: JSON.stringify({
@@ -60,10 +85,10 @@ export default function LocationsPage() {
             type: "Point",
             coordinates: [geo.lng, geo.lat],
           },
+          hours, // Send the hours to the server
         }),
       });
       if (res.status === 201) {
-        // Refresh locations
         fetchLocations();
         resetForm();
       }
@@ -72,48 +97,19 @@ export default function LocationsPage() {
     }
   }
 
-  // Handler for deleting a location
-  interface Location {
-    _id: string;
-    name: string;
-    address: string;
-    geolocation: {
-      coordinates: [number, number];
-    };
-  }
-
-  interface AutocompleteInstance {
-    getPlace: () => google.maps.places.PlaceResult;
-  }
-
-  async function handleDeleteLocation(id: string): Promise<void> {
-    try {
-      const res = await fetch(`/api/locations/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (res.status === 204) {
-        fetchLocations();
-      }
-    } catch (error) {
-      console.error("Error deleting location", error);
-    }
-  }
-
   function resetForm() {
     setName("");
     setAddress("");
+    setHours("");
     setGeo({ lat: 0, lng: 0 });
     setStep(1);
     setIsModalOpen(false);
   }
 
-  // Autocomplete loaded callback
-  const onLoad = (autocompleteInstance: AutocompleteInstance) => {
+  const onLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
     setAutocomplete(autocompleteInstance);
   };
 
-  // When a place is selected, update address and geo
   const onPlaceChanged = () => {
     if (autocomplete !== null) {
       const place = autocomplete.getPlace();
@@ -158,7 +154,6 @@ export default function LocationsPage() {
               <td className="border p-2">{loc.geolocation.coordinates[1]}</td>
               <td className="border p-2">{loc.geolocation.coordinates[0]}</td>
               <td className="border p-2">
-                {/* For simplicity, editing re-opens modal prefilled (implementation not shown) */}
                 <button className="text-blue-600 mr-2">Edit</button>
                 <button className="text-red-600" onClick={() => handleDeleteLocation(loc._id)}>
                   Delete
@@ -195,6 +190,7 @@ export default function LocationsPage() {
             )}
             {step === 2 && (
               <div>
+                <label className="text-black block mb-2">Address</label>
                 <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={["places"]}>
                   <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
                     <input
@@ -220,23 +216,42 @@ export default function LocationsPage() {
                     </GoogleMap>
                   </div>
                 </LoadScript>
+                <button
+                  className="bg-gray-400 text-white px-4 py-2 rounded"
+                  onClick={() => setStep(1)}
+                >
+                  Back
+                </button>
+                <span className="mx-5 text-black">Step 2 of 3</span>
+                <button
+                  className="bg-green-500 text-white px-4 py-2 rounded"
+                  onClick={() => setStep(3)}
+                  disabled={!address || !geo.lat || !geo.lng}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+            {step === 3 && (
+              <div>
+                <HoursOfOperation onHoursChange={handleHoursChange}/>
                 <div className="flex justify-between">
                   <button
                     className="bg-gray-400 text-white px-4 py-2 rounded"
-                    onClick={() => setStep(1)}
+                    onClick={() => setStep(2)}
                   >
                     Back
                   </button>
                   <button
                     className="bg-green-500 text-white px-4 py-2 rounded"
                     onClick={handleAddLocation}
-                    disabled={!address || !geo.lat || !geo.lng}
                   >
                     Save Location
                   </button>
                 </div>
               </div>
             )}
+
           </div>
         </Modal>
       )}
