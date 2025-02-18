@@ -51,6 +51,10 @@ const nextConfig: NextConfig = {
                 source: "/api/auth/AddLocations",
                 destination: "http://localhost:5000/api/locations",
             },
+            {
+                source: "/api/auth/deletelocation/:id",
+                destination: "http://localhost:5000/api/locations/:id",
+            },
         ];
     },
 };

@@ -13,7 +13,8 @@ export default function LocationsPage() {
   const [viewHoursModalOpen, setViewHoursModalOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ name: string; hours: string } | null>(null);
   const [step, setStep] = useState(1);
-
+  const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false);
+  const [locationToDelete, setLocationToDelete] = useState("");
   // Form fields
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -62,6 +63,7 @@ export default function LocationsPage() {
       });
       if (res.ok) {
         fetchLocations();
+        setDeleteConfirmationModalOpen(false);
       }
     } catch (error) {
       console.error("Error deleting location", error);
@@ -125,6 +127,12 @@ export default function LocationsPage() {
     }
   };
 
+  // Close the delete confirmation modal
+  const closeDeleteConfirmationModal = () => {
+    setDeleteConfirmationModalOpen(false);
+    setLocationToDelete("");
+  };
+
   const handleViewHours = (location: { name: string; hours: string }) => {
     setSelectedLocation(location);
     setViewHoursModalOpen(true); // Open the View Hours modal
@@ -168,7 +176,10 @@ export default function LocationsPage() {
                 <button className="text-green-600 mr-2" onClick={() => handleViewHours({ name: loc.name, hours: loc.hours })}>
                   Hours
                 </button>
-                <button className="text-red-600" onClick={() => handleDeleteLocation(loc._id)}>
+                <button className="text-red-600" onClick={() => {
+                  setDeleteConfirmationModalOpen(true);
+                  setLocationToDelete(loc._id);
+                }}>
                   Delete
                 </button>
               </td>
@@ -176,6 +187,28 @@ export default function LocationsPage() {
           ))}
         </tbody>
       </table>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmationModalOpen && locationToDelete && (
+        <Modal onClose={closeDeleteConfirmationModal}>
+          <div className="p-4">
+            <h2 className="text-black font-bold mb-4">Confirm Deletion</h2>
+            <p className="text-black">Please confirm deletion.</p>
+            <div className="flex justify-end mt-4">
+              <button className="bg-gray-400 text-white px-4 py-2 rounded" onClick={closeDeleteConfirmationModal}>
+                Cancel
+              </button>
+              <button
+                className="bg-red-600 text-white px-4 py-2 rounded ml-2"
+                onClick={() => handleDeleteLocation(locationToDelete)}
+              >
+                Confirm Deletion
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
 
       {/* View Hours Modal */}
       {viewHoursModalOpen && selectedLocation && (
