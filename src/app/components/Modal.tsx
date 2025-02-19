@@ -32,13 +32,6 @@ export default function Modal({ children, onClose }: ModalProps) {
       ></div>
       {/* Modal content */}
       <div className="relative bg-white rounded shadow-lg p-6 w-full max-w-md">
-        {/* Close button */}
-        <button
-          className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
-          onClick={onClose}
-        >
-          &times;
-        </button>
         {children}
       </div>
     </div>,
