@@ -4,9 +4,25 @@ import { useState, useEffect } from "react";
 import Modal from "../../components/Modal";
 import { GoogleMap, LoadScript, Autocomplete, Marker } from "@react-google-maps/api";
 import HoursOfOperation from "@/app/components/HoursOfOperation";
-import { PencilIcon, TrashIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, TrashIcon, ClockIcon, QrCodeIcon } from "@heroicons/react/24/outline";
+import { QRCodeCanvas } from 'qrcode.react';
 
 const googleMapsApiKey = "AIzaSyBxeae0ftXUhPZ8bZWE1-xgaWEkJFKGjek";
+
+interface Location {
+  _id: string;
+  name: string;
+  address: string;
+  geolocation: {
+    coordinates: [number, number];
+  };
+  hours: string;
+}
+
+interface SelectedLocation {
+  name: string;
+  hours: string;
+}
 
 export default function LocationsPage() {
   const [locations, setLocations] = useState<{ _id: string; name: string; address: string; geolocation: { coordinates: [number, number] }; hours: string }[]>([]);
@@ -22,9 +38,22 @@ export default function LocationsPage() {
   const [hours, setHours] = useState("");
   const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
   const [geo, setGeo] = useState({ lat: 0, lng: 0 });
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [qrCodeData, setQrCodeData] = useState<string | null>(null);
 
   const handleHoursChange = (hours: string) => {
     setHours(hours); // Update the parent state with the selected hours
+  };
+
+  const handleQrCodeClick = (locId: string): void => {
+    // Generate the QR code for the location ID
+    setQrCodeData(locId); // Pass location ID to the QR code generation
+    setQrModalOpen(true); // Open the modal
+  };
+
+  const closeQrModal = () => {
+    setQrModalOpen(false);
+    setQrCodeData(null); // Clear the QR code data when closing
   };
 
   useEffect(() => {
@@ -214,12 +243,33 @@ export default function LocationsPage() {
                 >
                   <TrashIcon className="h-5 w-5" />
                 </button>
+                <button
+                  className="text-black-600 hover:text-black-800"
+                  onClick={() => handleQrCodeClick(loc._id)}
+                >
+                  <QrCodeIcon className="h-5 w-5" />
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
+      {/* QR Code Modal */}
+      {qrModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl mb-4">QR Code for Location</h2>
+            <QRCodeCanvas value={qrCodeData || ""} size={256} />
+            <button
+              className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              onClick={closeQrModal}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmationModalOpen && locationToDelete && (
