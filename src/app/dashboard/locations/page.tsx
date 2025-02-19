@@ -19,11 +19,6 @@ interface Location {
   hours: string;
 }
 
-interface SelectedLocation {
-  name: string;
-  hours: string;
-}
-
 export default function LocationsPage() {
   const [locations, setLocations] = useState<{ _id: string; name: string; address: string; geolocation: { coordinates: [number, number] }; hours: string }[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
