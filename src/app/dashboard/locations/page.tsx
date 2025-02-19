@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Modal from "../../components/Modal";
 import { GoogleMap, LoadScript, Autocomplete, Marker } from "@react-google-maps/api";
 import HoursOfOperation from "@/app/components/HoursOfOperation";
+import { PencilIcon, TrashIcon, ClockIcon } from "@heroicons/react/24/outline";
 
 const googleMapsApiKey = "AIzaSyBxeae0ftXUhPZ8bZWE1-xgaWEkJFKGjek";
 
@@ -56,6 +57,27 @@ export default function LocationsPage() {
     try {
       const res = await fetch(`/api/auth/deletelocation/${id}`, {
         method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+      if (res.ok) {
+        fetchLocations();
+        setDeleteConfirmationModalOpen(false);
+      }
+    } catch (error) {
+      console.error("Error deleting location", error);
+    }
+  }
+
+  // Handler for deleting a location
+  async function handleUpdateLocation(id: string) {
+    const token = localStorage.getItem("authToken");
+
+    try {
+      const res = await fetch(`/api/auth/location/${id}`, {
+        method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`,
         },
@@ -148,45 +170,56 @@ export default function LocationsPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-4xl font-bold">Locations</h1>
         <button
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700"
+          className="bg-green-500 text-white text-3xl w-20 h-20 rounded-full flex items-center justify-center hover:bg-green-700"
           onClick={() => setIsModalOpen(true)}
         >
-          Add Location
+          +
         </button>
+
       </div>
 
       {/* Locations Table */}
-      <table className="min-w-full border-collapse">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2">Name</th>
-            <th className="border p-2">Address</th>
-            <th className="border p-2">Geo(Lat/Long)</th>
-            <th className="border p-2">Actions</th>
+      <table className="min-w-full table-auto border-collapse shadow-lg rounded-lg overflow-hidden">
+        <thead className="bg-green-500 text-white">
+          <tr>
+            <th className="px-4 py-3 text-left">Name</th>
+            <th className="px-4 py-3 text-left">Address</th>
+            <th className="px-4 py-3 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
           {locations.map((loc) => (
-            <tr key={loc._id}>
-              <td className="border p-2">{loc.name}</td>
-              <td className="border p-2">{loc.address}</td>
-              <td className="border p-2">{loc.geolocation.coordinates[1]} {loc.geolocation.coordinates[0]}</td>
-              <td className="border p-2">
-                <button className="text-blue-600 mr-2">Edit</button>
-                <button className="text-green-600 mr-2" onClick={() => handleViewHours({ name: loc.name, hours: loc.hours })}>
-                  Hours
+            <tr key={loc._id} className="hover:bg-gray-100 transition-colors">
+              <td className="border-t px-4 py-3">{loc.name}</td>
+              <td className="border-t px-4 py-3">{loc.address}</td>
+              <td className="border-t px-4 py-3">
+                <button
+                  className="text-blue-600 hover:text-blue-800 mr-2"
+                  onClick={() => handleUpdateLocation(loc._id)}
+                >
+                  <PencilIcon className="h-5 w-5" />
                 </button>
-                <button className="text-red-600" onClick={() => {
-                  setDeleteConfirmationModalOpen(true);
-                  setLocationToDelete(loc._id);
-                }}>
-                  Delete
+                <button
+                  className="text-green-600 hover:text-green-800 mr-2"
+                  onClick={() => handleViewHours({ name: loc.name, hours: loc.hours })}
+                >
+                  <ClockIcon className="h-5 w-5" />
+                </button>
+                <button
+                  className="text-red-600 hover:text-red-800"
+                  onClick={() => {
+                    setDeleteConfirmationModalOpen(true);
+                    setLocationToDelete(loc._id);
+                  }}
+                >
+                  <TrashIcon className="h-5 w-5" />
                 </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmationModalOpen && locationToDelete && (
