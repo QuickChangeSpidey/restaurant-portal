@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Modal from "../../components/Modal";
 import { apiFetch } from "@/app/lib/api";
 import { PlusCircleIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import AddMenuItemModal from "@/app/components/AddMenuModal";
