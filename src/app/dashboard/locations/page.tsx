@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Modal from "../../components/Modal";
 import { GoogleMap, LoadScript, Autocomplete, Marker } from "@react-google-maps/api";
 import HoursOfOperation from "@/app/components/HoursOfOperation";
-import { PencilIcon, TrashIcon, ClockIcon, QrCodeIcon, UserPlusIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, TrashIcon, ClockIcon, QrCodeIcon, UserPlusIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import { QRCodeCanvas } from 'qrcode.react';
 import { apiFetch } from "@/app/lib/api";
 
@@ -236,16 +236,16 @@ export default function LocationsPage() {
     <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={["places"]}>
 
       <div className="p-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-4xl font-bold">Locations</h1>
-          <button
-            className="bg-green-500 text-white text-3xl w-20 h-20 rounded-full flex items-center justify-center hover:bg-green-700"
-            onClick={() => setIsModalOpen(true)}
-          >
-            +
-          </button>
-
-        </div>
+      <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-semibold">Manage Locations</h2>
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded flex items-center"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <PlusCircleIcon className="h-5 w-5 mr-2" />
+              Add Location
+            </button>
+          </div>
 
         {/* Locations Table */}
         <table className="min-w-full table-auto border-collapse shadow-lg rounded-lg overflow-hidden">

@@ -48,6 +48,7 @@ export default function MenuItemsPage() {
         ...loc,
         hours: loc.hours || "Not Available",
       })));
+      setSelectedLocation(data[0]);
     } catch (error) {
       console.error("Error fetching locations", error);
     }
@@ -81,43 +82,44 @@ export default function MenuItemsPage() {
         isAvailable: true,
       },
     ];
-  
+
     setMenuItems(mockMenuItems);
   }
-  
+
 
   return (
     <div className="p-8">
-      <h1 className="text-4xl font-bold mb-6">Manage Menu Items</h1>
-
-      {/* Styled Locations Dropdown */}
-      <div className="relative w-64 mb-4">
-        <select
-          className="appearance-none bg-green-500 text-white text-sm px-4 py-2 w-full rounded-lg cursor-pointer focus:outline-none"
-          onChange={(e) => {
-            const location = locations.find((loc) => loc._id === e.target.value);
-            if (location) {
-              setSelectedLocation(location);
-              fetchMenuItems(location._id);
-            }
-          }}
-        >
-          <option value="">Select a location</option>
-          {locations.map((location) => (
-            <option key={location._id} value={location._id}>
-              {location.name}
-            </option>
-          ))}
-        </select>
-        {/* Chevron Icon */}
-        <ChevronDownIcon className="absolute right-3 top-3 w-5 h-5 text-white pointer-events-none" />
-      </div>
 
       {/* Menu Items Table */}
       {selectedLocation && (
         <div>
+          <h2 className="text-2xl font-semibold">Manage Menu Items</h2>
+          <br />
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold">{selectedLocation.name} - Menu</h2>
+            {/* Styled Locations Dropdown */}
+            <div className="relative w-64 mb-4">
+              <select
+                className="appearance-none bg-green-500 text-white text-sm px-4 py-2 w-full rounded-lg cursor-pointer focus:outline-none pr-10"
+                onChange={(e) => {
+                  const location = locations.find((loc) => loc._id === e.target.value);
+                  if (location) {
+                    setSelectedLocation(location);
+                    fetchMenuItems(location._id);
+                  }
+                }}
+              >
+                <option value="">Select a location</option>
+                {locations.map((location) => (
+                  <option key={location._id} value={location._id}>
+                    {location.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Chevron Icon */}
+              <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white pointer-events-none" />
+            </div>
+
             <button
               className="bg-green-500 text-white px-4 py-2 rounded flex items-center"
               onClick={() => setIsModalOpen(true)}
