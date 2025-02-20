@@ -233,173 +233,174 @@ export default function LocationsPage() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-4xl font-bold">Locations</h1>
-        <button
-          className="bg-green-500 text-white text-3xl w-20 h-20 rounded-full flex items-center justify-center hover:bg-green-700"
-          onClick={() => setIsModalOpen(true)}
-        >
-          +
-        </button>
+    <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={["places"]}>
 
-      </div>
+      <div className="p-8">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-4xl font-bold">Locations</h1>
+          <button
+            className="bg-green-500 text-white text-3xl w-20 h-20 rounded-full flex items-center justify-center hover:bg-green-700"
+            onClick={() => setIsModalOpen(true)}
+          >
+            +
+          </button>
 
-      {/* Locations Table */}
-      <table className="min-w-full table-auto border-collapse shadow-lg rounded-lg overflow-hidden">
-        <thead className="bg-green-500 text-white">
-          <tr>
-            <th className="px-4 py-3 text-left">Image</th>
-            <th className="px-4 py-3 text-left">Name</th>
-            <th className="px-4 py-3 text-left">Address</th>
-            <th className="px-4 py-3 text-left">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {locations.map((loc) => (
-            <tr key={loc._id} className="hover:bg-gray-100 transition-colors">
-              <td className="border-t px-4 py-3">
-                {loc.image ? <img src={loc.image} alt={loc.name} className="h-12 w-12 object-cover rounded" /> : <button
-                  className="text-blue-600 hover:text-red-800"
-                  onClick={() => {
-                    setUploadModalOpen(true);
-                    setSelectedLocationId(loc._id);
-                  }}
-                >
-                  <UserPlusIcon className="h-5 w-5" />
-                </button>}
-              </td>
-              <td className="border-t px-4 py-3">{loc.name}</td>
-              <td className="border-t px-4 py-3">{loc.address}</td>
-              <td className="border-t px-4 py-3">
-                <button
-                  className="text-blue-600 hover:text-blue-800 mr-2"
-                  onClick={() => handleUpdateLocation(loc._id)}
-                >
-                  <PencilIcon className="h-5 w-5" />
-                </button>
-                <button
-                  className="text-green-600 hover:text-green-800 mr-2"
-                  onClick={() => handleViewHours({ name: loc.name, hours: loc.hours })}
-                >
-                  <ClockIcon className="h-5 w-5" />
-                </button>
-                <button
-                  className="text-red-600 hover:text-red-800"
-                  onClick={() => {
-                    setDeleteConfirmationModalOpen(true);
-                    setLocationToDelete(loc._id);
-                  }}
-                >
-                  <TrashIcon className="h-5 w-5" />
-                </button>
-                <button
-                  className="text-black-600 hover:text-black-800"
-                  onClick={() => handleQrCodeClick(loc._id)}
-                >
-                  <QrCodeIcon className="h-5 w-5" />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* QR Code Modal */}
-      {qrModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl mb-4">QR Code for Location</h2>
-            <QRCodeCanvas value={qrCodeData || ""} size={256} />
-            <button
-              className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-              onClick={closeQrModal}
-            >
-              Close
-            </button>
-          </div>
         </div>
-      )}
 
-      {/* Delete Confirmation Modal */}
-      {deleteConfirmationModalOpen && locationToDelete && (
-        <Modal onClose={closeDeleteConfirmationModal}>
-          <div className="p-4">
-            <h2 className="text-black font-bold mb-4">Confirm Deletion</h2>
-            <p className="text-black">Please confirm deletion.</p>
-            <div className="flex justify-end mt-4">
-              <button className="bg-gray-400 text-white px-4 py-2 rounded" onClick={closeDeleteConfirmationModal}>
-                Cancel
-              </button>
+        {/* Locations Table */}
+        <table className="min-w-full table-auto border-collapse shadow-lg rounded-lg overflow-hidden">
+          <thead className="bg-green-500 text-white">
+            <tr>
+              <th className="px-4 py-3 text-left">Image</th>
+              <th className="px-4 py-3 text-left">Name</th>
+              <th className="px-4 py-3 text-left">Address</th>
+              <th className="px-4 py-3 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {locations.map((loc) => (
+              <tr key={loc._id} className="hover:bg-gray-100 transition-colors">
+                <td className="border-t px-4 py-3">
+                  {loc.image ? <img src={loc.image} alt={loc.name} className="h-12 w-12 object-cover rounded" /> : <button
+                    className="text-blue-600 hover:text-red-800"
+                    onClick={() => {
+                      setUploadModalOpen(true);
+                      setSelectedLocationId(loc._id);
+                    }}
+                  >
+                    <UserPlusIcon className="h-5 w-5" />
+                  </button>}
+                </td>
+                <td className="border-t px-4 py-3">{loc.name}</td>
+                <td className="border-t px-4 py-3">{loc.address}</td>
+                <td className="border-t px-4 py-3">
+                  <button
+                    className="text-blue-600 hover:text-blue-800 mr-2"
+                    onClick={() => handleUpdateLocation(loc._id)}
+                  >
+                    <PencilIcon className="h-5 w-5" />
+                  </button>
+                  <button
+                    className="text-green-600 hover:text-green-800 mr-2"
+                    onClick={() => handleViewHours({ name: loc.name, hours: loc.hours })}
+                  >
+                    <ClockIcon className="h-5 w-5" />
+                  </button>
+                  <button
+                    className="text-red-600 hover:text-red-800"
+                    onClick={() => {
+                      setDeleteConfirmationModalOpen(true);
+                      setLocationToDelete(loc._id);
+                    }}
+                  >
+                    <TrashIcon className="h-5 w-5" />
+                  </button>
+                  <button
+                    className="text-black-600 hover:text-black-800"
+                    onClick={() => handleQrCodeClick(loc._id)}
+                  >
+                    <QrCodeIcon className="h-5 w-5" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* QR Code Modal */}
+        {qrModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <h2 className="text-xl mb-4">QR Code for Location</h2>
+              <QRCodeCanvas value={qrCodeData || ""} size={256} />
               <button
-                className="bg-red-600 text-white px-4 py-2 rounded ml-2"
-                onClick={() => handleDeleteLocation(locationToDelete)}
+                className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                onClick={closeQrModal}
               >
-                Confirm Deletion
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-
-      {/* View Hours Modal */}
-      {viewHoursModalOpen && selectedLocation && (
-        <Modal onClose={closeViewHoursModal}>
-          <div className="p-4">
-            <h2 className="text-black font-bold mb-4">{selectedLocation.name} - Hours of Operation</h2>
-            <p className="text-black">{selectedLocation.hours}</p>
-            <div className="flex justify-end mt-4">
-              <button className="bg-gray-400 text-white px-4 py-2 rounded" onClick={closeViewHoursModal}>
                 Close
               </button>
             </div>
           </div>
-        </Modal>
-      )}
+        )}
 
-      {/* Upload Image Modal */}
-      {uploadModalOpen && (
-        <Modal onClose={closeUploadModal}>
-          <div className="p-4">
-            <h2 className="text-black font-bold mb-4">Upload Image</h2>
-            <input type="file" onChange={handleFileChange} className="text-black mb-4" />
-            {previewImage && <img src={previewImage} alt="Preview" className="h-24 w-24 object-cover rounded mb-4" />}
-            <button className="bg-green-500 text-white px-4 py-2 rounded" onClick={handleUpload} disabled={!selectedFile}>
-              Upload
-            </button>
-          </div>
-        </Modal>
-      )}
-
-      {/* Modal */}
-      {isModalOpen && (
-        <Modal onClose={resetForm}>
-          <div className="p-4">
-            <h2 className="text-black font-bold mb-4">Add New Location</h2>
-            {step === 1 && (
-              <div>
-                <label className="text-black block mb-2">Location Name</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="border p-2 w-full text-black mb-4"
-                  placeholder="Enter location name"
-                />
+        {/* Delete Confirmation Modal */}
+        {deleteConfirmationModalOpen && locationToDelete && (
+          <Modal onClose={closeDeleteConfirmationModal}>
+            <div className="p-4">
+              <h2 className="text-black font-bold mb-4">Confirm Deletion</h2>
+              <p className="text-black">Please confirm deletion.</p>
+              <div className="flex justify-end mt-4">
+                <button className="bg-gray-400 text-white px-4 py-2 rounded" onClick={closeDeleteConfirmationModal}>
+                  Cancel
+                </button>
                 <button
-                  className="bg-green-500 text-white px-4 py-2 rounded"
-                  onClick={() => setStep(2)}
-                  disabled={!name}
+                  className="bg-red-600 text-white px-4 py-2 rounded ml-2"
+                  onClick={() => handleDeleteLocation(locationToDelete)}
                 >
-                  Next
+                  Confirm Deletion
                 </button>
               </div>
-            )}
-            {step === 2 && (
-              <div>
-                <label className="text-black block mb-2">Address</label>
-                <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={["places"]}>
+            </div>
+          </Modal>
+        )}
+
+
+        {/* View Hours Modal */}
+        {viewHoursModalOpen && selectedLocation && (
+          <Modal onClose={closeViewHoursModal}>
+            <div className="p-4">
+              <h2 className="text-black font-bold mb-4">{selectedLocation.name} - Hours of Operation</h2>
+              <p className="text-black">{selectedLocation.hours}</p>
+              <div className="flex justify-end mt-4">
+                <button className="bg-gray-400 text-white px-4 py-2 rounded" onClick={closeViewHoursModal}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </Modal>
+        )}
+
+        {/* Upload Image Modal */}
+        {uploadModalOpen && (
+          <Modal onClose={closeUploadModal}>
+            <div className="p-4">
+              <h2 className="text-black font-bold mb-4">Upload Image</h2>
+              <input type="file" onChange={handleFileChange} className="text-black mb-4" />
+              {previewImage && <img src={previewImage} alt="Preview" className="h-24 w-24 object-cover rounded mb-4" />}
+              <button className="bg-green-500 text-white px-4 py-2 rounded" onClick={handleUpload} disabled={!selectedFile}>
+                Upload
+              </button>
+            </div>
+          </Modal>
+        )}
+
+        {/* Modal */}
+        {isModalOpen && (
+          <Modal onClose={resetForm}>
+            <div className="p-4">
+              <h2 className="text-black font-bold mb-4">Add New Location</h2>
+              {step === 1 && (
+                <div>
+                  <label className="text-black block mb-2">Location Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="border p-2 w-full text-black mb-4"
+                    placeholder="Enter location name"
+                  />
+                  <button
+                    className="bg-green-500 text-white px-4 py-2 rounded"
+                    onClick={() => setStep(2)}
+                    disabled={!name}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+              {step === 2 && (
+                <div>
+                  <label className="text-black block mb-2">Address</label>
                   <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
                     <input
                       type="text"
@@ -423,46 +424,46 @@ export default function LocationsPage() {
                       {geo.lat && geo.lng && <Marker position={geo} />}
                     </GoogleMap>
                   </div>
-                </LoadScript>
-                <button
-                  className="bg-gray-400 text-white px-4 py-2 rounded"
-                  onClick={() => setStep(1)}
-                >
-                  Back
-                </button>
-                <span className="mx-5 text-black">Step 2 of 3</span>
-                <button
-                  className="bg-green-500 text-white px-4 py-2 rounded"
-                  onClick={() => setStep(3)}
-                  disabled={!address || !geo.lat || !geo.lng}
-                >
-                  Next
-                </button>
-              </div>
-            )}
-            {step === 3 && (
-              <div>
-                <HoursOfOperation onHoursChange={handleHoursChange} />
-                <div className="flex justify-between">
                   <button
                     className="bg-gray-400 text-white px-4 py-2 rounded"
-                    onClick={() => setStep(2)}
+                    onClick={() => setStep(1)}
                   >
                     Back
                   </button>
+                  <span className="mx-5 text-black">Step 2 of 3</span>
                   <button
                     className="bg-green-500 text-white px-4 py-2 rounded"
-                    onClick={handleAddLocation}
+                    onClick={() => setStep(3)}
+                    disabled={!address || !geo.lat || !geo.lng}
                   >
-                    Save Location
+                    Next
                   </button>
                 </div>
-              </div>
-            )}
+              )}
+              {step === 3 && (
+                <div>
+                  <HoursOfOperation onHoursChange={handleHoursChange} />
+                  <div className="flex justify-between">
+                    <button
+                      className="bg-gray-400 text-white px-4 py-2 rounded"
+                      onClick={() => setStep(2)}
+                    >
+                      Back
+                    </button>
+                    <button
+                      className="bg-green-500 text-white px-4 py-2 rounded"
+                      onClick={handleAddLocation}
+                    >
+                      Save Location
+                    </button>
+                  </div>
+                </div>
+              )}
 
-          </div>
-        </Modal>
-      )}
-    </div>
+            </div>
+          </Modal>
+        )}
+      </div>
+    </LoadScript>
   );
 }
