@@ -6,6 +6,7 @@ export async function apiFetch<T>(url: string, options: RequestInit = {}): Promi
       });
   
       if (response.status === 401) {
+        alert("Unauthorized - Redirecting to login");
         window.location.href = "/auth"; // Redirect to /auth if unauthorized
         return Promise.reject(new Error("Unauthorized - Redirecting to login"));
       }

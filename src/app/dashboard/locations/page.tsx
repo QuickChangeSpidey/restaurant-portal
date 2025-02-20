@@ -60,41 +60,44 @@ export default function LocationsPage() {
     const token = localStorage.getItem("authToken");
 
     try {
-      const res = await apiFetch("/api/auth/getRestaurantLocations", {
+      // `apiFetch` already processes errors, so we assume a successful response here
+      const data: Location[] = await apiFetch("/api/auth/getRestaurantLocations", {
         headers: {
           "Authorization": `Bearer ${token}`,
         },
         credentials: "include",
       });
-      if ((res as Response).ok) {
-        const data = await (res as Response).json();
-        setLocations(data.map((loc: any) => ({ ...loc, hours: loc.hours || "Not Available" })));
-      }
+
+      // Process the data
+      setLocations(data.map((loc: any) => ({
+        ...loc,
+        hours: loc.hours || "Not Available",
+      })));
     } catch (error) {
       console.error("Error fetching locations", error);
     }
   }
 
-  // Handler for deleting a location
-  async function handleDeleteLocation(id: string) {
-    const token = localStorage.getItem("authToken");
+// Handler for deleting a location
+async function handleDeleteLocation(id: string) {
+  const token = localStorage.getItem("authToken");
 
-    try {
-      const res = await apiFetch(`/api/auth/deletelocation/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-        credentials: "include",
-      });
-      if ((res as Response).ok) {
-        fetchLocations();
-        setDeleteConfirmationModalOpen(false);
-      }
-    } catch (error) {
-      console.error("Error deleting location", error);
-    }
+  try {
+    await apiFetch(`/api/auth/deletelocation/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+      credentials: "include",
+    });
+
+    // If the request was successful, update the UI
+    fetchLocations();
+    setDeleteConfirmationModalOpen(false);
+  } catch (error) {
+    console.error("Error deleting location", error);
   }
+}
 
   // Handler for deleting a location
   async function handleUpdateLocation(id: string) {
@@ -117,36 +120,37 @@ export default function LocationsPage() {
     }
   }
 
-  // Handler for adding a new location
-  async function handleAddLocation() {
-    const token = localStorage.getItem("authToken");
+// Handler for adding a new location
+async function handleAddLocation() {
+  const token = localStorage.getItem("authToken");
 
-    try {
-      const res = await apiFetch("/api/auth/Addlocations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+  try {
+    await apiFetch("/api/auth/Addlocations", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        name,
+        address,
+        geolocation: {
+          type: "Point",
+          coordinates: [geo.lng, geo.lat],
         },
-        credentials: "include",
-        body: JSON.stringify({
-          name,
-          address,
-          geolocation: {
-            type: "Point",
-            coordinates: [geo.lng, geo.lat],
-          },
-          hours, // Send the hours to the server
-        }),
-      });
-      if ((res as Response).status === 201) {
-        fetchLocations();
-        resetForm();
-      }
-    } catch (error) {
-      console.error("Error adding location", error);
-    }
+        hours, // Send the hours to the server
+      }),
+    });
+
+    // If request is successful, update locations and reset the form
+    fetchLocations();
+    resetForm();
+  } catch (error) {
+    console.error("Error adding location", error);
   }
+}
+
 
   function resetForm() {
     setName("");
