@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Modal from "../../components/Modal";
 import { apiFetch } from "@/app/lib/api";
-import { PencilIcon, TrashIcon, PlusCircleIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import { PlusCircleIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import AddMenuItemModal from "@/app/components/AddMenuModal";
 
 interface Location {
   _id: string;
@@ -25,30 +26,26 @@ export default function MenuItemsPage() {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newMenuItem, setNewMenuItem] = useState({ name: "", description: "", price: 0, image: null });
 
   useEffect(() => {
     fetchLocations();
   }, []);
 
+  const handleAddMenuItem = (menuItem: MenuItem) => {
+    setMenuItems([...menuItems, menuItem]);
+  };
+
   async function fetchLocations() {
     const token = localStorage.getItem("authToken");
 
     try {
-      // `apiFetch` already processes errors, so we assume a successful response here
+      // Fetch locations with authentication
       const data: Location[] = await apiFetch("/api/auth/getRestaurantLocations", {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
+        headers: { "Authorization": `Bearer ${token}` },
         credentials: "include",
       });
 
-      // Process the data
-      setLocations(data.map((loc: any) => ({
-        ...loc,
-        hours: loc.hours || "Not Available",
-      })));
-      setSelectedLocation(data[0]);
+      setLocations(data);
     } catch (error) {
       console.error("Error fetching locations", error);
     }
@@ -62,7 +59,7 @@ export default function MenuItemsPage() {
         name: "Margherita Pizza",
         description: "Classic pizza with tomato, mozzarella, and basil",
         price: 12.99,
-        image: "https://via.placeholder.com/50", // Placeholder image
+        image: "https://via.placeholder.com/50",
         isAvailable: true,
       },
       {
@@ -86,49 +83,55 @@ export default function MenuItemsPage() {
     setMenuItems(mockMenuItems);
   }
 
-
   return (
     <div className="p-8">
+      <h2 className="text-2xl font-semibold">Manage Menu Items</h2>
+      <br />
 
-      {/* Menu Items Table */}
+      <div className="flex items-center justify-between mb-4">
+        {/* Styled Locations Dropdown */}
+        <div className="relative w-64 mb-4">
+          <select
+            className="appearance-none bg-green-500 text-white text-sm px-4 py-2 w-full rounded-lg cursor-pointer focus:outline-none pr-10"
+            onChange={(e) => {
+              const location = locations.find((loc) => loc._id === e.target.value);
+              if (location) {
+                setSelectedLocation(location); // Set selected location
+                fetchMenuItems(location._id); // Fetch menu items for the selected location
+              } else {
+                setSelectedLocation(null); // Reset if no valid location is selected
+              }
+            }}
+          >
+            <option value="">Select a location</option>
+            {locations.map((location) => (
+              <option key={location._id} value={location._id}>
+                {location.name}
+              </option>
+            ))}
+          </select>
+
+          {/* Chevron Icon */}
+          <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white pointer-events-none" />
+        </div>
+
+        {/* Add Menu Item Button - Disabled when no location is selected */}
+        <button
+          className={`px-4 py-2 rounded flex items-center transition-colors ${
+            selectedLocation
+              ? "bg-green-500 text-white hover:bg-green-600"
+              : "bg-gray-400 text-white opacity-50 cursor-not-allowed"
+          }`}
+          onClick={() => setIsModalOpen(true)}
+          disabled={!selectedLocation} // Button is disabled when no location is selected
+        >
+          <PlusCircleIcon className="h-5 w-5 mr-2" />
+          Add Menu Item
+        </button>
+      </div>
+
       {selectedLocation && (
         <div>
-          <h2 className="text-2xl font-semibold">Manage Menu Items</h2>
-          <br />
-          <div className="flex items-center justify-between mb-4">
-            {/* Styled Locations Dropdown */}
-            <div className="relative w-64 mb-4">
-              <select
-                className="appearance-none bg-green-500 text-white text-sm px-4 py-2 w-full rounded-lg cursor-pointer focus:outline-none pr-10"
-                onChange={(e) => {
-                  const location = locations.find((loc) => loc._id === e.target.value);
-                  if (location) {
-                    setSelectedLocation(location);
-                    fetchMenuItems(location._id);
-                  }
-                }}
-              >
-                <option value="">Select a location</option>
-                {locations.map((location) => (
-                  <option key={location._id} value={location._id}>
-                    {location.name}
-                  </option>
-                ))}
-              </select>
-
-              {/* Chevron Icon */}
-              <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white pointer-events-none" />
-            </div>
-
-            <button
-              className="bg-green-500 text-white px-4 py-2 rounded flex items-center"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <PlusCircleIcon className="h-5 w-5 mr-2" />
-              Add Menu Item
-            </button>
-          </div>
-
           <table className="min-w-full table-auto border-collapse shadow-lg rounded-lg overflow-hidden">
             <thead className="bg-green-500 text-white">
               <tr>
@@ -139,8 +142,8 @@ export default function MenuItemsPage() {
               </tr>
             </thead>
             <tbody>
-              {menuItems.map((item) => (
-                <tr key={item._id} className="hover:bg-gray-100 transition-colors">
+              {menuItems.map((item, i) => (
+                <tr key={item._id+`${i}`} className="hover:bg-gray-100 transition-colors">
                   <td className="border-t px-4 py-3">
                     {item.image ? (
                       <img src={item.image} alt={item.name} className="h-12 w-12 object-cover rounded" />
@@ -157,6 +160,8 @@ export default function MenuItemsPage() {
           </table>
         </div>
       )}
+
+      <AddMenuItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleAddMenuItem} />
     </div>
   );
 }
