@@ -59,6 +59,10 @@ const nextConfig: NextConfig = {
                 source: "/api/auth/location/:id",
                 destination: "http://localhost:5000/api/locations/:id",
             },
+            {
+                source: "/api/auth/uploadLocationImage/:id",
+                destination: "http://localhost:5000/api/upload/:id",
+            },
         ];
     },
 };

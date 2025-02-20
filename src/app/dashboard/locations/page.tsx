@@ -42,15 +42,11 @@ export default function LocationsPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  const handleUploadImage = (id: string) => {
-    setSelectedLocationId(id);
-    setUploadModalOpen(true);
-  };
-
   const closeUploadModal = () => {
     setUploadModalOpen(false);
     setSelectedFile(null);
     setSelectedLocationId(null);
+    setPreviewImage(null);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -253,17 +249,15 @@ export default function LocationsPage() {
       <table className="min-w-full table-auto border-collapse shadow-lg rounded-lg overflow-hidden">
         <thead className="bg-green-500 text-white">
           <tr>
+            <th className="px-4 py-3 text-left">Image</th>
             <th className="px-4 py-3 text-left">Name</th>
             <th className="px-4 py-3 text-left">Address</th>
-            <th className="px-4 py-3 text-left">Image</th>
             <th className="px-4 py-3 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
           {locations.map((loc) => (
             <tr key={loc._id} className="hover:bg-gray-100 transition-colors">
-              <td className="border-t px-4 py-3">{loc.name}</td>
-              <td className="border-t px-4 py-3">{loc.address}</td>
               <td className="border-t px-4 py-3">
                 {loc.image ? <img src={loc.image} alt={loc.name} className="h-12 w-12 object-cover rounded" /> : <button
                   className="text-blue-600 hover:text-red-800"
@@ -275,6 +269,8 @@ export default function LocationsPage() {
                   <UserPlusIcon className="h-5 w-5" />
                 </button>}
               </td>
+              <td className="border-t px-4 py-3">{loc.name}</td>
+              <td className="border-t px-4 py-3">{loc.address}</td>
               <td className="border-t px-4 py-3">
                 <button
                   className="text-blue-600 hover:text-blue-800 mr-2"
