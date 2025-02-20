@@ -6,6 +6,7 @@ import { GoogleMap, LoadScript, Autocomplete, Marker } from "@react-google-maps/
 import HoursOfOperation from "@/app/components/HoursOfOperation";
 import { PencilIcon, TrashIcon, ClockIcon, QrCodeIcon } from "@heroicons/react/24/outline";
 import { QRCodeCanvas } from 'qrcode.react';
+import { apiFetch } from "@/app/lib/api";
 
 const googleMapsApiKey = "AIzaSyBxeae0ftXUhPZ8bZWE1-xgaWEkJFKGjek";
 
@@ -59,14 +60,14 @@ export default function LocationsPage() {
     const token = localStorage.getItem("authToken");
 
     try {
-      const res = await fetch("/api/auth/getRestaurantLocations", {
+      const res = await apiFetch("/api/auth/getRestaurantLocations", {
         headers: {
           "Authorization": `Bearer ${token}`,
         },
         credentials: "include",
       });
-      if (res.ok) {
-        const data = await res.json();
+      if ((res as Response).ok) {
+        const data = await (res as Response).json();
         setLocations(data.map((loc: any) => ({ ...loc, hours: loc.hours || "Not Available" })));
       }
     } catch (error) {
@@ -79,14 +80,14 @@ export default function LocationsPage() {
     const token = localStorage.getItem("authToken");
 
     try {
-      const res = await fetch(`/api/auth/deletelocation/${id}`, {
+      const res = await apiFetch(`/api/auth/deletelocation/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`,
         },
         credentials: "include",
       });
-      if (res.ok) {
+      if ((res as Response).ok) {
         fetchLocations();
         setDeleteConfirmationModalOpen(false);
       }
@@ -100,14 +101,14 @@ export default function LocationsPage() {
     const token = localStorage.getItem("authToken");
 
     try {
-      const res = await fetch(`/api/auth/location/${id}`, {
+      const res = await apiFetch(`/api/auth/location/${id}`, {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`,
         },
         credentials: "include",
       });
-      if (res.ok) {
+      if ((res as Response).ok) {
         fetchLocations();
         setDeleteConfirmationModalOpen(false);
       }
@@ -121,7 +122,7 @@ export default function LocationsPage() {
     const token = localStorage.getItem("authToken");
 
     try {
-      const res = await fetch("/api/auth/Addlocations", {
+      const res = await apiFetch("/api/auth/Addlocations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -138,7 +139,7 @@ export default function LocationsPage() {
           hours, // Send the hours to the server
         }),
       });
-      if (res.status === 201) {
+      if ((res as Response).status === 201) {
         fetchLocations();
         resetForm();
       }

@@ -4,6 +4,7 @@ import Head from "next/head";
 import PencilIcon from "@heroicons/react/24/outline/PencilIcon";
 import { useEffect, useState } from "react";
 import { deleteUser, getUserInfo, updateUserAttribute } from "@/app/lib/auth";
+import { apiFetch } from "@/app/lib/api";
 
 interface UserInfo {
   family_name: string;
@@ -73,7 +74,7 @@ const AccountPage: React.FC = () => {
   const getVerificationCode = async () => {
     try {
       const token = localStorage.getItem("authToken")
-      const response = await fetch("/api/auth/verify-attribute", {
+      const response: Response = await apiFetch("/api/auth/verify-attribute", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -96,7 +97,7 @@ const AccountPage: React.FC = () => {
   const handleVerifyPhone = async () => {
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch("/api/auth/confirm-phone-or-email", {
+      const response: Response = await apiFetch("/api/auth/confirm-phone-or-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
