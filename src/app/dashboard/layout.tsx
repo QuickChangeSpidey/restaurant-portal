@@ -15,9 +15,11 @@ import {
   BookOpenIcon,
 } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
+import { LoadScript } from "@react-google-maps/api";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const googleMapsApiKey = "AIzaSyBxeae0ftXUhPZ8bZWE1-xgaWEkJFKGjek";
 
   const handleLogout = async () => {
     const token: any = localStorage.getItem("authToken");
@@ -72,6 +74,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   return (
+    <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={["places"]}>
+
     <div className="flex h-screen bg-white text-black">
       {/* Sidebar */}
       <div className="w-64 bg-green-500 text-white p-5">
@@ -102,5 +106,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main Content Area */}
       <div className="flex-1 p-10">{children}</div>
     </div>
+    </LoadScript>
   );
 }
