@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Modal from "../../components/Modal";
 import { GoogleMap, LoadScript, Autocomplete, Marker } from "@react-google-maps/api";
 import HoursOfOperation from "@/app/components/HoursOfOperation";
-import { PencilIcon, TrashIcon, ClockIcon, QrCodeIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, TrashIcon, ClockIcon, QrCodeIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 import { QRCodeCanvas } from 'qrcode.react';
 import { apiFetch } from "@/app/lib/api";
 
@@ -21,7 +21,7 @@ interface Location {
 }
 
 export default function LocationsPage() {
-  const [locations, setLocations] = useState<{ _id: string; name: string; address: string; geolocation: { coordinates: [number, number] }; hours: string }[]>([]);
+  const [locations, setLocations] = useState<{ _id: string; name: string; address: string; geolocation: { coordinates: [number, number] }; hours: string; image: string }[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [viewHoursModalOpen, setViewHoursModalOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ name: string; hours: string } | null>(null);
@@ -32,10 +32,48 @@ export default function LocationsPage() {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [hours, setHours] = useState("");
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
   const [geo, setGeo] = useState({ lat: 0, lng: 0 });
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [qrCodeData, setQrCodeData] = useState<string | null>(null);
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  
+  const handleUploadImage = (id: string) => {
+    setSelectedLocationId(id);
+    setUploadModalOpen(true);
+  };
+
+  const closeUploadModal = () => {
+    setUploadModalOpen(false);
+    setSelectedFile(null);
+    setSelectedLocationId(null);
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setSelectedFile(event.target.files[0]);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile || !selectedLocationId) return;
+
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+
+    try {
+      await apiFetch(`/api/auth/uploadLocationImage/${selectedLocationId}`, {
+        method: "POST",
+        body: formData,
+      });
+      fetchLocations();
+      closeUploadModal();
+    } catch (error) {
+      console.error("Error uploading image", error);
+    }
+  };
 
   const handleHoursChange = (hours: string) => {
     setHours(hours); // Update the parent state with the selected hours
@@ -78,26 +116,26 @@ export default function LocationsPage() {
     }
   }
 
-// Handler for deleting a location
-async function handleDeleteLocation(id: string) {
-  const token = localStorage.getItem("authToken");
+  // Handler for deleting a location
+  async function handleDeleteLocation(id: string) {
+    const token = localStorage.getItem("authToken");
 
-  try {
-    await apiFetch(`/api/auth/deletelocation/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-      },
-      credentials: "include",
-    });
+    try {
+      await apiFetch(`/api/auth/deletelocation/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
 
-    // If the request was successful, update the UI
-    fetchLocations();
-    setDeleteConfirmationModalOpen(false);
-  } catch (error) {
-    console.error("Error deleting location", error);
+      // If the request was successful, update the UI
+      fetchLocations();
+      setDeleteConfirmationModalOpen(false);
+    } catch (error) {
+      console.error("Error deleting location", error);
+    }
   }
-}
 
   // Handler for deleting a location
   async function handleUpdateLocation(id: string) {
@@ -120,36 +158,36 @@ async function handleDeleteLocation(id: string) {
     }
   }
 
-// Handler for adding a new location
-async function handleAddLocation() {
-  const token = localStorage.getItem("authToken");
+  // Handler for adding a new location
+  async function handleAddLocation() {
+    const token = localStorage.getItem("authToken");
 
-  try {
-    await apiFetch("/api/auth/Addlocations", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        name,
-        address,
-        geolocation: {
-          type: "Point",
-          coordinates: [geo.lng, geo.lat],
+    try {
+      await apiFetch("/api/auth/Addlocations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        hours, // Send the hours to the server
-      }),
-    });
+        credentials: "include",
+        body: JSON.stringify({
+          name,
+          address,
+          geolocation: {
+            type: "Point",
+            coordinates: [geo.lng, geo.lat],
+          },
+          hours, // Send the hours to the server
+        }),
+      });
 
-    // If request is successful, update locations and reset the form
-    fetchLocations();
-    resetForm();
-  } catch (error) {
-    console.error("Error adding location", error);
+      // If request is successful, update locations and reset the form
+      fetchLocations();
+      resetForm();
+    } catch (error) {
+      console.error("Error adding location", error);
+    }
   }
-}
 
 
   function resetForm() {
@@ -213,6 +251,7 @@ async function handleAddLocation() {
           <tr>
             <th className="px-4 py-3 text-left">Name</th>
             <th className="px-4 py-3 text-left">Address</th>
+            <th className="px-4 py-3 text-left">Image</th>
             <th className="px-4 py-3 text-left">Actions</th>
           </tr>
         </thead>
@@ -221,6 +260,17 @@ async function handleAddLocation() {
             <tr key={loc._id} className="hover:bg-gray-100 transition-colors">
               <td className="border-t px-4 py-3">{loc.name}</td>
               <td className="border-t px-4 py-3">{loc.address}</td>
+              <td className="border-t px-4 py-3">
+                {loc.image ? <img src={loc.image} alt={loc.name} className="h-12 w-12 object-cover rounded" /> : <button
+                  className="text-blue-600 hover:text-red-800"
+                  onClick={() => {
+                    setUploadModalOpen(true);
+                    setSelectedLocationId(loc._id);
+                  }}
+                >
+                  <UserPlusIcon className="h-5 w-5" />
+                </button>}
+              </td>
               <td className="border-t px-4 py-3">
                 <button
                   className="text-blue-600 hover:text-blue-800 mr-2"
@@ -304,6 +354,18 @@ async function handleAddLocation() {
                 Close
               </button>
             </div>
+          </div>
+        </Modal>
+      )}
+
+      {uploadModalOpen && (
+        <Modal onClose={closeUploadModal}>
+          <div className="p-4">
+            <h2 className="text-black font-bold mb-4">Upload Image</h2>
+            <input type="file" onChange={handleFileChange} className="text-black mb-4" />
+            <button className="bg-green-500 text-white px-4 py-2 rounded" onClick={handleUpload} disabled={!selectedFile}>
+              Upload
+            </button>
           </div>
         </Modal>
       )}
