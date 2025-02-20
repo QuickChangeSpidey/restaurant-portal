@@ -18,10 +18,11 @@ interface Location {
     coordinates: [number, number];
   };
   hours: string;
+  image: string;
 }
 
 export default function LocationsPage() {
-  const [locations, setLocations] = useState<{ _id: string; name: string; address: string; geolocation: { coordinates: [number, number] }; hours: string; image: string }[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [viewHoursModalOpen, setViewHoursModalOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ name: string; hours: string } | null>(null);
@@ -39,7 +40,8 @@ export default function LocationsPage() {
   const [qrCodeData, setQrCodeData] = useState<string | null>(null);
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
   const handleUploadImage = (id: string) => {
     setSelectedLocationId(id);
     setUploadModalOpen(true);
@@ -53,7 +55,9 @@ export default function LocationsPage() {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
-      setSelectedFile(event.target.files[0]);
+      const file = event.target.files[0];
+      setSelectedFile(file);
+      setPreviewImage(URL.createObjectURL(file));
     }
   };
 
@@ -358,11 +362,13 @@ export default function LocationsPage() {
         </Modal>
       )}
 
+      {/* Upload Image Modal */}
       {uploadModalOpen && (
         <Modal onClose={closeUploadModal}>
           <div className="p-4">
             <h2 className="text-black font-bold mb-4">Upload Image</h2>
             <input type="file" onChange={handleFileChange} className="text-black mb-4" />
+            {previewImage && <img src={previewImage} alt="Preview" className="h-24 w-24 object-cover rounded mb-4" />}
             <button className="bg-green-500 text-white px-4 py-2 rounded" onClick={handleUpload} disabled={!selectedFile}>
               Upload
             </button>
