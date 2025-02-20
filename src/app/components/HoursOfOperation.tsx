@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface HoursOfOperationProps {
   onHoursChange: (hours: string) => void; // Callback to pass the hours back to the parent
@@ -7,6 +7,11 @@ interface HoursOfOperationProps {
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']; // Example days of the week
 
 const HoursOfOperation: React.FC<HoursOfOperationProps> = ({ onHoursChange }) => {
+
+  useEffect(() => {
+    onHoursChange(constructHoursString(startTimes, endTimes));
+  }, []);
+  
   const [startTimes, setStartTimes] = useState<string[]>(new Array(days.length).fill('09:00'));
   const [endTimes, setEndTimes] = useState<string[]>(new Array(days.length).fill('17:00'));
 
