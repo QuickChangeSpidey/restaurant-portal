@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Modal from "../../components/Modal";
-import { GoogleMap, LoadScript, Autocomplete, Marker } from "@react-google-maps/api";
+import { GoogleMap, Autocomplete, Marker } from "@react-google-maps/api";
 import HoursOfOperation from "@/app/components/HoursOfOperation";
 import { PencilIcon, TrashIcon, ClockIcon, QrCodeIcon, UserPlusIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import { QRCodeCanvas } from 'qrcode.react';
