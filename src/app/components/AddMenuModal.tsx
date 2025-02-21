@@ -89,8 +89,8 @@ export default function AddMenuItemModal({ isOpen, onClose, onSave }: AddMenuIte
                 placeholder="Enter price"
               />
               <label className="text-black block mb-2">Upload Image</label>
-              <input type="file" onChange={handleFileChange} className="mb-4" />
-              {previewImage && <img src={previewImage} alt="Preview" className="h-24 w-24 object-cover rounded mb-4" />}
+              <input type="file" onChange={handleFileChange} className="mb-4 text-black" />
+              {previewImage && <img src={previewImage} alt="Preview" className="h-24 w-24 text-black object-cover rounded mb-4" />}
               <button className="bg-gray-400 text-white px-4 py-2 rounded" onClick={() => setStep(2)}>
                 Back
               </button>

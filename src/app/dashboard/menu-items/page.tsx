@@ -30,7 +30,17 @@ export default function MenuItemsPage() {
     fetchLocations();
   }, []);
 
-  const handleAddMenuItem = (menuItem: MenuItem) => {
+  const handleAddMenuItem = async (menuItem: MenuItem) => {
+    const token = localStorage.getItem("authToken");
+    const res = await apiFetch("/api/auth/addMenuItem", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ ...menuItem, locationId: selectedLocation?._id }),
+    });
+    console.log("MenuItem added", res);
     setMenuItems([...menuItems, menuItem]);
   };
 
@@ -51,35 +61,14 @@ export default function MenuItemsPage() {
   }
 
   async function fetchMenuItems(locationId: string) {
-    // Mock Data
-    const mockMenuItems: MenuItem[] = [
-      {
-        _id: "1",
-        name: "Margherita Pizza",
-        description: "Classic pizza with tomato, mozzarella, and basil",
-        price: 12.99,
-        image: "https://via.placeholder.com/50",
-        isAvailable: true,
-      },
-      {
-        _id: "2",
-        name: "Caesar Salad",
-        description: "Fresh romaine lettuce, croutons, and Caesar dressing",
-        price: 8.99,
-        image: "https://via.placeholder.com/50",
-        isAvailable: true,
-      },
-      {
-        _id: "3",
-        name: "Spaghetti Carbonara",
-        description: "Pasta with creamy egg sauce, pancetta, and cheese",
-        price: 14.99,
-        image: "https://via.placeholder.com/50",
-        isAvailable: true,
-      },
-    ];
 
-    setMenuItems(mockMenuItems);
+    const res = await apiFetch(`/api/auth/locations/${locationId}/menu-items`, {
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
+    });
+    setMenuItems(res as MenuItem[]);
   }
 
   return (
@@ -116,11 +105,10 @@ export default function MenuItemsPage() {
 
         {/* Add Menu Item Button - Disabled when no location is selected */}
         <button
-          className={`px-4 py-2 rounded flex items-center transition-colors ${
-            selectedLocation
-              ? "bg-green-500 text-white hover:bg-green-600"
-              : "bg-gray-400 text-white opacity-50 cursor-not-allowed"
-          }`}
+          className={`px-4 py-2 rounded flex items-center transition-colors ${selectedLocation
+            ? "bg-green-500 text-white hover:bg-green-600"
+            : "bg-gray-400 text-white opacity-50 cursor-not-allowed"
+            }`}
           onClick={() => setIsModalOpen(true)}
           disabled={!selectedLocation} // Button is disabled when no location is selected
         >
@@ -142,7 +130,7 @@ export default function MenuItemsPage() {
             </thead>
             <tbody>
               {menuItems.map((item, i) => (
-                <tr key={item._id+`${i}`} className="hover:bg-gray-100 transition-colors">
+                <tr key={item._id + `${i}`} className="hover:bg-gray-100 transition-colors">
                   <td className="border-t px-4 py-3">
                     {item.image ? (
                       <img src={item.image} alt={item.name} className="h-12 w-12 object-cover rounded" />
