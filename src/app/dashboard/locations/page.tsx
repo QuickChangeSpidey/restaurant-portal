@@ -4,8 +4,15 @@ import { useState, useEffect } from "react";
 import Modal from "../../components/Modal";
 import { GoogleMap, Autocomplete, Marker } from "@react-google-maps/api";
 import HoursOfOperation from "@/app/components/HoursOfOperation";
-import { PencilIcon, TrashIcon, ClockIcon, QrCodeIcon, UserPlusIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
-import { QRCodeCanvas } from 'qrcode.react';
+import {
+  PencilIcon,
+  TrashIcon,
+  ClockIcon,
+  QrCodeIcon,
+  UserPlusIcon,
+  PlusCircleIcon,
+} from "@heroicons/react/24/outline";
+import { QRCodeCanvas } from "qrcode.react";
 import { apiFetch } from "@/app/lib/api";
 
 interface Location {
@@ -21,25 +28,56 @@ interface Location {
 
 export default function LocationsPage() {
   const [locations, setLocations] = useState<Location[]>([]);
+
+  // Create Location Modal (Stepper)
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [viewHoursModalOpen, setViewHoursModalOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<{ name: string; hours: string } | null>(null);
   const [step, setStep] = useState(1);
-  const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false);
+
+  // Edit Location Modal (Stepper)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editStep, setEditStep] = useState(1);
+
+  // View Hours Modal
+  const [viewHoursModalOpen, setViewHoursModalOpen] = useState(false);
+  const [selectedLocationForHours, setSelectedLocationForHours] = useState<{
+    name: string;
+    hours: string;
+  } | null>(null);
+
+  // Delete Confirmation
+  const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] =
+    useState(false);
   const [locationToDelete, setLocationToDelete] = useState("");
-  // Form fields
+
+  // QR Modal
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [qrCodeData, setQrCodeData] = useState<string | null>(null);
+
+  // Create location form fields
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [hours, setHours] = useState("");
-  const [uploadModalOpen, setUploadModalOpen] = useState(false);
-  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
   const [geo, setGeo] = useState({ lat: 0, lng: 0 });
-  const [qrModalOpen, setQrModalOpen] = useState(false);
-  const [qrCodeData, setQrCodeData] = useState<string | null>(null);
-  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
+  const [autocomplete, setAutocomplete] =
+    useState<google.maps.places.Autocomplete | null>(null);
+
+  // Edit location form fields
+  const [editName, setEditName] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editHours, setEditHours] = useState("");
+  const [editGeo, setEditGeo] = useState({ lat: 0, lng: 0 });
+  const [editAutocomplete, setEditAutocomplete] =
+    useState<google.maps.places.Autocomplete | null>(null);
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
+    null
+  );
+
+  // Image Upload Modal
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
+  // ----------- IMAGE UPLOAD LOGIC -----------
   const closeUploadModal = () => {
     setUploadModalOpen(false);
     setSelectedFile(null);
@@ -73,48 +111,54 @@ export default function LocationsPage() {
     }
   };
 
+  // ----------- HOURS SELECTOR CHANGE -----------
   const handleHoursChange = (hours: string) => {
-    setHours(hours); // Update the parent state with the selected hours
+    setHours(hours);
   };
 
+  const handleEditHoursChange = (hours: string) => {
+    setEditHours(hours);
+  };
+
+  // ----------- QR CODE LOGIC -----------
   const handleQrCodeClick = (locId: string): void => {
-    // Generate the QR code for the location ID
     setQrCodeData(locId); // Pass location ID to the QR code generation
-    setQrModalOpen(true); // Open the modal
+    setQrModalOpen(true);
   };
 
   const closeQrModal = () => {
     setQrModalOpen(false);
-    setQrCodeData(null); // Clear the QR code data when closing
+    setQrCodeData(null);
   };
 
-  useEffect(() => {
-    fetchLocations();
-  }, []);
-
+  // ----------- FETCH LOCATIONS -----------
   async function fetchLocations() {
     const token = localStorage.getItem("authToken");
 
     try {
-      // `apiFetch` already processes errors, so we assume a successful response here
       const data: Location[] = await apiFetch("/api/auth/getRestaurantLocations", {
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         credentials: "include",
       });
 
-      // Process the data
-      setLocations(data.map((loc: any) => ({
-        ...loc,
-        hours: loc.hours || "Not Available",
-      })));
+      setLocations(
+        data.map((loc: any) => ({
+          ...loc,
+          hours: loc.hours || "Not Available",
+        }))
+      );
     } catch (error) {
       console.error("Error fetching locations", error);
     }
   }
 
-  // Handler for deleting a location
+  useEffect(() => {
+    fetchLocations();
+  }, []);
+
+  // ----------- DELETE LOCATION -----------
   async function handleDeleteLocation(id: string) {
     const token = localStorage.getItem("authToken");
 
@@ -122,12 +166,11 @@ export default function LocationsPage() {
       await apiFetch(`/api/auth/deletelocation/${id}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         credentials: "include",
       });
 
-      // If the request was successful, update the UI
       fetchLocations();
       setDeleteConfirmationModalOpen(false);
     } catch (error) {
@@ -135,28 +178,27 @@ export default function LocationsPage() {
     }
   }
 
-  // Handler for deleting a location
-  async function handleUpdateLocation(id: string) {
-    const token = localStorage.getItem("authToken");
+  // ---------- EXAMPLE (OLD) UPDATE LOCATION LOGIC [You can remove or repurpose] ----------
+  // async function handleUpdateLocation(id: string) {
+  //   const token = localStorage.getItem("authToken");
+  //   try {
+  //     const res = await apiFetch(`/api/auth/location/${id}`, {
+  //       method: "PUT",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       credentials: "include",
+  //     });
+  //     if ((res as Response).ok) {
+  //       fetchLocations();
+  //       setDeleteConfirmationModalOpen(false);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating location", error);
+  //   }
+  // }
 
-    try {
-      const res = await apiFetch(`/api/auth/location/${id}`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-        credentials: "include",
-      });
-      if ((res as Response).ok) {
-        fetchLocations();
-        setDeleteConfirmationModalOpen(false);
-      }
-    } catch (error) {
-      console.error("Error deleting location", error);
-    }
-  }
-
-  // Handler for adding a new location
+  // ----------- ADD LOCATION -----------
   async function handleAddLocation() {
     const token = localStorage.getItem("authToken");
 
@@ -165,7 +207,7 @@ export default function LocationsPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         credentials: "include",
         body: JSON.stringify({
@@ -175,11 +217,10 @@ export default function LocationsPage() {
             type: "Point",
             coordinates: [geo.lng, geo.lat],
           },
-          hours, // Send the hours to the server
+          hours,
         }),
       });
 
-      // If request is successful, update locations and reset the form
       fetchLocations();
       resetForm();
     } catch (error) {
@@ -187,7 +228,7 @@ export default function LocationsPage() {
     }
   }
 
-
+  // ----------- RESET CREATE FORM -----------
   function resetForm() {
     setName("");
     setAddress("");
@@ -197,6 +238,7 @@ export default function LocationsPage() {
     setIsModalOpen(false);
   }
 
+  // ----------- AUTOCOMPLETE (CREATE) -----------
   const onLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
     setAutocomplete(autocompleteInstance);
   };
@@ -214,24 +256,79 @@ export default function LocationsPage() {
     }
   };
 
-  // Close the delete confirmation modal
+  // ----------- AUTOCOMPLETE (EDIT) -----------
+  const onEditLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
+    setEditAutocomplete(autocompleteInstance);
+  };
+
+  const onEditPlaceChanged = () => {
+    if (editAutocomplete !== null) {
+      const place = editAutocomplete.getPlace();
+      setEditAddress(place.formatted_address || "");
+      if (place.geometry && place.geometry.location) {
+        setEditGeo({
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+        });
+      }
+    }
+  };
+
+  // ----------- DELETE CONFIRMATION -----------
   const closeDeleteConfirmationModal = () => {
     setDeleteConfirmationModalOpen(false);
     setLocationToDelete("");
   };
 
+  // ----------- VIEW HOURS -----------
   const handleViewHours = (location: { name: string; hours: string }) => {
-    setSelectedLocation(location);
-    setViewHoursModalOpen(true); // Open the View Hours modal
+    setSelectedLocationForHours(location);
+    setViewHoursModalOpen(true);
   };
 
   const closeViewHoursModal = () => {
     setViewHoursModalOpen(false);
-    setSelectedLocation(null); // Clear the selected location
+    setSelectedLocationForHours(null);
+  };
+
+  // ----------- OPEN EDIT MODAL -----------
+  const openEditModal = (loc: Location) => {
+    setIsEditModalOpen(true);
+    setEditStep(1);
+
+    // Pre-fill existing data
+    setEditName(loc.name);
+    setEditAddress(loc.address);
+    setEditHours(loc.hours || "");
+    setEditGeo({
+      lat: loc.geolocation.coordinates[1],
+      lng: loc.geolocation.coordinates[0],
+    });
+    setSelectedLocationId(loc._id);
+  };
+
+  // ----------- SUBMIT EDITED LOCATION -----------
+  const handleEditSubmit = () => {
+    // For now, just console.log the updated data
+    console.log({
+      id: selectedLocationId,
+      name: editName,
+      address: editAddress,
+      geolocation: {
+        lat: editGeo.lat,
+        lng: editGeo.lng,
+      },
+      hours: editHours,
+    });
+
+    // Close the modal after logging
+    setIsEditModalOpen(false);
+
+    // Optionally, refresh or update your list if you connect this to an actual API call
+    // fetchLocations();
   };
 
   return (
-
     <div className="p-8">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-semibold">Manage Locations</h2>
@@ -258,31 +355,46 @@ export default function LocationsPage() {
           {locations.map((loc) => (
             <tr key={loc._id} className="hover:bg-gray-100 transition-colors">
               <td className="border-t px-4 py-3">
-                {loc.image ? <img src={loc.image} alt={loc.name} className="h-12 w-12 object-cover rounded" /> : <button
-                  className="text-blue-600 hover:text-red-800"
-                  onClick={() => {
-                    setUploadModalOpen(true);
-                    setSelectedLocationId(loc._id);
-                  }}
-                >
-                  <UserPlusIcon className="h-5 w-5" />
-                </button>}
+                {loc.image ? (
+                  <img
+                    src={loc.image}
+                    alt={loc.name}
+                    className="h-12 w-12 object-cover rounded"
+                  />
+                ) : (
+                  <button
+                    className="text-blue-600 hover:text-red-800"
+                    onClick={() => {
+                      setUploadModalOpen(true);
+                      setSelectedLocationId(loc._id);
+                    }}
+                  >
+                    <UserPlusIcon className="h-5 w-5" />
+                  </button>
+                )}
               </td>
               <td className="border-t px-4 py-3">{loc.name}</td>
               <td className="border-t px-4 py-3">{loc.address}</td>
-              <td className="border-t px-4 py-3">
+              <td className="border-t px-4 py-3 flex space-x-2">
+                {/* EDIT LOCATION ICON */}
                 <button
-                  className="text-blue-600 hover:text-blue-800 mr-2"
-                  onClick={() => handleUpdateLocation(loc._id)}
+                  className="text-blue-600 hover:text-blue-800"
+                  onClick={() => openEditModal(loc)}
                 >
                   <PencilIcon className="h-5 w-5" />
                 </button>
+
+                {/* VIEW HOURS ICON */}
                 <button
-                  className="text-green-600 hover:text-green-800 mr-2"
-                  onClick={() => handleViewHours({ name: loc.name, hours: loc.hours })}
+                  className="text-green-600 hover:text-green-800"
+                  onClick={() =>
+                    handleViewHours({ name: loc.name, hours: loc.hours })
+                  }
                 >
                   <ClockIcon className="h-5 w-5" />
                 </button>
+
+                {/* DELETE ICON */}
                 <button
                   className="text-red-600 hover:text-red-800"
                   onClick={() => {
@@ -292,6 +404,8 @@ export default function LocationsPage() {
                 >
                   <TrashIcon className="h-5 w-5" />
                 </button>
+
+                {/* QR ICON */}
                 <button
                   className="text-black-600 hover:text-black-800"
                   onClick={() => handleQrCodeClick(loc._id)}
@@ -304,7 +418,7 @@ export default function LocationsPage() {
         </tbody>
       </table>
 
-      {/* QR Code Modal */}
+      {/* ---------- QR Code Modal ---------- */}
       {qrModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75">
           <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -320,14 +434,17 @@ export default function LocationsPage() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* ---------- Delete Confirmation Modal ---------- */}
       {deleteConfirmationModalOpen && locationToDelete && (
         <Modal onClose={closeDeleteConfirmationModal}>
           <div className="p-4">
             <h2 className="text-black font-bold mb-4">Confirm Deletion</h2>
             <p className="text-black">Please confirm deletion.</p>
             <div className="flex justify-end mt-4">
-              <button className="bg-gray-400 text-white px-4 py-2 rounded" onClick={closeDeleteConfirmationModal}>
+              <button
+                className="bg-gray-400 text-white px-4 py-2 rounded"
+                onClick={closeDeleteConfirmationModal}
+              >
                 Cancel
               </button>
               <button
@@ -341,15 +458,19 @@ export default function LocationsPage() {
         </Modal>
       )}
 
-
-      {/* View Hours Modal */}
-      {viewHoursModalOpen && selectedLocation && (
+      {/* ---------- View Hours Modal ---------- */}
+      {viewHoursModalOpen && selectedLocationForHours && (
         <Modal onClose={closeViewHoursModal}>
           <div className="p-4">
-            <h2 className="text-black font-bold mb-4">{selectedLocation.name} - Hours of Operation</h2>
-            <p className="text-black">{selectedLocation.hours}</p>
+            <h2 className="text-black font-bold mb-4">
+              {selectedLocationForHours.name} - Hours of Operation
+            </h2>
+            <p className="text-black">{selectedLocationForHours.hours}</p>
             <div className="flex justify-end mt-4">
-              <button className="bg-gray-400 text-white px-4 py-2 rounded" onClick={closeViewHoursModal}>
+              <button
+                className="bg-gray-400 text-white px-4 py-2 rounded"
+                onClick={closeViewHoursModal}
+              >
                 Close
               </button>
             </div>
@@ -357,21 +478,35 @@ export default function LocationsPage() {
         </Modal>
       )}
 
-      {/* Upload Image Modal */}
+      {/* ---------- Upload Image Modal ---------- */}
       {uploadModalOpen && (
         <Modal onClose={closeUploadModal}>
           <div className="p-4">
             <h2 className="text-black font-bold mb-4">Upload Image</h2>
-            <input type="file" onChange={handleFileChange} className="text-black mb-4" />
-            {previewImage && <img src={previewImage} alt="Preview" className="h-24 w-24 object-cover rounded mb-4" />}
-            <button className="bg-green-500 text-white px-4 py-2 rounded" onClick={handleUpload} disabled={!selectedFile}>
+            <input
+              type="file"
+              onChange={handleFileChange}
+              className="text-black mb-4"
+            />
+            {previewImage && (
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="h-24 w-24 object-cover rounded mb-4"
+              />
+            )}
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded"
+              onClick={handleUpload}
+              disabled={!selectedFile}
+            >
               Upload
             </button>
           </div>
         </Modal>
       )}
 
-      {/* Modal */}
+      {/* ========== CREATE LOCATION MODAL (3-Step) ========== */}
       {isModalOpen && (
         <Modal onClose={resetForm}>
           <div className="p-4">
@@ -409,7 +544,9 @@ export default function LocationsPage() {
                 </Autocomplete>
                 <div className="mb-4" style={{ height: "300px" }}>
                   <GoogleMap
-                    center={geo.lat && geo.lng ? geo : { lat: 37.7749, lng: -122.4194 }}
+                    center={
+                      geo.lat && geo.lng ? geo : { lat: 37.7749, lng: -122.4194 }
+                    }
                     zoom={geo.lat && geo.lng ? 15 : 10}
                     mapContainerStyle={{ width: "100%", height: "100%" }}
                     onClick={(e) => {
@@ -456,7 +593,102 @@ export default function LocationsPage() {
                 </div>
               </div>
             )}
+          </div>
+        </Modal>
+      )}
 
+      {/* ========== EDIT LOCATION MODAL (3-Step) ========== */}
+      {isEditModalOpen && (
+        <Modal onClose={() => setIsEditModalOpen(false)}>
+          <div className="p-4">
+            <h2 className="text-black font-bold mb-4">Edit Location</h2>
+            {editStep === 1 && (
+              <div>
+                <label className="text-black block mb-2">Location Name</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="border p-2 w-full text-black mb-4"
+                  placeholder="Enter location name"
+                />
+                <button
+                  className="bg-green-500 text-white px-4 py-2 rounded"
+                  onClick={() => setEditStep(2)}
+                  disabled={!editName}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+            {editStep === 2 && (
+              <div>
+                <label className="text-black block mb-2">Address</label>
+                <Autocomplete onLoad={onEditLoad} onPlaceChanged={onEditPlaceChanged}>
+                  <input
+                    type="text"
+                    value={editAddress}
+                    onChange={(e) => setEditAddress(e.target.value)}
+                    className="text-black border p-2 w-full mb-4"
+                    placeholder="Enter address"
+                  />
+                </Autocomplete>
+                <div className="mb-4" style={{ height: "300px" }}>
+                  <GoogleMap
+                    center={
+                      editGeo.lat && editGeo.lng
+                        ? editGeo
+                        : { lat: 37.7749, lng: -122.4194 }
+                    }
+                    zoom={editGeo.lat && editGeo.lng ? 15 : 10}
+                    mapContainerStyle={{ width: "100%", height: "100%" }}
+                    onClick={(e) => {
+                      if (e.latLng) {
+                        setEditGeo({
+                          lat: e.latLng.lat(),
+                          lng: e.latLng.lng(),
+                        });
+                      }
+                    }}
+                  >
+                    {editGeo.lat && editGeo.lng && <Marker position={editGeo} />}
+                  </GoogleMap>
+                </div>
+                <button
+                  className="bg-gray-400 text-white px-4 py-2 rounded"
+                  onClick={() => setEditStep(1)}
+                >
+                  Back
+                </button>
+                <span className="mx-5 text-black">Step 2 of 3</span>
+                <button
+                  className="bg-green-500 text-white px-4 py-2 rounded"
+                  onClick={() => setEditStep(3)}
+                  disabled={!editAddress || !editGeo.lat || !editGeo.lng}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+            {editStep === 3 && (
+              <div>
+                <HoursOfOperation onHoursChange={handleEditHoursChange} existingHours={editHours} />
+                <div className="flex justify-between">
+                  <button
+                    className="bg-gray-400 text-white px-4 py-2 rounded"
+                    onClick={() => setEditStep(2)}
+                  >
+                    Back
+                  </button>
+                  <button
+                    className="bg-green-500 text-white px-4 py-2 rounded"
+                    onClick={handleEditSubmit}
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </Modal>
       )}
