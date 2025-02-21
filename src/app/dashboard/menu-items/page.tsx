@@ -9,6 +9,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import AddMenuItemModal from "@/app/components/AddMenuModal";
+import EditMenuItemModal from "@/app/components/EditMenuItemModal";
 
 interface Location {
   _id: string;
@@ -31,7 +32,13 @@ export default function MenuItemsPage() {
     null
   );
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // State for Add Menu Modal
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // State for Edit Menu Modal
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [itemToEdit, setItemToEdit] = useState<MenuItem | null>(null);
 
   useEffect(() => {
     fetchLocations();
@@ -65,32 +72,59 @@ export default function MenuItemsPage() {
 
   const handleAddMenuItem = async (menuItem: MenuItem) => {
     const token = localStorage.getItem("authToken");
-    const res = await apiFetch("/api/auth/addMenuItem", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ ...menuItem, locationId: selectedLocation?._id }),
-    });
-    console.log("MenuItem added", res);
-    // Update local state if needed
-    setMenuItems((prev) => [...prev, menuItem]);
+    try {
+      const addedItem = await apiFetch("/api/auth/addMenuItem", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...menuItem, locationId: selectedLocation?._id }),
+      });
+
+      // Update local state if needed (the API might return the new item with an _id)
+      setMenuItems((prev) => [...prev, addedItem]);
+    } catch (error) {
+      console.error("Error adding menu item", error);
+    }
   };
 
-  const handleEditMenuItem = async (item: MenuItem) => {
-    // **TODO**: Add your logic to open an edit modal or inline form.
-    // You could use the same modal with some additional props for editing.
-    console.log("Edit clicked for:", item._id);
-    // Example:
-    // setEditItem(item);
-    // setIsEditModalOpen(true);
+  /**
+   * When user clicks Edit, open modal and set `itemToEdit`.
+   */
+  const handleEditMenuItem = (item: MenuItem) => {
+    setItemToEdit(item);
+    setIsEditModalOpen(true);
+  };
+
+  /**
+   * Called from the EditModal after user saves changes.
+   */
+  const handleSaveEditedMenuItem = async (editedItem: MenuItem) => {
+    if (!editedItem._id) return;
+    const token = localStorage.getItem("authToken");
+
+    try {
+      const updatedItem = await apiFetch(`/api/auth/menuItems/${editedItem._id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editedItem),
+      });
+
+      setMenuItems((prev) =>
+        prev.map((item) => (item._id === editedItem._id ? updatedItem as MenuItem : item))
+      );
+    } catch (error) {
+      console.error("Error updating menu item:", error);
+    }
   };
 
   const handleDeleteMenuItem = async (itemId: string) => {
-    // **TODO**: Replace with your actual endpoint for deleting menu items.
+    const token = localStorage.getItem("authToken");
     try {
-      const token = localStorage.getItem("authToken");
       await apiFetch(`/api/auth/menuItems/${itemId}`, {
         method: "DELETE",
         headers: {
@@ -99,7 +133,7 @@ export default function MenuItemsPage() {
         },
       });
 
-      // Remove the item from local state
+      // Remove from local state
       setMenuItems((prev) => prev.filter((item) => item._id !== itemId));
     } catch (error) {
       console.error("Error deleting menu item:", error);
@@ -112,7 +146,7 @@ export default function MenuItemsPage() {
       <br />
 
       <div className="flex items-center justify-between mb-4">
-        {/* Styled Locations Dropdown */}
+        {/* Locations Dropdown */}
         <div className="relative w-64">
           <select
             className="appearance-none bg-green-500 text-white text-sm px-4 py-2 w-full rounded-lg cursor-pointer focus:outline-none pr-10"
@@ -138,14 +172,14 @@ export default function MenuItemsPage() {
           <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white pointer-events-none" />
         </div>
 
-        {/* Add Menu Item Button - Disabled when no location is selected */}
+        {/* Add Menu Item Button */}
         <button
           className={`px-4 py-2 rounded flex items-center transition-colors ${
             selectedLocation
               ? "bg-green-500 text-white hover:bg-green-600"
               : "bg-gray-400 text-white opacity-50 cursor-not-allowed"
           }`}
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => setIsAddModalOpen(true)}
           disabled={!selectedLocation}
         >
           <PlusCircleIcon className="h-5 w-5 mr-2" />
@@ -162,7 +196,6 @@ export default function MenuItemsPage() {
                 <th className="px-4 py-3 text-left">Name</th>
                 <th className="px-4 py-3 text-left">Description</th>
                 <th className="px-4 py-3 text-left">Price</th>
-                {/* Actions Column */}
                 <th className="px-4 py-3 text-left">Actions</th>
               </tr>
             </thead>
@@ -188,7 +221,6 @@ export default function MenuItemsPage() {
                   <td className="border-t px-4 py-3">
                     ${item.price.toFixed(2)}
                   </td>
-                  {/* Actions */}
                   <td className="border-t px-4 py-3">
                     <div className="flex space-x-4">
                       <PencilSquareIcon
@@ -208,10 +240,22 @@ export default function MenuItemsPage() {
         </div>
       )}
 
+      {/* Add Menu Modal */}
       <AddMenuItemModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
         onSave={handleAddMenuItem}
+      />
+
+      {/* Edit Menu Modal */}
+      <EditMenuItemModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        item={itemToEdit} // pass the selected item to edit
+        onSave={(editedItem) => {
+          handleSaveEditedMenuItem(editedItem);
+          setIsEditModalOpen(false);
+        }}
       />
     </div>
   );
