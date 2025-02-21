@@ -89,7 +89,7 @@ export default function MenuItemsPage() {
 
       <div className="flex items-center justify-between mb-4">
         {/* Styled Locations Dropdown */}
-        <div className="relative w-64 mb-4">
+        <div className="relative w-64">
           <select
             className="appearance-none bg-green-500 text-white text-sm px-4 py-2 w-full rounded-lg cursor-pointer focus:outline-none pr-10"
             onChange={(e) => {
