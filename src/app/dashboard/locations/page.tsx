@@ -187,12 +187,13 @@ export default function LocationsPage() {
         body: JSON.stringify(location),
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         credentials: "include",
       });
-      if ((res as Response).ok) {
+      if (res) {
+        setIsEditModalOpen(false);
         fetchLocations();
-        setDeleteConfirmationModalOpen(false);
       }
     } catch (error) {
       console.error("Error updating location", error);
@@ -320,8 +321,6 @@ export default function LocationsPage() {
       },
       hours: editHours,
     });
-
-    setIsEditModalOpen(false);
   };
 
   return (
