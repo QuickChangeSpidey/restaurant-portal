@@ -20,6 +20,7 @@ interface Location {
   name: string;
   address: string;
   geolocation: {
+    type: string;
     coordinates: [number, number];
   };
   hours: string;
@@ -178,25 +179,25 @@ export default function LocationsPage() {
     }
   }
 
-  // ---------- EXAMPLE (OLD) UPDATE LOCATION LOGIC [You can remove or repurpose] ----------
-  // async function handleUpdateLocation(id: string) {
-  //   const token = localStorage.getItem("authToken");
-  //   try {
-  //     const res = await apiFetch(`/api/auth/location/${id}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //       credentials: "include",
-  //     });
-  //     if ((res as Response).ok) {
-  //       fetchLocations();
-  //       setDeleteConfirmationModalOpen(false);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating location", error);
-  //   }
-  // }
+  async function handleUpdateLocation(location: Location) {
+    const token = localStorage.getItem("authToken");
+    try {
+      const res = await apiFetch(`/api/auth/location/${location._id}`, {
+        method: "PUT",
+        body: JSON.stringify(location),
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+      if ((res as Response).ok) {
+        fetchLocations();
+        setDeleteConfirmationModalOpen(false);
+      }
+    } catch (error) {
+      console.error("Error updating location", error);
+    }
+  }
 
   // ----------- ADD LOCATION -----------
   async function handleAddLocation() {
@@ -309,23 +310,19 @@ export default function LocationsPage() {
 
   // ----------- SUBMIT EDITED LOCATION -----------
   const handleEditSubmit = () => {
-    // For now, just console.log the updated data
-    console.log({
-      id: selectedLocationId,
+    handleUpdateLocation({
+      _id: selectedLocationId,
       name: editName,
       address: editAddress,
       geolocation: {
-        lat: editGeo.lat,
-        lng: editGeo.lng,
+        type: "Point",
+        coordinates: [editGeo.lng, editGeo.lat],
       },
       hours: editHours,
     });
 
-    // Close the modal after logging
     setIsEditModalOpen(false);
-
-    // Optionally, refresh or update your list if you connect this to an actual API call
-    // fetchLocations();
+    fetchLocations();
   };
 
   return (
