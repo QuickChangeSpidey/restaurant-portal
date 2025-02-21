@@ -10,6 +10,7 @@ import {
 } from "@heroicons/react/24/outline";
 import AddMenuItemModal from "@/app/components/AddMenuModal";
 import EditMenuItemModal from "@/app/components/EditMenuItemModal";
+import DeleteMenuItemModal from "@/app/components/DeleteMenuItemModal";
 
 interface Location {
   _id: string;
@@ -27,18 +28,24 @@ interface MenuItem {
 }
 
 export default function MenuItemsPage() {
+  // Location data
   const [locations, setLocations] = useState<Location[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null
   );
+  // Menu items for the selected location
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
-  // State for Add Menu Modal
+  // Add Menu Modal
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // State for Edit Menu Modal
+  // Edit Menu Modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<MenuItem | null>(null);
+
+  // Delete Menu Modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
 
   useEffect(() => {
     fetchLocations();
@@ -70,9 +77,11 @@ export default function MenuItemsPage() {
     setMenuItems(res as MenuItem[]);
   }
 
+  // ----- ADD -----
   const handleAddMenuItem = async (menuItem: MenuItem) => {
     const token = localStorage.getItem("authToken");
     try {
+      // Example endpoint for adding an item
       const addedItem = await apiFetch("/api/auth/addMenuItem", {
         method: "POST",
         headers: {
@@ -82,50 +91,60 @@ export default function MenuItemsPage() {
         body: JSON.stringify({ ...menuItem, locationId: selectedLocation?._id }),
       });
 
-      // Update local state if needed (the API might return the new item with an _id)
       setMenuItems((prev) => [...prev, addedItem]);
     } catch (error) {
       console.error("Error adding menu item", error);
     }
   };
 
-  /**
-   * When user clicks Edit, open modal and set `itemToEdit`.
-   */
+  // ----- EDIT -----
   const handleEditMenuItem = (item: MenuItem) => {
     setItemToEdit(item);
     setIsEditModalOpen(true);
   };
 
-  /**
-   * Called from the EditModal after user saves changes.
-   */
   const handleSaveEditedMenuItem = async (editedItem: MenuItem) => {
     if (!editedItem._id) return;
+
     const token = localStorage.getItem("authToken");
-
     try {
-      const updatedItem = await apiFetch(`/api/auth/menuItems/${editedItem._id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(editedItem),
-      });
+      // Example endpoint for updating an item
+      const updatedItem = await apiFetch(
+        `/api/auth/menuItems/${editedItem._id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(editedItem),
+        }
+      );
 
+      // Update local list
       setMenuItems((prev) =>
-        prev.map((item) => (item._id === editedItem._id ? updatedItem as MenuItem : item))
+        prev.map((item) => (item._id === editedItem._id ? updatedItem : item))
       );
     } catch (error) {
       console.error("Error updating menu item:", error);
     }
   };
 
-  const handleDeleteMenuItem = async (itemId: string) => {
+  // ----- DELETE -----
+  // Step 1: Open the confirmation modal and store the item to delete
+  const handleDeleteMenuItemClick = (item: MenuItem) => {
+    setItemToDelete(item);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Step 2: If user confirms, delete the item
+  const handleConfirmDeleteMenuItem = async () => {
+    if (!itemToDelete) return;
+
     const token = localStorage.getItem("authToken");
     try {
-      await apiFetch(`/api/auth/menuItems/${itemId}`, {
+      // Endpoint: /api/auth/deleteItem/:id
+      await apiFetch(`/api/auth/menuItems/${itemToDelete._id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -134,7 +153,13 @@ export default function MenuItemsPage() {
       });
 
       // Remove from local state
-      setMenuItems((prev) => prev.filter((item) => item._id !== itemId));
+      setMenuItems((prev) =>
+        prev.filter((item) => item._id !== itemToDelete._id)
+      );
+
+      // Close the modal
+      setIsDeleteModalOpen(false);
+      setItemToDelete(null);
     } catch (error) {
       console.error("Error deleting menu item:", error);
     }
@@ -229,7 +254,7 @@ export default function MenuItemsPage() {
                       />
                       <TrashIcon
                         className="h-5 w-5 text-red-500 cursor-pointer"
-                        onClick={() => handleDeleteMenuItem(item._id)}
+                        onClick={() => handleDeleteMenuItemClick(item)}
                       />
                     </div>
                   </td>
@@ -251,11 +276,19 @@ export default function MenuItemsPage() {
       <EditMenuItemModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        item={itemToEdit} // pass the selected item to edit
+        item={itemToEdit}
         onSave={(editedItem) => {
           handleSaveEditedMenuItem(editedItem);
           setIsEditModalOpen(false);
         }}
+      />
+
+      {/* Delete Menu Modal */}
+      <DeleteMenuItemModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        item={itemToDelete}
+        onConfirmDelete={handleConfirmDeleteMenuItem}
       />
     </div>
   );
