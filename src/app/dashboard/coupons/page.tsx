@@ -361,6 +361,7 @@ export default function CouponsPage() {
       )}
 
       <EditCouponModal
+        location={selectedLocation}
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         coupon={couponToEdit}
