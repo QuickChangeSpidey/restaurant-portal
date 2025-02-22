@@ -12,13 +12,13 @@ import AddMenuItemModal from "@/app/components/AddMenuModal";
 import EditMenuItemModal from "@/app/components/EditMenuItemModal";
 import DeleteMenuItemModal from "@/app/components/DeleteMenuItemModal";
 
-interface Location {
+export interface Location {
   _id: string;
   name: string;
   address: string;
 }
 
-interface MenuItem {
+export interface MenuItem {
   _id: string;
   name: string;
   description: string;

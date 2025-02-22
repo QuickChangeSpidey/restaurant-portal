@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog } from "@headlessui/react";
+import { apiFetch } from "../lib/api";
+import { MenuItem } from "../dashboard/menu-items/page";
+import { RestaurantLocation } from "../dashboard/coupons/page";
 
 // ----- Types -----
 export type CouponType =
@@ -45,12 +48,14 @@ interface AddCouponModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (newCoupon: Partial<Coupon>) => void;
+  location: RestaurantLocation | null;
 }
 
 export default function AddCouponModal({
   isOpen,
   onClose,
   onSave,
+  location,
 }: AddCouponModalProps) {
   // ------ Local form state ------
   const [couponType, setCouponType] = useState<CouponType | "">("");
@@ -82,12 +87,35 @@ export default function AddCouponModal({
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
 
-  // ------ Helper to parse comma-separated values ------
-  function parseCommaSeparatedIds(value: string): string[] {
-    return value
-      .split(",")
-      .map((id) => id.trim())
-      .filter((id) => id !== "");
+  // Menu Items (fetched from your API)
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+
+  // ------ Fetch Menu Items if location is set ------
+  useEffect(() => {
+    if (location) {
+      fetchMenuItems(location._id);
+    }
+  }, [location]);
+
+  async function fetchMenuItems(locationId: string) {
+    const res = await apiFetch(`/api/auth/locations/${locationId}/menu-items`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
+    });
+    setMenuItems(res as MenuItem[]);
+  }
+
+  // ------ Helper: Multi-Select onChange ------
+  function handleMultiSelectChange(
+    e: React.ChangeEvent<HTMLSelectElement>,
+    setter: React.Dispatch<React.SetStateAction<string[]>>
+  ) {
+    // Convert the <option> selections into an array of IDs
+    const selectedOptions = Array.from(e.target.selectedOptions);
+    const selectedIds = selectedOptions.map((option) => option.value);
+    setter(selectedIds);
   }
 
   // ------ Reset all fields ------
@@ -126,63 +154,60 @@ export default function AddCouponModal({
       newCoupon.freeItemIds = freeItemIds;
     }
 
-    // “FreeItem” (Buy 1 Get 1 Free specific item)
+    // FreeItem
     if (couponType === "FreeItem") {
       newCoupon.purchasedItemIds = purchasedItemIds;
       newCoupon.freeItemIds = freeItemIds;
     }
 
-    // “FreeItemWithPurchase”
+    // FreeItemWithPurchase
     if (couponType === "FreeItemWithPurchase") {
-      // e.g., must spend X or buy a certain item to get 1 free item
       newCoupon.minimumSpend = minimumSpend;
-      newCoupon.freeItemIds = freeItemIds; // the item(s) that are free
-      newCoupon.purchasedItemIds = purchasedItemIds; // if needed for a specific item purchase
+      newCoupon.freeItemIds = freeItemIds;
+      newCoupon.purchasedItemIds = purchasedItemIds;
     }
 
-    // “Discount” (on specific items or store sections)
+    // Discount
     if (couponType === "Discount") {
       newCoupon.discountValue = discountValue;
-      newCoupon.purchasedItemIds = purchasedItemIds; // maybe the items that get discounted
+      newCoupon.purchasedItemIds = purchasedItemIds;
     }
 
-    // “SpendMoreSaveMore”
+    // SpendMoreSaveMore
     if (couponType === "SpendMoreSaveMore") {
       newCoupon.minimumSpend = minimumSpend;
       newCoupon.discountValue = discountValue;
-      // or store multiple thresholds if needed
     }
 
-    // “FlatDiscount”
+    // FlatDiscount
     if (couponType === "FlatDiscount") {
       newCoupon.discountValue = discountValue;
     }
 
-    // “ComboDeal”
+    // ComboDeal
     if (couponType === "ComboDeal") {
       newCoupon.comboItems = comboItems;
       newCoupon.comboPrice = comboPrice;
     }
 
-    // “FamilyPack”
+    // FamilyPack
     if (couponType === "FamilyPack") {
       newCoupon.familyPackItems = familyPackItems;
       newCoupon.familyPackPrice = familyPackPrice;
       newCoupon.portionSize = portionSize;
     }
 
-    // “HappyHour”
+    // HappyHour
     if (couponType === "HappyHour") {
       newCoupon.startHour = startHour;
       newCoupon.endHour = endHour;
-      newCoupon.discountValue = discountValue; // e.g. 30% off
+      newCoupon.discountValue = discountValue;
     }
 
-    // “LimitedTime”
+    // LimitedTime
     if (couponType === "LimitedTime") {
       newCoupon.startTime = startTime;
       newCoupon.endTime = endTime;
-      // discountValue if needed
     }
 
     // Send to parent
@@ -256,55 +281,73 @@ export default function AddCouponModal({
           {couponType === "BOGO" && (
             <div className="mb-4">
               <label className="block mb-1 text-black font-medium">
-                Purchased Item IDs (comma-separated)
+                Purchased Items
               </label>
-              <input
-                type="text"
-                placeholder="e.g. 111,222"
+              <select
+                multiple
                 className="block w-full p-2 border rounded text-black"
-                onChange={(e) => {
-                  setPurchasedItemIds(parseCommaSeparatedIds(e.target.value));
-                }}
-              />
+                value={purchasedItemIds}
+                onChange={(e) => handleMultiSelectChange(e, setPurchasedItemIds)}
+              >
+                {menuItems.map((item) => (
+                  <option key={item._id} value={item._id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+
               <label className="block mt-2 mb-1 text-black font-medium">
-                Free Item IDs (comma-separated)
+                Free Items
               </label>
-              <input
-                type="text"
-                placeholder="e.g. 333"
+              <select
+                multiple
                 className="block w-full p-2 border rounded text-black"
-                onChange={(e) => {
-                  setFreeItemIds(parseCommaSeparatedIds(e.target.value));
-                }}
-              />
+                value={freeItemIds}
+                onChange={(e) => handleMultiSelectChange(e, setFreeItemIds)}
+              >
+                {menuItems.map((item) => (
+                  <option key={item._id} value={item._id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
-          {/* 2. FreeItem (Buy 1 Get 1 Free) */}
+          {/* 2. FreeItem */}
           {couponType === "FreeItem" && (
             <div className="mb-4">
               <label className="block mb-1 text-black font-medium">
-                Purchased Item IDs (comma-separated)
+                Purchased Items
               </label>
-              <input
-                type="text"
-                placeholder="e.g. 111,222"
+              <select
+                multiple
                 className="block w-full p-2 border rounded text-black"
-                onChange={(e) => {
-                  setPurchasedItemIds(parseCommaSeparatedIds(e.target.value));
-                }}
-              />
+                value={purchasedItemIds}
+                onChange={(e) => handleMultiSelectChange(e, setPurchasedItemIds)}
+              >
+                {menuItems.map((item) => (
+                  <option key={item._id} value={item._id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+
               <label className="block mt-2 mb-1 text-black font-medium">
-                Free Item IDs (comma-separated)
+                Free Items
               </label>
-              <input
-                type="text"
-                placeholder="e.g. 333"
+              <select
+                multiple
                 className="block w-full p-2 border rounded text-black"
-                onChange={(e) => {
-                  setFreeItemIds(parseCommaSeparatedIds(e.target.value));
-                }}
-              />
+                value={freeItemIds}
+                onChange={(e) => handleMultiSelectChange(e, setFreeItemIds)}
+              >
+                {menuItems.map((item) => (
+                  <option key={item._id} value={item._id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
@@ -325,28 +368,36 @@ export default function AddCouponModal({
               />
 
               <label className="block mt-2 mb-1 text-black font-medium">
-                Purchased Item IDs (optional, comma-separated)
+                Purchased Items (optional)
               </label>
-              <input
-                type="text"
-                placeholder="e.g. 111,222 if needed"
+              <select
+                multiple
                 className="block w-full p-2 border rounded text-black"
-                onChange={(e) => {
-                  setPurchasedItemIds(parseCommaSeparatedIds(e.target.value));
-                }}
-              />
+                value={purchasedItemIds}
+                onChange={(e) => handleMultiSelectChange(e, setPurchasedItemIds)}
+              >
+                {menuItems.map((item) => (
+                  <option key={item._id} value={item._id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
 
               <label className="block mt-2 mb-1 text-black font-medium">
-                Free Item IDs (comma-separated)
+                Free Items
               </label>
-              <input
-                type="text"
-                placeholder="e.g. 333"
+              <select
+                multiple
                 className="block w-full p-2 border rounded text-black"
-                onChange={(e) => {
-                  setFreeItemIds(parseCommaSeparatedIds(e.target.value));
-                }}
-              />
+                value={freeItemIds}
+                onChange={(e) => handleMultiSelectChange(e, setFreeItemIds)}
+              >
+                {menuItems.map((item) => (
+                  <option key={item._id} value={item._id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
@@ -367,16 +418,20 @@ export default function AddCouponModal({
               </p>
 
               <label className="block mt-2 mb-1 text-black font-medium">
-                Specific Item IDs (comma-separated)
+                Items to Discount
               </label>
-              <input
-                type="text"
-                placeholder="e.g. 101,102"
+              <select
+                multiple
                 className="block w-full p-2 border rounded text-black"
-                onChange={(e) => {
-                  setPurchasedItemIds(parseCommaSeparatedIds(e.target.value));
-                }}
-              />
+                value={purchasedItemIds}
+                onChange={(e) => handleMultiSelectChange(e, setPurchasedItemIds)}
+              >
+                {menuItems.map((item) => (
+                  <option key={item._id} value={item._id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
@@ -429,16 +484,21 @@ export default function AddCouponModal({
           {couponType === "ComboDeal" && (
             <div className="mb-4">
               <label className="block mb-1 text-black font-medium">
-                Combo Item IDs (comma-separated)
+                Combo Items
               </label>
-              <input
-                type="text"
-                placeholder="e.g. 111,222"
+              <select
+                multiple
                 className="block w-full p-2 border rounded text-black"
-                onChange={(e) => {
-                  setComboItems(parseCommaSeparatedIds(e.target.value));
-                }}
-              />
+                value={comboItems}
+                onChange={(e) => handleMultiSelectChange(e, setComboItems)}
+              >
+                {menuItems.map((item) => (
+                  <option key={item._id} value={item._id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+
               <label className="block mt-2 mb-1 text-black font-medium">
                 Combo Price
               </label>
@@ -455,16 +515,21 @@ export default function AddCouponModal({
           {couponType === "FamilyPack" && (
             <div className="mb-4">
               <label className="block mb-1 text-black font-medium">
-                Family Pack Items (comma-separated)
+                Family Pack Items
               </label>
-              <input
-                type="text"
-                placeholder="e.g. pizza, salad, drinks"
+              <select
+                multiple
                 className="block w-full p-2 border rounded text-black"
-                onChange={(e) => {
-                  setFamilyPackItems(parseCommaSeparatedIds(e.target.value));
-                }}
-              />
+                value={familyPackItems}
+                onChange={(e) => handleMultiSelectChange(e, setFamilyPackItems)}
+              >
+                {menuItems.map((item) => (
+                  <option key={item._id} value={item._id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+
               <label className="block mt-2 mb-1 text-black font-medium">
                 Family Pack Price
               </label>

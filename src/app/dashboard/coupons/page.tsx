@@ -10,7 +10,7 @@ import {
 } from "@heroicons/react/24/outline";
 
 // ----- Types -----
-interface Location {
+export interface RestaurantLocation {
   _id: string;
   name: string;
   address: string;
@@ -46,8 +46,8 @@ import AddCouponModal from "@/app/components/AddCouponModal";
 
 export default function CouponsPage() {
   // ----------------- 1) Locations -----------------
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
+  const [locations, setLocations] = useState<RestaurantLocation[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<RestaurantLocation | null>(
     null
   );
 
@@ -76,7 +76,7 @@ export default function CouponsPage() {
     try {
       // Adjust this to match your location endpoint:
       // e.g., GET /api/auth/getRestaurantLocations
-      const data: Location[] = await apiFetch("/api/auth/getRestaurantLocations", {
+      const data: RestaurantLocation[] = await apiFetch("/api/auth/getRestaurantLocations", {
         headers: { Authorization: `Bearer ${token}` },
         credentials: "include",
       });
@@ -90,7 +90,7 @@ export default function CouponsPage() {
   async function fetchCoupons(locationId: string) {
     try {
       // GET /api/coupons/:locationId
-      const data: Coupon[] = await apiFetch(`/api/coupons/${locationId}`, {
+      const data: Coupon[] = await apiFetch(`/api/auth/coupons/${locationId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           "Content-Type": "application/json",
@@ -109,7 +109,7 @@ export default function CouponsPage() {
 
     try {
       // POST /api/coupons
-      const createdCoupon: Coupon = await apiFetch("/api/coupons", {
+      const createdCoupon: Coupon = await apiFetch("/api/auth/coupons", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -334,11 +334,14 @@ export default function CouponsPage() {
       )}
 
       {/* ----- Modals ----- */}
-      <AddCouponModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onSave={handleAddCoupon}
-      />
+      {selectedLocation && (
+        <AddCouponModal
+          location={selectedLocation}
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onSave={handleAddCoupon}
+        />
+      )}
 
       <EditCouponModal
         isOpen={isEditModalOpen}
