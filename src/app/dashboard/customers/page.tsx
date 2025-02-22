@@ -9,6 +9,8 @@ import {
   ChatBubbleOvalLeftEllipsisIcon,
   BellAlertIcon,
   ChevronDownIcon,
+  ChevronUpDownIcon,
+  TicketIcon,
 } from "@heroicons/react/24/outline";
 
 /** ----- Mock Data ----- */
@@ -595,7 +597,7 @@ export default function CustomersPage() {
               <th className="px-4 py-3 text-left">Last Name</th>
               <th className="px-4 py-3 text-left">Email</th>
               <th className="px-4 py-3 text-left">Phone</th>
-              <th className="px-4 py-3 text-left">Actions</th>
+              <th className="px-4 py-3 text-left">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -647,6 +649,19 @@ export default function CustomersPage() {
                         <EllipsisVerticalIcon className="h-5 w-5" />
                       </Menu.Button>
                       <Menu.Items className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-md focus:outline-none z-50">
+                      <Menu.Item>
+                          {({ active }) => (
+                            <button
+                              onClick={() => openCustomerCoupons(customer)}
+                              className={`${
+                                active ? "bg-gray-100" : ""
+                              } flex w-full px-3 py-2 text-sm text-left items-center`}
+                            >
+                              <TicketIcon className="h-4 w-4 mr-2 text-orange-500" />
+                              View Coupons
+                            </button>
+                          )}
+                        </Menu.Item>
                         <Menu.Item>
                           {({ active }) => (
                             <button
