@@ -74,7 +74,6 @@ export default function CouponsPage() {
   async function fetchLocations() {
     const token = localStorage.getItem("authToken");
     try {
-      // Adjust this to match your location endpoint:
       // e.g., GET /api/auth/getRestaurantLocations
       const data: RestaurantLocation[] = await apiFetch("/api/auth/getRestaurantLocations", {
         headers: { Authorization: `Bearer ${token}` },
@@ -89,7 +88,7 @@ export default function CouponsPage() {
   // ----- Fetch Coupons for Selected Location -----
   async function fetchCoupons(locationId: string) {
     try {
-      // GET /api/coupons/:locationId
+      // e.g., GET /api/coupons/:locationId
       const data: Coupon[] = await apiFetch(`/api/auth/coupons/${locationId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
@@ -175,7 +174,7 @@ export default function CouponsPage() {
 
     try {
       // DELETE /api/coupons/:id
-      await apiFetch(`/api/coupons/${couponToDelete._id}`, {
+      await apiFetch(`/api/auth/coupons/${couponToDelete._id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -198,11 +197,11 @@ export default function CouponsPage() {
     const token = localStorage.getItem("authToken");
     const { _id, isActive } = coupon;
     try {
-      const endpoint = isActive
-        ? `/api/coupons/${_id}/deactivate`
-        : `/api/coupons/${_id}/activate`;
-
       // PATCH /api/coupons/:id/activate or /deactivate
+      const endpoint = isActive
+        ? `/api/auth/coupons/${_id}/deactivate`
+        : `/api/auth/coupons/${_id}/activate`;
+
       const updatedCoupon: Coupon = await apiFetch(endpoint, {
         method: "PATCH",
         headers: {
@@ -269,67 +268,57 @@ export default function CouponsPage() {
         </button>
       </div>
 
-      {/* Coupons Table */}
+      {/* If location is selected, show the coupons as tiles */}
       {selectedLocation && (
-        <div>
-          <table className="min-w-full table-auto border-collapse shadow-lg rounded-lg overflow-hidden">
-            <thead className="bg-green-500 text-white">
-              <tr>
-                <th className="px-4 py-3 text-left">Code</th>
-                <th className="px-4 py-3 text-left">Type</th>
-                <th className="px-4 py-3 text-left">Discount</th>
-                <th className="px-4 py-3 text-left">Expiration</th>
-                <th className="px-4 py-3 text-left">Active?</th>
-                <th className="px-4 py-3 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {coupons.map((coupon) => (
-                <tr
-                  key={coupon._id}
-                  className="hover:bg-gray-100 transition-colors"
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8">
+          {coupons.map((coupon) => (
+            <div
+              key={coupon._id}
+              className="bg-white rounded-lg shadow p-4 flex flex-col justify-between"
+            >
+              {/* Coupon Info */}
+              <div>
+                <p className="text-xl font-bold mb-2">{coupon.code}</p>
+                <p className="text-black">Type: {coupon.type}</p>
+                <p className="text-black">
+                  Discount: {coupon.discountValue ?? 0}%
+                </p>
+                <p className="text-black">
+                  Expires:{" "}
+                  {new Date(coupon.expirationDate).toLocaleDateString()}
+                </p>
+                <span
+                  className={`inline-block px-2 py-1 mt-2 rounded text-sm ${
+                    coupon.isActive
+                      ? "bg-green-200 text-green-800"
+                      : "bg-red-200 text-red-800"
+                  }`}
                 >
-                  <td className="border-t px-4 py-3">{coupon.code}</td>
-                  <td className="border-t px-4 py-3">{coupon.type}</td>
-                  <td className="border-t px-4 py-3">
-                    {coupon.discountValue ?? 0}%
-                  </td>
-                  <td className="border-t px-4 py-3">
-                    {new Date(coupon.expirationDate).toLocaleDateString()}
-                  </td>
-                  <td className="border-t px-4 py-3">
-                    <span
-                      className={`inline-block px-2 py-1 rounded text-sm ${
-                        coupon.isActive
-                          ? "bg-green-200 text-green-800"
-                          : "bg-red-200 text-red-800"
-                      }`}
-                    >
-                      {coupon.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="border-t px-4 py-3">
-                    <div className="flex space-x-4 items-center">
-                      <button
-                        onClick={() => handleToggleActive(coupon)}
-                        className="text-sm text-gray-500 underline"
-                      >
-                        {coupon.isActive ? "Deactivate" : "Activate"}
-                      </button>
-                      <PencilSquareIcon
-                        className="h-5 w-5 text-blue-500 cursor-pointer"
-                        onClick={() => handleEditCouponClick(coupon)}
-                      />
-                      <TrashIcon
-                        className="h-5 w-5 text-red-500 cursor-pointer"
-                        onClick={() => handleDeleteCouponClick(coupon)}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  {coupon.isActive ? "Active" : "Inactive"}
+                </span>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between mt-4">
+                <button
+                  onClick={() => handleToggleActive(coupon)}
+                  className="text-sm text-gray-600 underline"
+                >
+                  {coupon.isActive ? "Deactivate" : "Activate"}
+                </button>
+                <div className="flex space-x-4">
+                  <PencilSquareIcon
+                    className="h-5 w-5 text-blue-500 cursor-pointer"
+                    onClick={() => handleEditCouponClick(coupon)}
+                  />
+                  <TrashIcon
+                    className="h-5 w-5 text-red-500 cursor-pointer"
+                    onClick={() => handleDeleteCouponClick(coupon)}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

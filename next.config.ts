@@ -83,6 +83,14 @@ const nextConfig: NextConfig = {
                 source: "/api/auth/coupons",
                 destination: "http://localhost:5000/api/coupons",
             },
+            {
+                source: "/api/auth/coupons/:id/activate",
+                destination: "http://localhost:5000/api/coupons/:id/activate",
+            },
+            {
+                source: "/api/auth/coupons/:id/deactivate",
+                destination: "http://localhost:5000/api/coupons/:id/deactivate",
+            },
         ];
     },
 };
