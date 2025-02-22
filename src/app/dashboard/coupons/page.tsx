@@ -203,16 +203,15 @@ export default function CouponsPage() {
         ? `/api/auth/coupons/${_id}/deactivate`
         : `/api/auth/coupons/${_id}/activate`;
 
-      const updatedCoupon: Coupon = await apiFetch(endpoint, {
+      const updatedCoupon: any = await apiFetch(endpoint, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
-      // Update in state
       setCoupons((prev) =>
-        prev.map((c) => (c._id === updatedCoupon._id ? updatedCoupon : c))
+        prev.map((c) => (c._id === updatedCoupon.coupon._id ? updatedCoupon.coupon : c))
       );
     } catch (error) {
       console.error("Error toggling active state", error);
