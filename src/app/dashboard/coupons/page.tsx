@@ -16,9 +16,10 @@ interface Location {
   address: string;
 }
 
-type CouponType =
+export type CouponType =
   | "BOGO"
   | "FreeItem"
+  | "FreeItemWithPurchase"
   | "Discount"
   | "SpendMoreSaveMore"
   | "FlatDiscount"
@@ -39,32 +40,32 @@ interface Coupon {
 }
 
 // ----- Modals -----
-import AddCouponModal from "@/app/components/AddCouponModal";
 import EditCouponModal from "@/app/components/EditCouponModal";
 import DeleteCouponModal from "@/app/components/DeleteCouponModal";
+import AddCouponModal from "@/app/components/AddCouponModal";
 
 export default function CouponsPage() {
-  // Locations
+  // ----------------- 1) Locations -----------------
   const [locations, setLocations] = useState<Location[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null
   );
 
-  // Coupons
+  // ----------------- 2) Coupons -----------------
   const [coupons, setCoupons] = useState<Coupon[]>([]);
 
-  // Add Coupon Modal
+  // ----------------- 3) Add Coupon Modal -----------------
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // Edit Coupon Modal
+  // ----------------- 4) Edit Coupon Modal -----------------
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [couponToEdit, setCouponToEdit] = useState<Coupon | null>(null);
 
-  // Delete Coupon Modal
+  // ----------------- 5) Delete Coupon Modal -----------------
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [couponToDelete, setCouponToDelete] = useState<Coupon | null>(null);
 
-  // Fetch Locations on mount
+  // ===================== useEffect: Fetch Locations on mount =====================
   useEffect(() => {
     fetchLocations();
   }, []);
@@ -219,6 +220,7 @@ export default function CouponsPage() {
     }
   }
 
+  // ===================== Render the Page =====================
   return (
     <div className="p-8">
       <h2 className="text-2xl font-semibold">Manage Coupons</h2>
