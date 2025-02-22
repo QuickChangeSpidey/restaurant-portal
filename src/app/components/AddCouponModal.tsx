@@ -7,6 +7,7 @@ import { Dialog } from "@headlessui/react";
 export type CouponType =
   | "BOGO"
   | "FreeItem"
+  | "FreeItemWithPurchase"
   | "Discount"
   | "SpendMoreSaveMore"
   | "FlatDiscount"
@@ -57,11 +58,11 @@ export default function AddCouponModal({
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [expirationDate, setExpirationDate] = useState("");
 
-  // BOGO or FreeItem: might need purchased/free item IDs
+  // BOGO or FreeItem or FreeItemWithPurchase: might need purchased/free item IDs
   const [purchasedItemIds, setPurchasedItemIds] = useState<string[]>([]);
   const [freeItemIds, setFreeItemIds] = useState<string[]>([]);
 
-  // SpendMoreSaveMore
+  // For “FreeItemWithPurchase” or “SpendMoreSaveMore”
   const [minimumSpend, setMinimumSpend] = useState<number>(0);
 
   // ComboDeal
@@ -119,23 +120,37 @@ export default function AddCouponModal({
       expirationDate,
     };
 
-    // BOGO or FreeItem
-    if (couponType === "BOGO" || couponType === "FreeItem") {
+    // BOGO
+    if (couponType === "BOGO") {
       newCoupon.purchasedItemIds = purchasedItemIds;
       newCoupon.freeItemIds = freeItemIds;
     }
 
-    // “Discount” might be discount on specific items, or you might pass item IDs:
+    // “FreeItem” (Buy 1 Get 1 Free specific item)
+    if (couponType === "FreeItem") {
+      newCoupon.purchasedItemIds = purchasedItemIds;
+      newCoupon.freeItemIds = freeItemIds;
+    }
+
+    // “FreeItemWithPurchase”
+    if (couponType === "FreeItemWithPurchase") {
+      // e.g., must spend X or buy a certain item to get 1 free item
+      newCoupon.minimumSpend = minimumSpend;
+      newCoupon.freeItemIds = freeItemIds; // the item(s) that are free
+      newCoupon.purchasedItemIds = purchasedItemIds; // if needed for a specific item purchase
+    }
+
+    // “Discount” (on specific items or store sections)
     if (couponType === "Discount") {
       newCoupon.discountValue = discountValue;
-      // Possibly store purchasedItemIds for the specific items discounted
+      newCoupon.purchasedItemIds = purchasedItemIds; // maybe the items that get discounted
     }
 
     // “SpendMoreSaveMore”
     if (couponType === "SpendMoreSaveMore") {
       newCoupon.minimumSpend = minimumSpend;
-      // Optionally handle multiple tiers if needed
       newCoupon.discountValue = discountValue;
+      // or store multiple thresholds if needed
     }
 
     // “FlatDiscount”
@@ -160,14 +175,14 @@ export default function AddCouponModal({
     if (couponType === "HappyHour") {
       newCoupon.startHour = startHour;
       newCoupon.endHour = endHour;
-      newCoupon.discountValue = discountValue;
+      newCoupon.discountValue = discountValue; // e.g. 30% off
     }
 
     // “LimitedTime”
     if (couponType === "LimitedTime") {
       newCoupon.startTime = startTime;
       newCoupon.endTime = endTime;
-      // possibly discountValue if you want a discount for that limited period
+      // discountValue if needed
     }
 
     // Send to parent
@@ -195,16 +210,14 @@ export default function AddCouponModal({
           <label className="block mb-2 text-black">
             Coupon Type
             <select
-              className="block w-full text-black mt-1 p-2 border rounded text-black"
+              className="block w-full mt-1 p-2 border rounded text-black"
               value={couponType}
-              onChange={(e) => {
-                console.log(e.target.value)
-                setCouponType(e.target.value as CouponType)
-            }}
+              onChange={(e) => setCouponType(e.target.value as CouponType)}
             >
               <option value="">-- Select a Type --</option>
               <option value="BOGO">Buy 1 Get 1 (BOGO)</option>
               <option value="FreeItem">Buy 1 Get 1 Free (Specific Item)</option>
+              <option value="FreeItemWithPurchase">Free Item with Purchase</option>
               <option value="Discount">Discount on Specific Items</option>
               <option value="SpendMoreSaveMore">Spend More Save More</option>
               <option value="FlatDiscount">Storewide Flat Discount</option>
@@ -239,7 +252,7 @@ export default function AddCouponModal({
 
           {/* ------ Conditional Sections for Each Type ------ */}
 
-          {/* BOGO */}
+          {/* 1. BOGO */}
           {couponType === "BOGO" && (
             <div className="mb-4">
               <label className="block mb-1 text-black font-medium">
@@ -267,7 +280,7 @@ export default function AddCouponModal({
             </div>
           )}
 
-          {/* FreeItem (Buy 1 Get 1 Free Specific Item) */}
+          {/* 2. FreeItem (Buy 1 Get 1 Free) */}
           {couponType === "FreeItem" && (
             <div className="mb-4">
               <label className="block mb-1 text-black font-medium">
@@ -295,7 +308,49 @@ export default function AddCouponModal({
             </div>
           )}
 
-          {/* Discount on Specific Items */}
+          {/* 3. FreeItemWithPurchase */}
+          {couponType === "FreeItemWithPurchase" && (
+            <div className="mb-4">
+              <p className="text-sm text-black">
+                User must purchase certain items or spend a certain amount to get a free item.
+              </p>
+              <label className="block mt-2 mb-1 text-black font-medium">
+                Minimum Spend (optional)
+              </label>
+              <input
+                type="number"
+                className="block w-full p-2 border rounded text-black"
+                value={minimumSpend}
+                onChange={(e) => setMinimumSpend(Number(e.target.value))}
+              />
+
+              <label className="block mt-2 mb-1 text-black font-medium">
+                Purchased Item IDs (optional, comma-separated)
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. 111,222 if needed"
+                className="block w-full p-2 border rounded text-black"
+                onChange={(e) => {
+                  setPurchasedItemIds(parseCommaSeparatedIds(e.target.value));
+                }}
+              />
+
+              <label className="block mt-2 mb-1 text-black font-medium">
+                Free Item IDs (comma-separated)
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. 333"
+                className="block w-full p-2 border rounded text-black"
+                onChange={(e) => {
+                  setFreeItemIds(parseCommaSeparatedIds(e.target.value));
+                }}
+              />
+            </div>
+          )}
+
+          {/* 4. Discount on Specific Items */}
           {couponType === "Discount" && (
             <div className="mb-4">
               <label className="block mb-1 text-black font-medium">
@@ -310,7 +365,7 @@ export default function AddCouponModal({
               <p className="text-sm text-black mt-1 italic">
                 Could be a % off or $ off per your backend logic.
               </p>
-              {/* If needed: item IDs for the discount */}
+
               <label className="block mt-2 mb-1 text-black font-medium">
                 Specific Item IDs (comma-separated)
               </label>
@@ -325,7 +380,7 @@ export default function AddCouponModal({
             </div>
           )}
 
-          {/* SpendMoreSaveMore */}
+          {/* 5. SpendMoreSaveMore */}
           {couponType === "SpendMoreSaveMore" && (
             <div className="mb-4">
               <label className="block mb-1 text-black font-medium">
@@ -352,7 +407,7 @@ export default function AddCouponModal({
             </div>
           )}
 
-          {/* FlatDiscount (Storewide) */}
+          {/* 6. FlatDiscount (Storewide) */}
           {couponType === "FlatDiscount" && (
             <div className="mb-4">
               <label className="block mb-1 text-black font-medium">
@@ -365,12 +420,12 @@ export default function AddCouponModal({
                 onChange={(e) => setDiscountValue(Number(e.target.value))}
               />
               <p className="text-sm text-black mt-1 italic">
-                E.g. 20 could mean 20% off or $20 off, depending on the back end.
+                E.g. 20 could mean 20% off or $20 off.
               </p>
             </div>
           )}
 
-          {/* ComboDeal */}
+          {/* 7. ComboDeal */}
           {couponType === "ComboDeal" && (
             <div className="mb-4">
               <label className="block mb-1 text-black font-medium">
@@ -396,7 +451,7 @@ export default function AddCouponModal({
             </div>
           )}
 
-          {/* FamilyPack */}
+          {/* 8. FamilyPack */}
           {couponType === "FamilyPack" && (
             <div className="mb-4">
               <label className="block mb-1 text-black font-medium">
@@ -431,7 +486,7 @@ export default function AddCouponModal({
             </div>
           )}
 
-          {/* LimitedTime */}
+          {/* 9. LimitedTime */}
           {couponType === "LimitedTime" && (
             <div className="mb-4">
               <p className="text-sm text-black">
@@ -458,7 +513,7 @@ export default function AddCouponModal({
             </div>
           )}
 
-          {/* HappyHour */}
+          {/* 10. HappyHour */}
           {couponType === "HappyHour" && (
             <div className="mb-4">
               <p className="text-sm text-black">
