@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, act } from "react";
 import { apiFetch } from "@/app/lib/api";
 import {
   PlusCircleIcon,
@@ -34,6 +34,7 @@ interface Coupon {
   type: CouponType;
   code: string;
   discountValue?: number;
+  imageUrl?: string;
   expirationDate: string; // store as ISO string for display
   isActive: boolean;
   // ... other fields (freeItemId, comboItems, etc.)
@@ -209,7 +210,6 @@ export default function CouponsPage() {
           "Content-Type": "application/json",
         },
       });
-
       // Update in state
       setCoupons((prev) =>
         prev.map((c) => (c._id === updatedCoupon._id ? updatedCoupon : c))
@@ -278,6 +278,11 @@ export default function CouponsPage() {
             >
               {/* Coupon Info */}
               <div>
+              <img
+                  src={coupon.imageUrl ? coupon.imageUrl : "/images/placeholder.png"}
+                  alt={coupon.code}
+                  className="w-full h-32 object-cover rounded"
+                />
                 <p className="text-xl font-bold mb-2">{coupon.code}</p>
                 <p className="text-black">Type: {coupon.type}</p>
                 <p className="text-black">
