@@ -221,8 +221,6 @@ export default function CouponsPage() {
   // ===================== Render the Page =====================
   return (
     <div className="p-8">
-      <h2 className="text-2xl font-semibold">Manage Coupons</h2>
-      <br />
 
       {/* Location Selector */}
       <div className="flex items-center justify-between mb-4">
