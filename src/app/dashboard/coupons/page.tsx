@@ -269,6 +269,29 @@ export default function CouponsPage() {
 
       {/* If location is selected, show the coupons as tiles */}
       {selectedLocation && (
+        <div className="mt-8 h-96 overflow-y-auto relative">
+        {/* Custom scrollbar styles (inline) */}
+        <style jsx>{`
+          /* For Chrome, Edge, Safari */
+          div::-webkit-scrollbar {
+            width: 8px;
+          }
+          div::-webkit-scrollbar-track {
+            background: #ecfdf5; /* a lighter greenish background */
+          }
+          div::-webkit-scrollbar-thumb {
+            background-color: #10b981; /* Tailwind's green-500 */
+            border-radius: 9999px; /* fully rounded */
+            border: 2px solid #ecfdf5;
+          }
+
+          /* For Firefox - set scrollbar-color */
+          div {
+            scrollbar-color: #10b981 #ecfdf5; 
+            scrollbar-width: thin;
+          }
+        `}</style>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8">
           {coupons.map((coupon) => (
             <div
@@ -323,6 +346,7 @@ export default function CouponsPage() {
               </div>
             </div>
           ))}
+        </div>
         </div>
       )}
 
