@@ -5,8 +5,8 @@ import { apiFetch } from "@/app/lib/api";
 import {
   PlusCircleIcon,
   ChevronDownIcon,
-  PencilSquareIcon,
   TrashIcon,
+  QrCodeIcon,
 } from "@heroicons/react/24/outline";
 
 // ----- Types -----
@@ -41,7 +41,7 @@ interface Coupon {
 }
 
 // ----- Modals -----
-import EditCouponModal from "@/app/components/EditCouponModal";
+import QRCouponModal from "@/app/components/QRCodeModal";
 import DeleteCouponModal from "@/app/components/DeleteCouponModal";
 import AddCouponModal from "@/app/components/AddCouponModal";
 
@@ -59,7 +59,7 @@ export default function CouponsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // ----------------- 4) Edit Coupon Modal -----------------
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isQRCodeModalOpen, setIsQRCodeModalOpen] = useState(false);
   const [couponToEdit, setCouponToEdit] = useState<Coupon | null>(null);
 
   // ----------------- 5) Delete Coupon Modal -----------------
@@ -128,7 +128,7 @@ export default function CouponsPage() {
   // ----- EDIT an Existing Coupon -----
   function handleEditCouponClick(coupon: Coupon) {
     setCouponToEdit(coupon);
-    setIsEditModalOpen(true);
+    setIsQRCodeModalOpen(true);
   }
 
   async function handleSaveEditedCoupon(updatedData: Coupon) {
@@ -152,7 +152,7 @@ export default function CouponsPage() {
       setCoupons((prev) =>
         prev.map((c) => (c._id === updatedCoupon._id ? updatedCoupon : c))
       );
-      setIsEditModalOpen(false);
+      setIsQRCodeModalOpen(false);
       setCouponToEdit(null);
     } catch (error) {
       console.error("Error updating coupon", error);
@@ -296,7 +296,12 @@ export default function CouponsPage() {
             }
           `}</style>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem', marginTop: '2rem' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+            gap: '1rem',
+            marginTop: '2rem'
+          }}>
             {coupons.map((coupon) => (
               <div
                 key={coupon._id}
@@ -313,16 +318,52 @@ export default function CouponsPage() {
                 {/* Coupon Info */}
                 <div>
                   <img
-                    src={coupon.imageUrl ? coupon.imageUrl : "/images/placeholder.png"}
+                    src={coupon.image ? coupon.image : "/food.avif"}
                     alt={coupon.code}
                     style={{ width: '100%', height: '8rem', objectFit: 'cover', borderRadius: '0.75rem' }}
                   />
-                  <p style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{coupon.code}</p>
-                  <p style={{ color: 'black' }}>Type: {coupon.type}</p>
-                  <p style={{ color: 'black' }}>Discount: {coupon.discountPercentage ?? 0}%</p>
-                  <p style={{ color: 'black' }}>
-                    Expires: {new Date(coupon.expirationDate).toLocaleDateString()}
+                  <p style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                    {coupon.code}
                   </p>
+
+                  {/* Dynamically Display Non-Zero, Non-Empty Fields (Excluding _id & locationId) */}
+                  <div>
+                    {Object.entries(coupon).map(([key, value]) => {
+                      if (
+                        ["_id", "locationId", "isActive", "code"].includes(key) || // Exclude these keys
+                        value === undefined ||
+                        value === null ||
+                        value === "" ||
+                        (typeof value === "number" && value === 0) || // Skip zero values
+                        (Array.isArray(value) && value.length === 0) // Skip empty arrays
+                      ) {
+                        return null;
+                      }
+
+                      let displayValue = value;
+
+                      if (Array.isArray(value)) {
+                        displayValue = value.join(", ");
+                      } else if (typeof value === "boolean") {
+                        displayValue = value ? "Yes" : "No";
+                      } else if (["expirationDate", "createdAt", "updatedAt"].includes(key)) {
+                        // Format Date as "12, May, 2023"
+                        displayValue = new Date(value).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric"
+                        }).replace(/ /g, ', ');
+                      }
+
+                      return (
+                        <p key={key} style={{ color: 'black' }}>
+                          <strong>{key.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase())}:</strong> {displayValue}
+                        </p>
+                      );
+                    })}
+                  </div>
+
+                  {/* Status Badge */}
                   <span
                     style={{
                       display: 'inline-block',
@@ -347,7 +388,7 @@ export default function CouponsPage() {
                     {coupon.isActive ? "Deactivate" : "Activate"}
                   </button>
                   <div style={{ display: 'flex', gap: '1rem' }}>
-                    <PencilSquareIcon
+                    <QrCodeIcon
                       style={{ width: '1.25rem', height: '1.25rem', color: '#3B82F6', cursor: 'pointer' }}
                       onClick={() => handleEditCouponClick(coupon)}
                     />
@@ -360,6 +401,9 @@ export default function CouponsPage() {
               </div>
             ))}
           </div>
+
+
+
         </div>
       )}
 
@@ -373,10 +417,10 @@ export default function CouponsPage() {
         />
       )}
 
-      <EditCouponModal
+      <QRCouponModal
         location={selectedLocation}
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
+        isOpen={isQRCodeModalOpen}
+        onClose={() => setIsQRCodeModalOpen(false)}
         coupon={couponToEdit}
         onSave={handleSaveEditedCoupon}
       />
