@@ -11,9 +11,9 @@ export type CouponType =
   | "BOGO"
   | "FreeItem"
   | "FreeItemWithPurchase"
-  | "Discount"
+  | "DiscountOnSpecificItems"
   | "SpendMoreSaveMore"
-  | "FlatDiscount"
+  | "StorewideFlatDiscount"
   | "ComboDeal"
   | "FamilyPack"
   | "LimitedTime"
@@ -24,7 +24,7 @@ export interface Coupon {
   locationId: string;
   type: CouponType;
   code: string;
-  discountValue?: number;
+  discountPercentage?: number;
   expirationDate: string;
   isActive: boolean;
   // Additional fields for each type as needed...
@@ -40,6 +40,7 @@ export interface Coupon {
   endHour?: number;
   startTime?: string;
   endTime?: string;
+  quantity: number;
   // etc.
 }
 
@@ -89,6 +90,9 @@ export default function AddCouponModal({
 
   // Menu Items (fetched from your API)
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+
+  // Menu Items (fetched from your API)
+  const [quantity, setQuantitiy] = useState<number>(0);
 
   // ------ Fetch Menu Items if location is set ------
   useEffect(() => {
@@ -144,8 +148,9 @@ export default function AddCouponModal({
     const newCoupon: Partial<Coupon> = {
       type: couponType as CouponType,
       code,
-      discountValue,
+      discountPercentage: discountValue,
       expirationDate,
+      quantity
     };
 
     // BOGO
@@ -168,20 +173,20 @@ export default function AddCouponModal({
     }
 
     // Discount
-    if (couponType === "Discount") {
-      newCoupon.discountValue = discountValue;
+    if (couponType === "DiscountOnSpecificItems") {
+      newCoupon.discountPercentage = discountValue;
       newCoupon.purchasedItemIds = purchasedItemIds;
     }
 
     // SpendMoreSaveMore
     if (couponType === "SpendMoreSaveMore") {
       newCoupon.minimumSpend = minimumSpend;
-      newCoupon.discountValue = discountValue;
+      newCoupon.discountPercentage = discountValue;
     }
 
-    // FlatDiscount
-    if (couponType === "FlatDiscount") {
-      newCoupon.discountValue = discountValue;
+    // StorewideFlatDiscount
+    if (couponType === "StorewideFlatDiscount") {
+      newCoupon.discountPercentage = discountValue;
     }
 
     // ComboDeal
@@ -201,7 +206,7 @@ export default function AddCouponModal({
     if (couponType === "HappyHour") {
       newCoupon.startHour = startHour;
       newCoupon.endHour = endHour;
-      newCoupon.discountValue = discountValue;
+      newCoupon.discountPercentage = discountValue;
     }
 
     // LimitedTime
@@ -241,11 +246,10 @@ export default function AddCouponModal({
             >
               <option value="">-- Select a Type --</option>
               <option value="BOGO">Buy 1 Get 1 (BOGO)</option>
-              <option value="FreeItem">Buy 1 Get 1 Free (Specific Item)</option>
               <option value="FreeItemWithPurchase">Free Item with Purchase</option>
-              <option value="Discount">Discount on Specific Items</option>
+              <option value="DiscountOnSpecificItems">Discount on Specific Items</option>
               <option value="SpendMoreSaveMore">Spend More Save More</option>
-              <option value="FlatDiscount">Storewide Flat Discount</option>
+              <option value="StorewideFlatDiscount">Storewide Flat Discount</option>
               <option value="ComboDeal">Combo Deal</option>
               <option value="FamilyPack">Family Pack</option>
               <option value="LimitedTime">Limited Time</option>
@@ -272,6 +276,17 @@ export default function AddCouponModal({
               className="block w-full mt-1 p-2 border rounded text-black"
               value={expirationDate}
               onChange={(e) => setExpirationDate(e.target.value)}
+            />
+          </label>
+
+          {/* Quantity */}
+          <label className="block mb-2 text-black">
+            Quantity
+            <input
+              type="number"
+              className="block w-full mt-1 p-2 border rounded text-black"
+              value={quantity}
+              onChange={(e) => setQuantitiy(Number(e.target.value))}
             />
           </label>
 
@@ -402,7 +417,7 @@ export default function AddCouponModal({
           )}
 
           {/* 4. Discount on Specific Items */}
-          {couponType === "Discount" && (
+          {couponType === "DiscountOnSpecificItems" && (
             <div className="mb-4">
               <label className="block mb-1 text-black font-medium">
                 Discount Value
@@ -462,8 +477,8 @@ export default function AddCouponModal({
             </div>
           )}
 
-          {/* 6. FlatDiscount (Storewide) */}
-          {couponType === "FlatDiscount" && (
+          {/* 6. StorewideFlatDiscount (Storewide) */}
+          {couponType === "StorewideFlatDiscount" && (
             <div className="mb-4">
               <label className="block mb-1 text-black font-medium">
                 Discount Value

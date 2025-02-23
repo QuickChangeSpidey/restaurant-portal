@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, act } from "react";
+import { useState, useEffect } from "react";
 import { apiFetch } from "@/app/lib/api";
 import {
   PlusCircleIcon,
@@ -20,9 +20,9 @@ export type CouponType =
   | "BOGO"
   | "FreeItem"
   | "FreeItemWithPurchase"
-  | "Discount"
+  | "DiscountOnSpecificItems"
   | "SpendMoreSaveMore"
-  | "FlatDiscount"
+  | "StorewideFlatDiscount"
   | "ComboDeal"
   | "FamilyPack"
   | "LimitedTime"
@@ -33,7 +33,7 @@ interface Coupon {
   locationId: string;
   type: CouponType;
   code: string;
-  discountValue?: number;
+  discountPercentage?: number;
   imageUrl?: string;
   expirationDate: string; // store as ISO string for display
   isActive: boolean;
@@ -75,7 +75,6 @@ export default function CouponsPage() {
   async function fetchLocations() {
     const token = localStorage.getItem("authToken");
     try {
-      // e.g., GET /api/auth/getRestaurantLocations
       const data: RestaurantLocation[] = await apiFetch("/api/auth/getRestaurantLocations", {
         headers: { Authorization: `Bearer ${token}` },
         credentials: "include",
@@ -89,7 +88,6 @@ export default function CouponsPage() {
   // ----- Fetch Coupons for Selected Location -----
   async function fetchCoupons(locationId: string) {
     try {
-      // e.g., GET /api/coupons/:locationId
       const data: Coupon[] = await apiFetch(`/api/auth/coupons/${locationId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
@@ -108,7 +106,6 @@ export default function CouponsPage() {
     if (!selectedLocation) return;
 
     try {
-      // POST /api/coupons
       const createdCoupon: Coupon = await apiFetch("/api/auth/coupons", {
         method: "POST",
         headers: {
@@ -139,7 +136,6 @@ export default function CouponsPage() {
     if (!updatedData._id) return;
 
     try {
-      // PUT /api/coupons/:id
       const updatedCoupon: Coupon = await apiFetch(
         `/api/coupons/${updatedData._id}`,
         {
@@ -174,7 +170,6 @@ export default function CouponsPage() {
     if (!couponToDelete?._id) return;
 
     try {
-      // DELETE /api/coupons/:id
       await apiFetch(`/api/auth/coupons/${couponToDelete._id}`, {
         method: "DELETE",
         headers: {
@@ -183,7 +178,6 @@ export default function CouponsPage() {
         },
       });
 
-      // Remove locally
       setCoupons((prev) => prev.filter((c) => c._id !== couponToDelete._id));
     } catch (error) {
       console.error("Error deleting coupon", error);
@@ -198,7 +192,6 @@ export default function CouponsPage() {
     const token = localStorage.getItem("authToken");
     const { _id, isActive } = coupon;
     try {
-      // PATCH /api/coupons/:id/activate or /deactivate
       const endpoint = isActive
         ? `/api/auth/coupons/${_id}/deactivate`
         : `/api/auth/coupons/${_id}/activate`;
@@ -220,13 +213,24 @@ export default function CouponsPage() {
 
   // ===================== Render the Page =====================
   return (
-    <div className="p-8">
+    <div style={{ padding: '2rem' }}>
 
       {/* Location Selector */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="relative w-64">
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+        <div style={{ position: 'relative', width: '16rem' }}>
           <select
-            className="appearance-none bg-green-500 text-white text-sm px-4 py-2 w-full rounded-lg cursor-pointer focus:outline-none pr-10"
+            style={{
+              appearance: 'none',
+              backgroundColor: '#22c55e', // Tailwind's green-500
+              color: 'white',
+              fontSize: '0.875rem',
+              padding: '0.5rem 1rem',
+              width: '100%',
+              borderRadius: '0.75rem',
+              cursor: 'pointer',
+              outline: 'none',
+              paddingRight: '2.5rem',
+            }}
             onChange={(e) => {
               const location = locations.find(
                 (loc) => loc._id === e.target.value
@@ -247,104 +251,115 @@ export default function CouponsPage() {
               </option>
             ))}
           </select>
-          <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white pointer-events-none" />
+          <ChevronDownIcon style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', width: '1.25rem', height: '1.25rem', color: 'white', pointerEvents: 'none' }} />
         </div>
 
         {/* Add Coupon Button */}
         <button
-          className={`px-4 py-2 rounded flex items-center transition-colors ${
-            selectedLocation
-              ? "bg-green-500 text-white hover:bg-green-600"
-              : "bg-gray-400 text-white opacity-50 cursor-not-allowed"
-          }`}
+          style={{
+            padding: '0.5rem 1rem',
+            borderRadius: '0.75rem',
+            display: 'flex',
+            alignItems: 'center',
+            backgroundColor: selectedLocation ? '#22c55e' : '#22c55e', // Tailwind's green-500 and gray-400
+            color: 'white',
+            cursor: selectedLocation ? 'pointer' : 'not-allowed',
+            opacity: selectedLocation ? 1 : 0.5,
+          }}
           onClick={() => setIsAddModalOpen(true)}
           disabled={!selectedLocation}
         >
-          <PlusCircleIcon className="h-5 w-5 mr-2" />
+          <PlusCircleIcon style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.5rem' }} />
           Generate Coupon
         </button>
       </div>
 
       {/* If location is selected, show the coupons as tiles */}
       {selectedLocation && (
-        <div className="mt-8 h-96 overflow-y-auto relative">
-        {/* Custom scrollbar styles (inline) */}
-        <style jsx>{`
-          /* For Chrome, Edge, Safari */
-          div::-webkit-scrollbar {
-            width: 8px;
-          }
-          div::-webkit-scrollbar-track {
-            background: #ecfdf5; /* a lighter greenish background */
-          }
-          div::-webkit-scrollbar-thumb {
-            background-color: #10b981; /* Tailwind's green-500 */
-            border-radius: 9999px; /* fully rounded */
-            border: 2px solid #ecfdf5;
-          }
+        <div style={{ marginTop: '3rem', height: '28rem', overflowY: 'auto', position: 'relative' }}>
+          {/* Custom scrollbar styles (inline) */}
+          <style jsx>{`
+            div::-webkit-scrollbar {
+              width: 8px;
+            }
+            div::-webkit-scrollbar-track {
+              background: #ecfdf5;
+            }
+            div::-webkit-scrollbar-thumb {
+              background-color: #5ec26a;
+              border-radius: 9999px;
+              border: 2px solid #ecfdf5;
+            }
+            div {
+              scrollbar-color: #5ec26a #ecfdf5;
+              scrollbar-width: thin;
+            }
+          `}</style>
 
-          /* For Firefox - set scrollbar-color */
-          div {
-            scrollbar-color: #10b981 #ecfdf5; 
-            scrollbar-width: thin;
-          }
-        `}</style>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8">
-          {coupons.map((coupon) => (
-            <div
-              key={coupon._id}
-              className="bg-white rounded-lg shadow p-4 flex flex-col justify-between"
-            >
-              {/* Coupon Info */}
-              <div>
-              <img
-                  src={coupon.imageUrl ? coupon.imageUrl : "/images/placeholder.png"}
-                  alt={coupon.code}
-                  className="w-full h-32 object-cover rounded"
-                />
-                <p className="text-xl font-bold mb-2">{coupon.code}</p>
-                <p className="text-black">Type: {coupon.type}</p>
-                <p className="text-black">
-                  Discount: {coupon.discountValue ?? 0}%
-                </p>
-                <p className="text-black">
-                  Expires:{" "}
-                  {new Date(coupon.expirationDate).toLocaleDateString()}
-                </p>
-                <span
-                  className={`inline-block px-2 py-1 mt-2 rounded text-sm ${
-                    coupon.isActive
-                      ? "bg-green-200 text-green-800"
-                      : "bg-red-200 text-red-800"
-                  }`}
-                >
-                  {coupon.isActive ? "Active" : "Inactive"}
-                </span>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-between mt-4">
-                <button
-                  onClick={() => handleToggleActive(coupon)}
-                  className="text-sm text-gray-600 underline"
-                >
-                  {coupon.isActive ? "Deactivate" : "Activate"}
-                </button>
-                <div className="flex space-x-4">
-                  <PencilSquareIcon
-                    className="h-5 w-5 text-blue-500 cursor-pointer"
-                    onClick={() => handleEditCouponClick(coupon)}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem', marginTop: '2rem' }}>
+            {coupons.map((coupon) => (
+              <div
+                key={coupon._id}
+                style={{
+                  backgroundColor: 'white',
+                  borderRadius: '1rem',
+                  boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                  padding: '1rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                }}
+              >
+                {/* Coupon Info */}
+                <div>
+                  <img
+                    src={coupon.imageUrl ? coupon.imageUrl : "/images/placeholder.png"}
+                    alt={coupon.code}
+                    style={{ width: '100%', height: '8rem', objectFit: 'cover', borderRadius: '0.75rem' }}
                   />
-                  <TrashIcon
-                    className="h-5 w-5 text-red-500 cursor-pointer"
-                    onClick={() => handleDeleteCouponClick(coupon)}
-                  />
+                  <p style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{coupon.code}</p>
+                  <p style={{ color: 'black' }}>Type: {coupon.type}</p>
+                  <p style={{ color: 'black' }}>Discount: {coupon.discountPercentage ?? 0}%</p>
+                  <p style={{ color: 'black' }}>
+                    Expires: {new Date(coupon.expirationDate).toLocaleDateString()}
+                  </p>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      padding: '0.25rem 0.5rem',
+                      marginTop: '0.5rem',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: coupon.isActive ? '#DCFCE7' : '#FEE2E2',
+                      color: coupon.isActive ? '#15803D' : '#B91C1C',
+                    }}
+                  >
+                    {coupon.isActive ? "Active" : "Inactive"}
+                  </span>
+                </div>
+
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
+                  <button
+                    onClick={() => handleToggleActive(coupon)}
+                    style={{ fontSize: '0.875rem', color: '#4B5563', textDecoration: 'underline' }}
+                  >
+                    {coupon.isActive ? "Deactivate" : "Activate"}
+                  </button>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <PencilSquareIcon
+                      style={{ width: '1.25rem', height: '1.25rem', color: '#3B82F6', cursor: 'pointer' }}
+                      onClick={() => handleEditCouponClick(coupon)}
+                    />
+                    <TrashIcon
+                      style={{ width: '1.25rem', height: '1.25rem', color: '#EF4444', cursor: 'pointer' }}
+                      onClick={() => handleDeleteCouponClick(coupon)}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         </div>
       )}
 

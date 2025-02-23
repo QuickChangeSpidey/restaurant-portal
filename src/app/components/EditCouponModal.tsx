@@ -11,9 +11,9 @@ export type CouponType =
   | "BOGO"
   | "FreeItem"
   | "FreeItemWithPurchase"
-  | "Discount"
+  | "DiscountOnSpecificItems"
   | "SpendMoreSaveMore"
-  | "FlatDiscount"
+  | "StorewideFlatDiscount"
   | "ComboDeal"
   | "FamilyPack"
   | "LimitedTime"
@@ -188,7 +188,7 @@ export default function EditCouponModal({
     }
 
     // Discount
-    if (couponType === "Discount") {
+    if (couponType === "DiscountOnSpecificItems") {
       updatedCoupon.discountValue = discountValue;
       updatedCoupon.purchasedItemIds = purchasedItemIds;
     }
@@ -199,8 +199,8 @@ export default function EditCouponModal({
       updatedCoupon.discountValue = discountValue;
     }
 
-    // FlatDiscount
-    if (couponType === "FlatDiscount") {
+    // StorewideFlatDiscount
+    if (couponType === "StorewideFlatDiscount") {
       updatedCoupon.discountValue = discountValue;
     }
 
@@ -282,9 +282,9 @@ export default function EditCouponModal({
               <option value="BOGO">Buy 1 Get 1 (BOGO)</option>
               <option value="FreeItem">Buy 1 Get 1 Free (Specific Item)</option>
               <option value="FreeItemWithPurchase">Free Item with Purchase</option>
-              <option value="Discount">Discount on Specific Items</option>
+              <option value="DiscountOnSpecificItems">Discount on Specific Items</option>
               <option value="SpendMoreSaveMore">Spend More Save More</option>
-              <option value="FlatDiscount">Storewide Flat Discount</option>
+              <option value="StorewideFlatDiscount">Storewide Flat Discount</option>
               <option value="ComboDeal">Combo Deal</option>
               <option value="FamilyPack">Family Pack</option>
               <option value="LimitedTime">Limited Time</option>
