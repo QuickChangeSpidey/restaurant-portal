@@ -50,13 +50,14 @@ interface AddCouponModalProps {
   onClose: () => void;
   onSave: (newCoupon: Partial<Coupon>) => void;
   location: RestaurantLocation | null;
+  menuItems: MenuItem[];
 }
 
 export default function AddCouponModal({
   isOpen,
   onClose,
   onSave,
-  location,
+  menuItems,
 }: AddCouponModalProps) {
   // ------ Local form state ------
   const [couponType, setCouponType] = useState<CouponType | "">("");
@@ -89,27 +90,7 @@ export default function AddCouponModal({
   const [endTime, setEndTime] = useState<string>("");
 
   // Menu Items (fetched from your API)
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-
-  // Menu Items (fetched from your API)
   const [quantity, setQuantitiy] = useState<number>(0);
-
-  // ------ Fetch Menu Items if location is set ------
-  useEffect(() => {
-    if (location) {
-      fetchMenuItems(location._id);
-    }
-  }, [location]);
-
-  async function fetchMenuItems(locationId: string) {
-    const res = await apiFetch(`/api/auth/locations/${locationId}/menu-items`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        "Content-Type": "application/json",
-      },
-    });
-    setMenuItems(res as MenuItem[]);
-  }
 
   // ------ Helper: Multi-Select onChange ------
   function handleMultiSelectChange(

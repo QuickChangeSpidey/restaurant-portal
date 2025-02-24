@@ -44,6 +44,7 @@ interface Coupon {
 import QRCouponModal from "@/app/components/QRCodeModal";
 import DeleteCouponModal from "@/app/components/DeleteCouponModal";
 import AddCouponModal from "@/app/components/AddCouponModal";
+import { MenuItem } from "../menu-items/page";
 
 export default function CouponsPage() {
   // ----------------- 1) Locations -----------------
@@ -66,10 +67,35 @@ export default function CouponsPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [couponToDelete, setCouponToDelete] = useState<Coupon | null>(null);
 
+  // ----------------- 6) Filter Coupons (Active / Inactive) -----------------
+  const [couponFilter, setCouponFilter] = useState<"All" | "Active" | "Inactive">("All");
+
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+
+  // ----- Filter Coupons Based on Selection -----
+  const filteredCoupons = coupons.filter((coupon) => {
+    if (couponFilter === "Active") return coupon.isActive;
+    if (couponFilter === "Inactive") return !coupon.isActive;
+    return true; // Show all
+  });
+
   // ===================== useEffect: Fetch Locations on mount =====================
   useEffect(() => {
     fetchLocations();
-  }, []);
+    fetchMenuItems();
+  }, [selectedLocation]);
+
+  async function fetchMenuItems() {
+    if (!selectedLocation) return;
+    const locationId = selectedLocation._id;
+    const res = await apiFetch(`/api/auth/locations/${locationId}/menu-items`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        "Content-Type": "application/json",
+      },
+    });
+    setMenuItems(res as MenuItem[]);
+  }
 
   // ----- Fetch Locations -----
   async function fetchLocations() {
@@ -254,6 +280,31 @@ export default function CouponsPage() {
           <ChevronDownIcon style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', width: '1.25rem', height: '1.25rem', color: 'white', pointerEvents: 'none' }} />
         </div>
 
+        {/* Filter Dropdown */}
+        <div style={{ position: 'relative', width: '12rem' }}>
+          <select
+            style={{
+              appearance: 'none',
+              backgroundColor: '#22c55e',
+              color: 'white',
+              fontSize: '0.875rem',
+              padding: '0.5rem 1rem',
+              width: '100%',
+              borderRadius: '0.75rem',
+              cursor: 'pointer',
+              outline: 'none',
+            }}
+            onChange={(e) => setCouponFilter(e.target.value as "All" | "Active" | "Inactive")}
+            value={couponFilter}
+          >
+            <option value="All">All Coupons</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+          <ChevronDownIcon style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', width: '1.25rem', height: '1.25rem', color: 'white', pointerEvents: 'none' }} />
+        </div>
+
+
         {/* Add Coupon Button */}
         <button
           style={{
@@ -302,7 +353,7 @@ export default function CouponsPage() {
             gap: '1rem',
             marginTop: '2rem'
           }}>
-            {coupons.map((coupon) => (
+            {filteredCoupons.map((coupon) => (
               <div
                 key={coupon._id}
                 style={{
@@ -411,6 +462,7 @@ export default function CouponsPage() {
       {selectedLocation && (
         <AddCouponModal
           location={selectedLocation}
+          menuItems={menuItems}
           isOpen={isAddModalOpen}
           onClose={() => setIsAddModalOpen(false)}
           onSave={handleAddCoupon}
