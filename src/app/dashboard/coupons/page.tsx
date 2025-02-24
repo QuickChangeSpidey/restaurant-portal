@@ -85,6 +85,10 @@ export default function CouponsPage() {
     fetchMenuItems();
   }, [selectedLocation]);
 
+  const handleUpdateMenuItems = (newItems: MenuItem[]) => {
+    setMenuItems(newItems);
+  };
+
   async function fetchMenuItems() {
     if (!selectedLocation) return;
     const locationId = selectedLocation._id;
@@ -386,7 +390,7 @@ export default function CouponsPage() {
                         value === undefined ||
                         value === null ||
                         value === "" ||
-                        (typeof value === "number" && (value === 0 && key!=='startHour')) || // Skip zero values
+                        (typeof value === "number" && (value === 0 && key !== 'startHour')) || // Skip zero values
                         (Array.isArray(value) && value.length === 0) // Skip empty arrays
                       ) {
                         return null;
@@ -469,6 +473,7 @@ export default function CouponsPage() {
           isOpen={isAddModalOpen}
           onClose={() => setIsAddModalOpen(false)}
           onSave={handleAddCoupon}
+          updateMenuItems={handleUpdateMenuItems}
         />
       )}
 
