@@ -247,7 +247,7 @@ export default function CouponsPage() {
           <select
             style={{
               appearance: 'none',
-              backgroundColor: '#22c55e', // Tailwind's green-500
+              backgroundColor: '#22c55e',
               color: 'white',
               fontSize: '0.875rem',
               padding: '0.5rem 1rem',
@@ -376,7 +376,7 @@ export default function CouponsPage() {
                   <p style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
                     {coupon.code}
                   </p>
-
+                  {/* Dynamically Display Non-Zero, Non-Empty Fields (Excluding _id & locationId) */}
                   {/* Dynamically Display Non-Zero, Non-Empty Fields (Excluding _id & locationId) */}
                   <div>
                     {Object.entries(coupon).map(([key, value]) => {
@@ -385,16 +385,21 @@ export default function CouponsPage() {
                         value === undefined ||
                         value === null ||
                         value === "" ||
-                        (typeof value === "number" && value === 0) || // Skip zero values
+                        (typeof value === "number" && (value === 0 && key!=='startHour')) || // Skip zero values
                         (Array.isArray(value) && value.length === 0) // Skip empty arrays
                       ) {
                         return null;
                       }
-
                       let displayValue = value;
-
                       if (Array.isArray(value)) {
-                        displayValue = value.join(", ");
+                        // Check if the key corresponds to menu item IDs
+                        if (["purchasedItemIds", "comboItems", "freeItemIds"].includes(key)) {
+                          displayValue = value
+                            .map((id) => menuItems.find((item) => item._id === id)?.name || "Unknown Item")
+                            .join(", ");
+                        } else {
+                          displayValue = value.join(", ");
+                        }
                       } else if (typeof value === "boolean") {
                         displayValue = value ? "Yes" : "No";
                       } else if (["expirationDate", "createdAt", "updatedAt"].includes(key)) {
@@ -403,17 +408,18 @@ export default function CouponsPage() {
                           day: "2-digit",
                           month: "short",
                           year: "numeric"
-                        }).replace(/ /g, ', ');
+                        }).replace(/ /g, ", ");
                       }
-
                       return (
-                        <p key={key} style={{ color: 'black' }}>
-                          <strong>{key.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase())}:</strong> {displayValue}
+                        <p key={key} style={{ color: "black" }}>
+                          <strong>
+                            {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:
+                          </strong>{" "}
+                          {displayValue}
                         </p>
                       );
                     })}
                   </div>
-
                   {/* Status Badge */}
                   <span
                     style={{
@@ -429,7 +435,6 @@ export default function CouponsPage() {
                     {coupon.isActive ? "Active" : "Inactive"}
                   </span>
                 </div>
-
                 {/* Action Buttons */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
                   <button
@@ -452,9 +457,6 @@ export default function CouponsPage() {
               </div>
             ))}
           </div>
-
-
-
         </div>
       )}
 
