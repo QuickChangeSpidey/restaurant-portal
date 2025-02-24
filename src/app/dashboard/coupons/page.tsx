@@ -332,6 +332,7 @@ export default function CouponsPage() {
           <style jsx>{`
             div::-webkit-scrollbar {
               width: 8px;
+              height: 100%;
             }
             div::-webkit-scrollbar-track {
               background: #ecfdf5;
