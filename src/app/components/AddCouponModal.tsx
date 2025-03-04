@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Dialog } from "@headlessui/react";
-import { apiFetch } from "../lib/api";
 import { MenuItem } from "../dashboard/menu-items/page";
 import { RestaurantLocation } from "../dashboard/coupons/page";
 import AddMenuItemModal from "./AddMenuItemModal"; // Import the modal
+import { FaSyncAlt } from "react-icons/fa"; // Green refresh icon
+
 
 // ----- Types -----
 export type CouponType =
@@ -219,6 +220,64 @@ export default function AddCouponModal({
     setIsAddMenuItemModalOpen(false);
   }
 
+  // ------ Handle Regenerate Code ------
+  function handleRegenerateCode() {
+    setCode(generateCouponCode(couponType, quantity, location?.name || ""));
+  }
+
+  function generateCouponCode(couponType: string, quantity: number, locationName: string): string {
+    const currentDate = new Date();
+    const dayNumber = currentDate.getDay(); // Day number (0-6)
+    const date = currentDate.getDate().toString().padStart(2, "0"); // Date in 2-digit format
+    const time = currentDate.toLocaleString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }).replace(/:/g, "").replace(" ", ""); // Concatenate time without special symbols
+  
+    // Get the first 6 characters of the location name, and ensure it's uppercased
+    const locationPrefix = locationName.substring(0, 6).toUpperCase();
+  
+    // Get the first letter or first few capitalized letters of the couponType
+    let couponPrefix = "";
+    switch (couponType) {
+      case "BOGO":
+        couponPrefix = "BOGO";
+        break;
+      case "FreeItem":
+        couponPrefix = "FI";
+        break;
+      case "FreeItemWithPurchase":
+        couponPrefix = "FIWP";
+        break;
+      case "DiscountOnSpecificItems":
+        couponPrefix = "DOSI";
+        break;
+      case "SpendMoreSaveMore":
+        couponPrefix = "SMSM";
+        break;
+      case "StorewideFlatDiscount":
+        couponPrefix = "SFD";
+        break;
+      case "ComboDeal":
+        couponPrefix = "CD";
+        break;
+      case "FamilyPack":
+        couponPrefix = "FP";
+        break;
+      case "LimitedTime":
+        couponPrefix = "LT";
+        break;
+      case "HappyHour":
+        couponPrefix = "HH";
+        break;
+      default:
+        couponPrefix = couponType.substring(0, 1).toUpperCase(); // Default to first letter if needed
+    }
+  
+    return `${couponPrefix}${locationPrefix}${dayNumber}${date}${time}`;
+  }  
+
   // ------ Render the modal ------
   return (
     <>
@@ -256,14 +315,25 @@ export default function AddCouponModal({
 
             {/* Code */}
             <label className="block mb-2 text-black">
-              Code
-              <input
-                type="text"
-                className="block w-full mt-1 p-2 border rounded text-black"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-              />
+              Code (auto-generated)
+              <div className="relative">
+                <input
+                  type="text"
+                  className="block w-full mt-1 p-2 border rounded text-black"
+                  value={code} // Automatically update the code
+                  readOnly
+                />
+                <button
+                  type="button"
+                  className="absolute top-3 right-2 text-green-500"
+                  onClick={handleRegenerateCode}
+                  title="Regenerate Code"
+                >
+                  <FaSyncAlt size={20} />
+                </button>
+              </div>
             </label>
+
 
             {/* Expiration Date */}
             <label className="block mb-2 text-black">

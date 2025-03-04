@@ -391,7 +391,6 @@ export default function CouponsPage() {
                     {coupon.code}
                   </p>
                   {/* Dynamically Display Non-Zero, Non-Empty Fields (Excluding _id & locationId) */}
-                  {/* Dynamically Display Non-Zero, Non-Empty Fields (Excluding _id & locationId) */}
                   <div>
                     {Object.entries(coupon).map(([key, value]) => {
                       if (
