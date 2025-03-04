@@ -7,6 +7,7 @@ import {
   ChevronDownIcon,
   TrashIcon,
   QrCodeIcon,
+  PencilIcon,
 } from "@heroicons/react/24/outline";
 
 // ----- Types -----
@@ -45,6 +46,7 @@ import QRCouponModal from "@/app/components/QRCodeModal";
 import DeleteCouponModal from "@/app/components/DeleteCouponModal";
 import AddCouponModal from "@/app/components/AddCouponModal";
 import { MenuItem } from "../menu-items/page";
+import EditCouponQuantityModal from "@/app/components/EditCouponModal";
 
 export default function CouponsPage() {
   // ----------------- 1) Locations -----------------
@@ -52,6 +54,8 @@ export default function CouponsPage() {
   const [selectedLocation, setSelectedLocation] = useState<RestaurantLocation | null>(
     null
   );
+
+  const [isEditQuantityModalOpen, setIsEditQuantityModalOpen] = useState(false);
 
   // ----------------- 2) Coupons -----------------
   const [coupons, setCoupons] = useState<Coupon[]>([]);
@@ -156,18 +160,23 @@ export default function CouponsPage() {
   }
 
   // ----- EDIT an Existing Coupon -----
-  function handleEditCouponClick(coupon: Coupon) {
+  function handleQRCouponClick(coupon: Coupon) {
     setCouponToEdit(coupon);
     setIsQRCodeModalOpen(true);
   }
 
-  async function handleSaveEditedCoupon(updatedData: Coupon) {
+  function handleEditCouponClick(coupon: Coupon) {
+    setCouponToEdit(coupon);
+    setIsEditQuantityModalOpen(true);
+  }
+
+  async function handleSaveEditedCoupon(updatedData: Coupon): Promise<void> {
     const token = localStorage.getItem("authToken");
     if (!updatedData._id) return;
 
     try {
       const updatedCoupon: Coupon = await apiFetch(
-        `/api/coupons/${updatedData._id}`,
+        `/api/auth/coupons/${updatedData._id}`,
         {
           method: "PUT",
           headers: {
@@ -449,9 +458,13 @@ export default function CouponsPage() {
                     {coupon.isActive ? "Deactivate" : "Activate"}
                   </button>
                   <div style={{ display: 'flex', gap: '1rem' }}>
-                    <QrCodeIcon
+                    <PencilIcon
                       style={{ width: '1.25rem', height: '1.25rem', color: '#3B82F6', cursor: 'pointer' }}
                       onClick={() => handleEditCouponClick(coupon)}
+                    />
+                    <QrCodeIcon
+                      style={{ width: '1.25rem', height: '1.25rem', color: '#3B82F6', cursor: 'pointer' }}
+                      onClick={() => handleQRCouponClick(coupon)}
                     />
                     <TrashIcon
                       style={{ width: '1.25rem', height: '1.25rem', color: '#EF4444', cursor: 'pointer' }}
@@ -478,11 +491,9 @@ export default function CouponsPage() {
       )}
 
       <QRCouponModal
-        location={selectedLocation}
         isOpen={isQRCodeModalOpen}
         onClose={() => setIsQRCodeModalOpen(false)}
         coupon={couponToEdit}
-        onSave={handleSaveEditedCoupon}
       />
 
       <DeleteCouponModal
@@ -490,6 +501,13 @@ export default function CouponsPage() {
         onClose={() => setIsDeleteModalOpen(false)}
         coupon={couponToDelete}
         onConfirmDelete={handleConfirmDeleteCoupon}
+      />
+
+      <EditCouponQuantityModal
+        isOpen={isEditQuantityModalOpen}
+        onClose={() => setIsEditQuantityModalOpen(false)}
+        coupon={couponToEdit}
+        onSave={handleSaveEditedCoupon}
       />
     </div>
   );

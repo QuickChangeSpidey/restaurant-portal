@@ -25,6 +25,7 @@ interface Location {
   };
   hours: string;
   image: string;
+  genre: string;
 }
 
 export default function LocationsPage() {
@@ -56,6 +57,7 @@ export default function LocationsPage() {
 
   // Create location form fields
   const [name, setName] = useState("");
+  const [genre, setGenre] = useState("");
   const [address, setAddress] = useState("");
   const [hours, setHours] = useState("");
   const [geo, setGeo] = useState({ lat: 0, lng: 0 });
@@ -65,6 +67,7 @@ export default function LocationsPage() {
   // Edit location form fields
   const [editName, setEditName] = useState("");
   const [editAddress, setEditAddress] = useState("");
+  const [editGenre, setEditGenre] = useState("");
   const [editHours, setEditHours] = useState("");
   const [editGeo, setEditGeo] = useState({ lat: 0, lng: 0 });
   const [editAutocomplete, setEditAutocomplete] =
@@ -215,6 +218,7 @@ export default function LocationsPage() {
         body: JSON.stringify({
           name,
           address,
+          genre: [genre],
           geolocation: {
             type: "Point",
             coordinates: [geo.lng, geo.lat],
@@ -314,6 +318,7 @@ export default function LocationsPage() {
     handleUpdateLocation({
       _id: selectedLocationId,
       name: editName,
+      genre: editGenre,
       address: editAddress,
       geolocation: {
         type: "Point",
@@ -342,6 +347,7 @@ export default function LocationsPage() {
             <th className="px-4 py-3 text-left">Image</th>
             <th className="px-4 py-3 text-left">Name</th>
             <th className="px-4 py-3 text-left">Address</th>
+            <th className="px-4 py-3 text-left">Genre</th>
             <th className="px-4 py-3 text-left">Actions</th>
           </tr>
         </thead>
@@ -369,6 +375,7 @@ export default function LocationsPage() {
               </td>
               <td className="border-t px-4 py-3">{loc.name}</td>
               <td className="border-t px-4 py-3">{loc.address}</td>
+              <td className="border-t px-4 py-3">{loc.genre}</td>
               <td className="border-t px-4 py-3 flex space-x-2">
                 {/* EDIT LOCATION ICON */}
                 <button
@@ -515,6 +522,31 @@ export default function LocationsPage() {
                   className="border p-2 w-full text-black mb-4"
                   placeholder="Enter location name"
                 />
+                <label className="text-black block mb-2">Genre</label>
+                <select
+                  value={genre}
+                  onChange={(e) => setGenre(e.target.value)}
+                  className="border p-2 w-full text-black mb-4"
+                >
+                  <option value="" disabled>Select Genre</option>
+                  {[
+                    'Italian', 'Chinese', 'Indian', 'American', 'Mexican', 'French', 'Japanese',
+                    'Mediterranean', 'Vegetarian', 'Vegan', 'Fast Food', 'Seafood', 'Thai', 'Spanish',
+                    'Korean', 'Greek', 'Turkish', 'Middle Eastern', 'Brazilian', 'Caribbean', 'African',
+                    'Soul Food', 'Barbecue', 'Fusion', 'European', 'Cajun/Creole', 'Steakhouse', 'Diner',
+                    'Pasta', 'Sushi', 'Burgers', 'Pizzeria', 'Ice Cream', 'Donuts', 'Dessert', 'Bakery',
+                    'Food Truck', 'Farm-to-Table', 'Buffet', 'Brunch', 'Hot Pot', 'Dim Sum', 'Tapas', 'Bistro',
+                    'Fondue', 'Raw Food', 'Juice Bar/Smoothies', 'Poke Bowl', 'Ramen', 'Café', 'Tea House',
+                    'Wine Bar', 'Coffeehouse', 'Organic', 'Gluten-Free', 'Kosher', 'Halal', 'Low-Carb/Keto',
+                    'Paleo', 'Health Food', 'Breakfast', 'Brasserie', 'Noodle Bar', 'Grill', 'Taproom',
+                    'Pizza', 'Sweets', 'Asian Fusion', 'Modern European', 'Contemporary', 'Hawaiian',
+                    'Latino', 'Poutine', 'Sandwiches', 'Wraps'
+                  ].map((genre, index) => (
+                    <option key={index} value={genre}>
+                      {genre}
+                    </option>
+                  ))}
+                </select>
                 <button
                   className="bg-green-500 text-white px-4 py-2 rounded"
                   onClick={() => setStep(2)}
@@ -606,6 +638,31 @@ export default function LocationsPage() {
                   className="border p-2 w-full text-black mb-4"
                   placeholder="Enter location name"
                 />
+                <label className="text-black block mb-2">Genre</label>
+                <select
+                  value={editGenre}
+                  onChange={(e) => setEditGenre(e.target.value)}
+                  className="border p-2 w-full text-black mb-4"
+                >
+                  <option value="" disabled>Select Genre</option>
+                  {[
+                    'Italian', 'Chinese', 'Indian', 'American', 'Mexican', 'French', 'Japanese',
+                    'Mediterranean', 'Vegetarian', 'Vegan', 'Fast Food', 'Seafood', 'Thai', 'Spanish',
+                    'Korean', 'Greek', 'Turkish', 'Middle Eastern', 'Brazilian', 'Caribbean', 'African',
+                    'Soul Food', 'Barbecue', 'Fusion', 'European', 'Cajun/Creole', 'Steakhouse', 'Diner',
+                    'Pasta', 'Sushi', 'Burgers', 'Pizzeria', 'Ice Cream', 'Donuts', 'Dessert', 'Bakery',
+                    'Food Truck', 'Farm-to-Table', 'Buffet', 'Brunch', 'Hot Pot', 'Dim Sum', 'Tapas', 'Bistro',
+                    'Fondue', 'Raw Food', 'Juice Bar/Smoothies', 'Poke Bowl', 'Ramen', 'Café', 'Tea House',
+                    'Wine Bar', 'Coffeehouse', 'Organic', 'Gluten-Free', 'Kosher', 'Halal', 'Low-Carb/Keto',
+                    'Paleo', 'Health Food', 'Breakfast', 'Brasserie', 'Noodle Bar', 'Grill', 'Taproom',
+                    'Pizza', 'Sweets', 'Asian Fusion', 'Modern European', 'Contemporary', 'Hawaiian',
+                    'Latino', 'Poutine', 'Sandwiches', 'Wraps'
+                  ].map((genre, index) => (
+                    <option key={index} value={genre}>
+                      {genre}
+                    </option>
+                  ))}
+                </select>
                 <button
                   className="bg-green-500 text-white px-4 py-2 rounded"
                   onClick={() => setEditStep(2)}

@@ -17,6 +17,7 @@ export interface Coupon {
   minimumSpend?: number;
   comboItems?: string[];
   comboPrice?: number;
+  quantity: number;
   portionSize?: string;
   familyPackItems?: string[];
   familyPackPrice?: number;
