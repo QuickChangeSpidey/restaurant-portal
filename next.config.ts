@@ -45,51 +45,51 @@ const nextConfig: NextConfig = {
             },
             {
                 source: "/api/auth/getRestaurantLocations",
-                destination: "http://localhost:5000/api/restaurant/locations",
+                destination: "http://bogoninja.com/api/restaurant/locations",
             },
             {
                 source: "/api/auth/AddLocations",
-                destination: "http://localhost:5000/api/locations",
+                destination: "http://bogoninja.com0/api/locations",
             },
             {
                 source: "/api/auth/deletelocation/:id",
-                destination: "http://localhost:5000/api/locations/:id",
+                destination: "http://bogoninja.com/api/locations/:id",
             },
             {
                 source: "/api/auth/location/:id",
-                destination: "http://localhost:5000/api/locations/:id",
+                destination: "http://bogoninja.com/api/locations/:id",
             },
             {
                 source: "/api/auth/uploadLocationImage/:id",
-                destination: "http://localhost:5000/api/upload/:id",
+                destination: "http://bogoninja.com/api/upload/:id",
             },
             {
                 source: "/api/auth/addMenuItem",
-                destination: "http://localhost:5000/api/menu-items",
+                destination: "http://bogoninja.com/api/menu-items",
             },
             {
                 source: "/api/auth/locations/:locationId/menu-items",
-                destination: "http://localhost:5000/api/locations/:locationId/menu-items",
+                destination: "http://bogoninja.com/api/locations/:locationId/menu-items",
             },
             {
                 source: "/api/auth/menuItems/:id",
-                destination: "http://localhost:5000/api/menu-items/:id",
+                destination: "http://bogoninja.com/api/menu-items/:id",
             },
             {
                 source: "/api/auth/coupons/:id",
-                destination: "http://localhost:5000/api/coupons/:id",
+                destination: "http://bogoninja.com/api/coupons/:id",
             },
             {
                 source: "/api/auth/coupons",
-                destination: "http://localhost:5000/api/coupons",
+                destination: "http://bogoninja.com/api/coupons",
             },
             {
                 source: "/api/auth/coupons/:id/activate",
-                destination: "http://localhost:5000/api/coupons/:id/activate",
+                destination: "http://bogoninja.com/api/coupons/:id/activate",
             },
             {
                 source: "/api/auth/coupons/:id/deactivate",
-                destination: "http://localhost:5000/api/coupons/:id/deactivate",
+                destination: "http://bogoninja.com/api/coupons/:id/deactivate",
             },
         ];
     },
