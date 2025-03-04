@@ -383,7 +383,7 @@ export default function CouponsPage() {
                 {/* Coupon Info */}
                 <div>
                   <img
-                    src={coupon.image ? coupon.image : "/food.avif"}
+                    src={coupon.imageUrl ? coupon.imageUrl : "/food.avif"}
                     alt={coupon.code}
                     style={{ width: '100%', height: '8rem', objectFit: 'cover', borderRadius: '0.75rem' }}
                   />
