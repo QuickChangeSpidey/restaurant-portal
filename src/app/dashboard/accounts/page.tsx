@@ -3,7 +3,7 @@
 import Head from "next/head";
 import PencilIcon from "@heroicons/react/24/outline/PencilIcon";
 import { useEffect, useState } from "react";
-import { deleteUser, getUserInfo, updateUserAttribute } from "@/app/lib/auth";
+import { changepassword, deleteUser, getUserInfo, updateUserAttribute } from "@/app/lib/auth";
 import { apiFetch } from "@/app/lib/api";
 
 interface UserInfo {
@@ -137,13 +137,7 @@ const AccountPage: React.FC = () => {
       alert("New passwords do not match!");
       return;
     }
-    // const success = await changePassword(currentPassword, newPassword);
-    // if (success) {
-    //   alert("Password changed successfully!");
-    //   setShowChangePasswordDialog(false);
-    // } else {
-    //   alert("Failed to change password. Please try again.");
-    // }
+    await changepassword(currentPassword, newPassword);
   };
 
   // Open edit modal

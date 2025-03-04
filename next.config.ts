@@ -32,10 +32,6 @@ const nextConfig: NextConfig = {
                 destination: "https://bogoninja.com/auth/confirm-reset-password",
             },
             {
-                source: "/api/auth/reset-password",
-                destination: "https://bogoninja.com/auth/reset-password",
-            },
-            {
                 source: "/api/auth/verify-attribute",
                 destination: "https://bogoninja.com/auth/verify-attribute",
             },
@@ -49,7 +45,7 @@ const nextConfig: NextConfig = {
             },
             {
                 source: "/api/auth/AddLocations",
-                destination: "http://bogoninja.com0/api/locations",
+                destination: "http://bogoninja.com/api/locations",
             },
             {
                 source: "/api/auth/deletelocation/:id",

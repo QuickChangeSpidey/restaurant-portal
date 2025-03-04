@@ -56,6 +56,24 @@ export const deleteUser = async () => {
   }
 }
 
+export const changepassword = async (previousPassword: string, proposedPassword: string) => {
+  try {
+    const accessToken = localStorage.getItem("authToken");
+    if (!accessToken) throw new Error("User is not authenticated");
+
+    await cognitoIdentityServiceProvider.changePassword({
+      AccessToken: accessToken,
+      PreviousPassword: previousPassword,
+      ProposedPassword: proposedPassword
+    }).promise();
+
+    alert("Password changed successfully");
+  } catch (error) {
+    console.error("Error changing password:", error);
+    alert("Failed to change password. Please try again.");
+  }
+}
+
 export const updateUserAttribute = async (fieldName: string, newValue: string): Promise<boolean> => {
   try {
     const accessToken = localStorage.getItem("authToken");
