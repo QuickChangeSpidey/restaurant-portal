@@ -29,6 +29,12 @@ const AccountPage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Password Change Modal state
+  const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+
   // Modal state
   const [isEditing, setIsEditing] = useState(false);
   const [editingField, setEditingField] = useState<keyof UserInfo | null>(null);
@@ -126,6 +132,20 @@ const AccountPage: React.FC = () => {
     setShowVerifyDialog(true);
   };
 
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmNewPassword) {
+      alert("New passwords do not match!");
+      return;
+    }
+    // const success = await changePassword(currentPassword, newPassword);
+    // if (success) {
+    //   alert("Password changed successfully!");
+    //   setShowChangePasswordDialog(false);
+    // } else {
+    //   alert("Failed to change password. Please try again.");
+    // }
+  };
+
   // Open edit modal
   const handleEdit = (field: keyof UserInfo) => {
     setEditingField(field);
@@ -191,6 +211,20 @@ const AccountPage: React.FC = () => {
             />
 
             <UserDetail label="Address" value={userInfo.address} onEdit={() => handleEdit("address")} />
+
+            <div className="mt-6">
+              <div className="flex justify-between items-center border-b pb-2">
+                <div>
+                  <p className="text-gray-600">Password</p>
+                  <p className="text-gray-800 font-medium">**********</p>
+                </div>
+                <button onClick={() => setShowChangePasswordDialog(true)}>
+                  <PencilIcon className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+            </div>
+
+
           </div>
 
           {/* Delete Account Button */}
@@ -219,6 +253,40 @@ const AccountPage: React.FC = () => {
             <div className="flex justify-end space-x-2">
               <button className="px-4 py-2 bg-gray-300 rounded" onClick={() => setIsEditing(false)}>Cancel</button>
               <button className="px-4 py-2 bg-green-500 text-white rounded" onClick={handleSave}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {showChangePasswordDialog && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h3 className="text-xl font-semibold mb-4">Change Password</h3>
+            <input
+              type="password"
+              placeholder="Current Password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+            />
+            <input
+              type="password"
+              placeholder="New Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+            />
+            <input
+              type="password"
+              placeholder="Confirm New Password"
+              value={confirmNewPassword}
+              onChange={(e) => setConfirmNewPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+            />
+            <div className="flex justify-end space-x-2">
+              <button className="px-4 py-2 bg-gray-300 rounded" onClick={() => setShowChangePasswordDialog(false)}>Cancel</button>
+              <button className="px-4 py-2 bg-green-500 text-white rounded" onClick={handleChangePassword}>Save</button>
             </div>
           </div>
         </div>
