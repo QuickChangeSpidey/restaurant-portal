@@ -161,25 +161,25 @@ export default function CouponsPage() {
     }
   }
 
-    const handleUpload = async (createdCoupon: Coupon, selectedFile: File|null) => {
-      if (!selectedFile) return;
-  
-      const formData = new FormData();
-      formData.append("image", selectedFile);
-  
-      try {
-        const response = await apiFileUpload(`/api/auth/coupon/${createdCoupon._id}/upload`, {
-          method: "POST",
-          body: formData,
-        }, selectedFile);
-  
-        if (!response) {
-          throw new Error(`HTTP error! Status: ${response}`);
-        }
-      } catch (error) {
-        console.error("Error uploading image", error);
+  const handleUpload = async (createdCoupon: Coupon, selectedFile: File | null) => {
+    if (!selectedFile) return;
+
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+
+    try {
+      const response = await apiFileUpload(`/api/auth/coupon/${createdCoupon._id}/upload`, {
+        method: "POST",
+        body: formData,
+      }, selectedFile);
+
+      if (!response) {
+        throw new Error(`HTTP error! Status: ${response}`);
       }
-    };
+    } catch (error) {
+      console.error("Error uploading image", error);
+    }
+  };
 
   // ----- EDIT an Existing Coupon -----
   function handleQRCouponClick(coupon: Coupon) {
