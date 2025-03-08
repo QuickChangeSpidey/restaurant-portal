@@ -57,15 +57,15 @@ const nextConfig: NextConfig = {
             },
             {
                 source: "/api/auth/location/:id/upload",
-                destination: "http://localhost:5000/api/location/:id/upload",
+                destination: "http://bogoninja.com/api/location/:id/upload",
             },
             {
                 source: "/api/auth/menu-item/:id/upload",
-                destination: "http://localhost:5000/api/menu-item/:id/upload",
+                destination: "http://bogoninja.com/api/menu-item/:id/upload",
             },
             {
                 source: "/api/auth/coupon/:id/upload",
-                destination: "http://localhost:5000/api/coupon/:id/upload",
+                destination: "http://bogoninja.com/api/coupon/:id/upload",
             },
             {
                 source: "/api/auth/addMenuItem",
