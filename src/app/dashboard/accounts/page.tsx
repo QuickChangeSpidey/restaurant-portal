@@ -90,7 +90,7 @@ const AccountPage: React.FC = () => {
           attributeName: "phone_number",
         }),
       });
-      if (!response.ok) {
+      if (!response) {
         throw new Error("Failed to send verification code");
       }
 
@@ -112,7 +112,7 @@ const AccountPage: React.FC = () => {
         body: JSON.stringify({ attributeName: "phone_number", code: verificationCode }),
       });
 
-      if (!response.ok) {
+      if (!response) {
         throw new Error("Phone verification failed");
       }
 

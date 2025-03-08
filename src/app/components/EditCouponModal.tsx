@@ -1,5 +1,5 @@
 // EditCouponQuantityModal.tsx
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Coupon } from "./QRCodeModal";
 
 interface EditCouponQuantityModalProps {

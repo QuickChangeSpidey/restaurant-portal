@@ -10,6 +10,8 @@ import {
   PencilIcon,
 } from "@heroicons/react/24/outline";
 
+import {Coupon as QRCoupon} from "@/app/components/QRCodeModal";
+
 // ----- Types -----
 export interface RestaurantLocation {
   _id: string;
@@ -196,7 +198,7 @@ export default function CouponsPage() {
     setIsEditQuantityModalOpen(true);
   }
 
-  async function handleSaveEditedCoupon(updatedData: Coupon): Promise<void> {
+  async function handleSaveEditedCoupon(updatedData: QRCoupon): Promise<void> {
     const token = localStorage.getItem("authToken");
     if (!updatedData._id) return;
 
