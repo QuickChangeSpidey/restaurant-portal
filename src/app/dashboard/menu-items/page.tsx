@@ -100,7 +100,7 @@ export default function MenuItemsPage() {
   }
 
   // ----- ADD -----
-  const handleAddMenuItem = async (menuItem: MenuItem, selectedFile: File) => {
+  const handleAddMenuItem = async (menuItem: { name: string; description: string; price: number; image: string; }, selectedFile: File | null) => {
     const token = localStorage.getItem("authToken");
     try {
       // Example endpoint for adding an item
@@ -112,7 +112,9 @@ export default function MenuItemsPage() {
         },
         body: JSON.stringify({ ...menuItem, locationId: selectedLocation?._id }),
       });
-      handleUpload(addedItem, selectedFile);
+      if (selectedFile) {
+        handleUpload(addedItem, selectedFile);
+      }
       setMenuItems((prev) => [...prev, addedItem as MenuItem]);
     } catch (error) {
       console.error("Error adding menu item", error);
