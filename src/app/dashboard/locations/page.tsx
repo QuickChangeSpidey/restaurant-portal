@@ -385,7 +385,7 @@ export default function LocationsPage() {
               <td className="border-t px-4 py-3">{loc.name}</td>
               <td className="border-t px-4 py-3">{loc.address}</td>
               <td className="border-t px-4 py-3">{loc.genre}</td>
-              <td className="border-t px-4 py-3 flex space-x-2">
+              <td className="border-t px-4 py-3 space-x-2">
                 {/* EDIT LOCATION ICON */}
                 <button
                   className="text-blue-600 hover:text-blue-800"
