@@ -24,4 +24,32 @@ export async function apiFetch<T>(url: string, options: RequestInit = {}): Promi
       throw error;
     }
   }
+
+  export async function apiFileUpload<T>(url: string, options: any, file?: File): Promise<T> {
+    try {
+      // Create FormData to send with the request
+      const formData = new FormData();
+      if (file) {
+        formData.append("image", file);
+      }
+
+      const response = await fetch(url, {
+        ...options,
+        method: "POST",
+        body: formData,  
+        credentials: "include", 
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      return response.json() as Promise<T>;
+    } catch (error) {
+      console.error("API Fetch Error:", error);
+      throw error;
+    }
+  }
+  
+  
   

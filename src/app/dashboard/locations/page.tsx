@@ -13,7 +13,7 @@ import {
   PlusCircleIcon,
 } from "@heroicons/react/24/outline";
 import { QRCodeCanvas } from "qrcode.react";
-import { apiFetch } from "@/app/lib/api";
+import { apiFetch, apiFileUpload } from "@/app/lib/api";
 
 interface Location {
   _id: string;
@@ -99,21 +99,29 @@ export default function LocationsPage() {
 
   const handleUpload = async () => {
     if (!selectedFile || !selectedLocationId) return;
-
+  
     const formData = new FormData();
-    formData.append("image", selectedFile);
-
+    formData.append("image", selectedFile);  // Ensure the key 'image' matches the server
+  
     try {
-      await apiFetch(`/api/auth/uploadLocationImage/${selectedLocationId}`, {
+      const response = await apiFileUpload(`/api/auth/location/${selectedLocationId}/upload`, {
         method: "POST",
         body: formData,
-      });
+      }, selectedFile);
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      // After successful upload
       fetchLocations();
       closeUploadModal();
     } catch (error) {
       console.error("Error uploading image", error);
     }
   };
+  
+  
 
   // ----------- HOURS SELECTOR CHANGE -----------
   const handleHoursChange = (hours: string) => {
