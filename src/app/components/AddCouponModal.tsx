@@ -50,7 +50,7 @@ export interface Coupon {
 interface AddCouponModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (newCoupon: Partial<Coupon>) => void;
+  onSave: (newCoupon: Partial<Coupon>, selectedFile:File|null) => void;
   location: RestaurantLocation | null;
   menuItems: MenuItem[];
   // New callback to update the menu items list in the parent
@@ -101,6 +101,8 @@ export default function AddCouponModal({
   // ------ State to control AddMenuItemModal ------
   const [isAddMenuItemModalOpen, setIsAddMenuItemModalOpen] = useState(false);
 
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   // ------ Helper: Multi-Select onChange ------
   function handleMultiSelectChange(
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -206,7 +208,7 @@ export default function AddCouponModal({
     }
 
     // Send to parent
-    onSave(newCoupon);
+    onSave(newCoupon, selectedFile);
 
     // Reset fields & close
     resetForm();
@@ -225,6 +227,14 @@ export default function AddCouponModal({
     setCode(generateCouponCode(couponType, quantity, location?.name || ""));
   }
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      setSelectedFile(file);
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
+
   function generateCouponCode(couponType: string, quantity: number, locationName: string): string {
     const currentDate = new Date();
     const dayNumber = currentDate.getDay(); // Day number (0-6)
@@ -234,10 +244,10 @@ export default function AddCouponModal({
       minute: "2-digit",
       second: "2-digit",
     }).replace(/:/g, "").replace(" ", ""); // Concatenate time without special symbols
-  
+
     // Get the first 6 characters of the location name, and ensure it's uppercased
     const locationPrefix = locationName.substring(0, 6).toUpperCase();
-  
+
     // Get the first letter or first few capitalized letters of the couponType
     let couponPrefix = "";
     switch (couponType) {
@@ -274,9 +284,9 @@ export default function AddCouponModal({
       default:
         couponPrefix = couponType.substring(0, 1).toUpperCase(); // Default to first letter if needed
     }
-  
+
     return `${couponPrefix}${locationPrefix}${dayNumber}${date}${time}`;
-  }  
+  }
 
   // ------ Render the modal ------
   return (
@@ -287,7 +297,7 @@ export default function AddCouponModal({
 
         {/* Dialog Panel */}
         <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto rounded shadow-lg p-6 text-black">
+          <Dialog.Panel className="bg-white w-full max-w-xl max-h-[90vh] overflow-y-auto rounded shadow-lg p-6 text-black">
             <Dialog.Title className="text-xl font-semibold mb-4 text-black">
               Generate New Coupon
             </Dialog.Title>
@@ -767,6 +777,22 @@ export default function AddCouponModal({
                 />
               </div>
             )}
+
+            <div className="p-4">
+              <h2 className="text-black font-bold mb-4">Upload Image</h2>
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className="text-black mb-4"
+              />
+              {previewImage && (
+                <img
+                  src={previewImage}
+                  alt="Preview"
+                  className="h-24 w-24 object-cover rounded mb-4"
+                />
+              )}
+            </div>
 
             {/* ------ Action Buttons ------ */}
             <div className="mt-6 flex justify-end space-x-3">

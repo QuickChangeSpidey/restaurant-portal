@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { apiFetch } from "@/app/lib/api";
+import { apiFetch, apiFileUpload } from "@/app/lib/api";
 import {
   PlusCircleIcon,
   ChevronDownIcon,
@@ -135,7 +135,7 @@ export default function CouponsPage() {
   }
 
   // ----- ADD (Generate) a New Coupon -----
-  async function handleAddCoupon(newCoupon: Partial<Coupon>) {
+  async function handleAddCoupon(newCoupon: Partial<Coupon>, selectedFile: File | null) {
     const token = localStorage.getItem("authToken");
     if (!selectedLocation) return;
 
@@ -152,12 +152,35 @@ export default function CouponsPage() {
         }),
       });
 
+
+
       // Update local state
+      handleUpload(createdCoupon, selectedFile);
       setCoupons((prev) => [...prev, createdCoupon]);
     } catch (error) {
       console.error("Error generating coupon", error);
     }
   }
+
+    const handleUpload = async (createdCoupon: Coupon, selectedFile: File|null) => {
+      if (!selectedFile) return;
+  
+      const formData = new FormData();
+      formData.append("image", selectedFile);
+  
+      try {
+        const response = await apiFileUpload(`/api/auth/coupon/${createdCoupon._id}/upload`, {
+          method: "POST",
+          body: formData,
+        }, selectedFile);
+  
+        if (!response) {
+          throw new Error(`HTTP error! Status: ${response}`);
+        }
+      } catch (error) {
+        console.error("Error uploading image", error);
+      }
+    };
 
   // ----- EDIT an Existing Coupon -----
   function handleQRCouponClick(coupon: Coupon) {
