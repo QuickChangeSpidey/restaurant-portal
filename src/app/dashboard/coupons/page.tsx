@@ -177,6 +177,9 @@ export default function CouponsPage() {
       if (!response) {
         throw new Error(`HTTP error! Status: ${response}`);
       }
+      if (selectedLocation?._id) {
+        fetchCoupons(selectedLocation._id);
+      }
     } catch (error) {
       console.error("Error uploading image", error);
     }
