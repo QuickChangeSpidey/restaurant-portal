@@ -7,10 +7,12 @@ import {
   ChevronDownIcon,
   PencilSquareIcon,
   TrashIcon,
+  UserPlusIcon,
 } from "@heroicons/react/24/outline";
 import AddMenuItemModal from "@/app/components/AddMenuModal";
 import EditMenuItemModal from "@/app/components/EditMenuItemModal";
 import DeleteMenuItemModal from "@/app/components/DeleteMenuItemModal";
+import Modal from "@/app/components/Modal";
 
 export interface Location {
   _id: string;
@@ -25,6 +27,7 @@ export interface MenuItem {
   price: number;
   image?: string;
   isAvailable: boolean;
+  locationId: string;
 }
 
 export default function MenuItemsPage() {
@@ -47,9 +50,28 @@ export default function MenuItemsPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
 
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   useEffect(() => {
     fetchLocations();
   }, []);
+
+  const closeUploadModal = () => {
+    setUploadModalOpen(false);
+    setSelectedFile(null);
+    setItemToEdit(null);
+    setPreviewImage(null);
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      setSelectedFile(file);
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
 
   async function fetchLocations() {
     const token = localStorage.getItem("authToken");
@@ -97,6 +119,30 @@ export default function MenuItemsPage() {
     }
   };
 
+  const handleEditImageUpload = async () => {
+    if (!selectedFile) return;
+
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+
+    try {
+      const response = await apiFileUpload(`/api/auth/menu-item/${itemToEdit?._id}/upload`, {
+        method: "POST",
+        body: formData,
+      }, selectedFile);
+
+      if (!response) {
+        throw new Error(`HTTP error! Status: ${response}`);
+      }
+      closeUploadModal();
+      if (selectedLocation?._id) {
+        fetchMenuItems(selectedLocation._id);
+      }
+    } catch (error) {
+      console.error("Error uploading image", error);
+    }
+  }; 
+
   const handleUpload = async (menuItem: MenuItem, selectedFile: File) => {
     if (!selectedFile) return;
 
@@ -143,7 +189,7 @@ export default function MenuItemsPage() {
 
       // Update local list
       setMenuItems((prev) =>
-        prev.map((item) => (item._id === editedItem._id ? updatedItem : item))
+        prev.map((item) => (item._id === editedItem._id ? updatedItem as MenuItem : item))
       );
     } catch (error) {
       console.error("Error updating menu item:", error);
@@ -219,8 +265,8 @@ export default function MenuItemsPage() {
         {/* Add Menu Item Button */}
         <button
           className={`px-4 py-2 rounded flex items-center transition-colors ${selectedLocation
-              ? "bg-green-500 text-white hover:bg-green-600"
-              : "bg-gray-400 text-white opacity-50 cursor-not-allowed"
+            ? "bg-green-500 text-white hover:bg-green-600"
+            : "bg-gray-400 text-white opacity-50 cursor-not-allowed"
             }`}
           onClick={() => setIsAddModalOpen(true)}
           disabled={!selectedLocation}
@@ -256,8 +302,17 @@ export default function MenuItemsPage() {
                         className="h-12 w-12 object-cover rounded"
                       />
                     ) : (
-                      "No Image"
+                      <button
+                        className="text-blue-600 hover:text-red-800"
+                        onClick={() => {
+                          setUploadModalOpen(true);
+                          setItemToEdit(item);
+                        }}
+                      >
+                        <UserPlusIcon className="h-5 w-5" />
+                      </button>
                     )}
+
                   </td>
                   <td className="border-t px-4 py-3">{item.name}</td>
                   <td className="border-t px-4 py-3">{item.description}</td>
@@ -296,10 +351,38 @@ export default function MenuItemsPage() {
         onClose={() => setIsEditModalOpen(false)}
         item={itemToEdit}
         onSave={(editedItem) => {
-          handleSaveEditedMenuItem(editedItem);
+          handleSaveEditedMenuItem(editedItem as MenuItem);
           setIsEditModalOpen(false);
         }}
       />
+
+      {/* ---------- Upload Image Modal ---------- */}
+      {uploadModalOpen && (
+        <Modal onClose={closeUploadModal}>
+          <div className="p-4">
+            <h2 className="text-black font-bold mb-4">Upload Image</h2>
+            <input
+              type="file"
+              onChange={handleFileChange}
+              className="text-black mb-4"
+            />
+            {previewImage && (
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="h-24 w-24 object-cover rounded mb-4"
+              />
+            )}
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded"
+              onClick={handleEditImageUpload}
+              disabled={!selectedFile}
+            >
+              Upload
+            </button>
+          </div>
+        </Modal>
+      )}
 
       {/* Delete Menu Modal */}
       <DeleteMenuItemModal
