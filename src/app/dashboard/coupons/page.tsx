@@ -38,6 +38,7 @@ interface Coupon {
   image?: string;
   expirationDate: string; // store as ISO string for display
   isActive: boolean;
+  quantity: number; // Add this line
 }
 
 // ----- Modals -----
@@ -362,7 +363,7 @@ export default function CouponsPage() {
 
       {/* If location is selected, show the coupons as tiles */}
       {selectedLocation && (
-        <div style={{ marginTop: '3rem', height: '28rem', overflowY: 'auto', position: 'relative' }}>
+        <div style={{ marginTop: '3rem', maxHeight: '80vh', overflowY: 'auto', position: 'relative' }}>
           {/* Custom scrollbar styles (inline) */}
           <style jsx>{`
             div::-webkit-scrollbar {

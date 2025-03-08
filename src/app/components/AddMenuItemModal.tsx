@@ -54,7 +54,7 @@ export default function AddMenuItemModal({
         body: JSON.stringify(newMenuItem),
       });
       // Notify parent with the added item (assumed to be returned by the API)
-      onAdd(addedItem);
+      onAdd(addedItem as MenuItem);
     } catch (error) {
       console.error("Failed to add menu item", error);
     }

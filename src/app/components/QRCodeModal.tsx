@@ -25,6 +25,7 @@ export interface Coupon {
   endHour?: number;
   startTime?: string;
   endTime?: string;
+  locationId: string;
 }
 
 // ----- Props -----

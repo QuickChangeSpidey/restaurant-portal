@@ -177,16 +177,16 @@ export default function AuthPage() {
                                             key.charAt(0).toUpperCase() + key.slice(1)
                                     }
                                     value={
-                                        key === "phoneNumber" && !formData[key].startsWith("+1")
-                                            ? `+1${formData[key]}`
-                                            : formData[key]
+                                        key === "phoneNumber" && !formData[key as keyof typeof formData].startsWith("+1")
+                                            ? `+1${formData[key as keyof typeof formData]}`
+                                            : formData[key as keyof typeof formData]
                                     }
                                     onChange={(e) => {
                                         let value = e.target.value;
                                         if (key === "phoneNumber") {
                                             value = value.startsWith("+1") ? value : `+1${value.replace(/^\+?1?/, '')}`;
                                         }
-                                        setFormData({ ...formData, [key]: value });
+                                        setFormData({ ...formData, [key as keyof typeof formData]: value });
                                     }}
                                     className="w-full p-2 mb-2 border rounded"
                                     required
