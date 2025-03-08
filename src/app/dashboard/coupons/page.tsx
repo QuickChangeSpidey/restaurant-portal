@@ -35,10 +35,9 @@ interface Coupon {
   type: CouponType;
   code: string;
   discountPercentage?: number;
-  imageUrl?: string;
+  image?: string;
   expirationDate: string; // store as ISO string for display
   isActive: boolean;
-  // ... other fields (freeItemId, comboItems, etc.)
 }
 
 // ----- Modals -----
@@ -406,7 +405,7 @@ export default function CouponsPage() {
                 {/* Coupon Info */}
                 <div>
                   <img
-                    src={coupon.imageUrl ? coupon.imageUrl : "/food.avif"}
+                    src={coupon.image ? coupon.image : "/food.avif"}
                     alt={coupon.code}
                     style={{ width: '100%', height: '8rem', objectFit: 'cover', borderRadius: '0.75rem' }}
                   />
@@ -417,7 +416,7 @@ export default function CouponsPage() {
                   <div>
                     {Object.entries(coupon).map(([key, value]) => {
                       if (
-                        ["_id", "locationId", "isActive", "code"].includes(key) || // Exclude these keys
+                        ["_id", "locationId", "isActive", "code", "image"].includes(key) || // Exclude these keys
                         value === undefined ||
                         value === null ||
                         value === "" ||

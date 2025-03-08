@@ -24,7 +24,7 @@ interface Location {
     coordinates: [number, number];
   };
   hours: string;
-  image: string;
+  logo: string;
   genre: string;
 }
 
@@ -99,20 +99,20 @@ export default function LocationsPage() {
 
   const handleUpload = async () => {
     if (!selectedFile || !selectedLocationId) return;
-  
+
     const formData = new FormData();
     formData.append("image", selectedFile);  // Ensure the key 'image' matches the server
-  
+
     try {
       const response = await apiFileUpload(`/api/auth/location/${selectedLocationId}/upload`, {
         method: "POST",
         body: formData,
       }, selectedFile);
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+
+      if (!response) {
+        throw new Error(`HTTP error! Status: ${response}`);
       }
-  
+
       // After successful upload
       fetchLocations();
       closeUploadModal();
@@ -120,8 +120,8 @@ export default function LocationsPage() {
       console.error("Error uploading image", error);
     }
   };
-  
-  
+
+
 
   // ----------- HOURS SELECTOR CHANGE -----------
   const handleHoursChange = (hours: string) => {
@@ -363,9 +363,9 @@ export default function LocationsPage() {
           {locations.map((loc) => (
             <tr key={loc._id} className="hover:bg-gray-100 transition-colors">
               <td className="border-t px-4 py-3">
-                {loc.image ? (
+                {loc.logo ? (
                   <img
-                    src={loc.image}
+                    src={loc.logo}
                     alt={loc.name}
                     className="h-12 w-12 object-cover rounded"
                   />
@@ -380,6 +380,7 @@ export default function LocationsPage() {
                     <UserPlusIcon className="h-5 w-5" />
                   </button>
                 )}
+
               </td>
               <td className="border-t px-4 py-3">{loc.name}</td>
               <td className="border-t px-4 py-3">{loc.address}</td>
