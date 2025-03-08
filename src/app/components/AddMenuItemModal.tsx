@@ -101,17 +101,6 @@ export default function AddMenuItemModal({
               onChange={(e) => setPrice(Number(e.target.value))}
             />
           </label>
-          {/* Image URL (optional) */}
-          <label className="block mb-2">
-            Image (optional):
-            <input
-              type="text"
-              placeholder="Image URL"
-              className="block w-full mt-1 p-2 border rounded"
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-            />
-          </label>
           {/* Action Buttons */}
           <div className="mt-6 flex justify-end space-x-3">
             <button
