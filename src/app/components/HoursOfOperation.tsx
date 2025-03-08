@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 interface HoursOfOperationProps {
-  onHoursChange: (hours: string) => void; // Callback to pass the hours back to the parent
+  onHoursChange: (hours: string) => void;
+  existingHours?: string;
 }
 
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']; // Example days of the week

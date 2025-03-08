@@ -135,11 +135,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               // Otherwise, a normal link
               return (
                 <li key={name} className="py-3">
-                  <Link href={href}>
-                    <div className="flex items-center px-5 hover:bg-green-600 rounded cursor-pointer text-xl">
+                  {href ? (
+                    <Link href={href}>
+                      <div className="flex items-center px-5 hover:bg-green-600 rounded cursor-pointer text-xl">
+                        {icon} {name}
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className="flex items-center px-5 rounded text-xl">
                       {icon} {name}
                     </div>
-                  </Link>
+                  )}
                 </li>
               );
             })}

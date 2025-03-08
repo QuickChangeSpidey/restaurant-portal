@@ -323,6 +323,7 @@ export default function LocationsPage() {
 
   // ----------- SUBMIT EDITED LOCATION -----------
   const handleEditSubmit = () => {
+    if(selectedLocationId){
     handleUpdateLocation({
       _id: selectedLocationId,
       name: editName,
@@ -333,6 +334,7 @@ export default function LocationsPage() {
         coordinates: [editGeo.lng, editGeo.lat],
       },
       hours: editHours,
+      logo: ""
     });
   };
 
@@ -754,4 +756,5 @@ export default function LocationsPage() {
       )}
     </div>
   );
+}
 }
