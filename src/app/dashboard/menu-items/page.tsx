@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { apiFetch } from "@/app/lib/api";
+import { apiFetch, apiFileUpload } from "@/app/lib/api";
 import {
   PlusCircleIcon,
   ChevronDownIcon,
@@ -78,11 +78,11 @@ export default function MenuItemsPage() {
   }
 
   // ----- ADD -----
-  const handleAddMenuItem = async (menuItem: MenuItem) => {
+  const handleAddMenuItem = async (menuItem: MenuItem, selectedFile: File) => {
     const token = localStorage.getItem("authToken");
     try {
       // Example endpoint for adding an item
-      const addedItem = await apiFetch("/api/auth/addMenuItem", {
+      const addedItem: any = await apiFetch("/api/auth/addMenuItem", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -90,10 +90,30 @@ export default function MenuItemsPage() {
         },
         body: JSON.stringify({ ...menuItem, locationId: selectedLocation?._id }),
       });
-
-      setMenuItems((prev) => [...prev, addedItem]);
+      handleUpload(addedItem, selectedFile);
+      setMenuItems((prev) => [...prev, addedItem as MenuItem]);
     } catch (error) {
       console.error("Error adding menu item", error);
+    }
+  };
+
+  const handleUpload = async (menuItem: MenuItem, selectedFile: File) => {
+    if (!selectedFile) return;
+
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+
+    try {
+      const response = await apiFileUpload(`/api/auth/menu-item/${menuItem._id}/upload`, {
+        method: "POST",
+        body: formData,
+      }, selectedFile);
+
+      if (!response) {
+        throw new Error(`HTTP error! Status: ${response}`);
+      }
+    } catch (error) {
+      console.error("Error uploading image", error);
     }
   };
 
@@ -198,11 +218,10 @@ export default function MenuItemsPage() {
 
         {/* Add Menu Item Button */}
         <button
-          className={`px-4 py-2 rounded flex items-center transition-colors ${
-            selectedLocation
+          className={`px-4 py-2 rounded flex items-center transition-colors ${selectedLocation
               ? "bg-green-500 text-white hover:bg-green-600"
               : "bg-gray-400 text-white opacity-50 cursor-not-allowed"
-          }`}
+            }`}
           onClick={() => setIsAddModalOpen(true)}
           disabled={!selectedLocation}
         >

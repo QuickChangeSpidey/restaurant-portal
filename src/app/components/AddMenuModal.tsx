@@ -4,7 +4,7 @@ import Modal from "./Modal";
 interface AddMenuItemModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (menuItem: { name: string; description: string; price: number; image: string }) => void;
+  onSave: (menuItem: { name: string; description: string; price: number; image: string }, selectedFile: File | null) => void;
 }
 
 export default function AddMenuItemModal({ isOpen, onClose, onSave }: AddMenuItemModalProps) {
@@ -33,7 +33,7 @@ export default function AddMenuItemModal({ isOpen, onClose, onSave }: AddMenuIte
   };
 
   const handleSave = () => {
-    onSave({ name, description, price: Number(price), image: previewImage || "" });
+    onSave({ name, description, price: Number(price), image: previewImage || "" }, selectedFile);
     resetForm();
     onClose();
   };

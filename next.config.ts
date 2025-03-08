@@ -60,6 +60,10 @@ const nextConfig: NextConfig = {
                 destination: "http://localhost:5000/api/location/:id/upload",
             },
             {
+                source: "/api/auth/menu-item/:id/upload",
+                destination: "http://localhost:5000/api/menu-item/:id/upload",
+            },
+            {
                 source: "/api/auth/addMenuItem",
                 destination: "http://bogoninja.com/api/menu-items",
             },
