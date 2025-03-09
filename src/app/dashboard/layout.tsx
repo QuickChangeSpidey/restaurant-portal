@@ -113,9 +113,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     {icon} {name}
                   </div>
                 ) : href ? (
-                  <Link href={href} className="flex items-center px-5 hover:bg-green-600 rounded cursor-pointer text-xl">
+                  <Link
+                    href={disabled ? "#" : href}
+                    onClick={(e) => disabled && e.preventDefault()}
+                    className={`flex items-center px-5 rounded text-xl ${disabled ? "bg-green-500 text-gray-700 cursor-not-allowed" : "hover:bg-green-600 cursor-pointer"
+                      }`}
+                  >
                     {icon} {name}
                   </Link>
+
                 ) : (
                   <div className="flex items-center px-5 rounded text-xl pointer-events-none">
                     {icon} {name}

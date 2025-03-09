@@ -49,6 +49,7 @@ import DeleteCouponModal from "@/app/components/DeleteCouponModal";
 import AddCouponModal from "@/app/components/AddCouponModal";
 import { MenuItem } from "../menu-items/page";
 import EditCouponQuantityModal from "@/app/components/EditCouponModal";
+import { Pencil } from "lucide-react";
 
 export default function CouponsPage() {
   // ----------------- 1) Locations -----------------
@@ -399,11 +400,26 @@ export default function CouponsPage() {
               >
                 {/* Coupon Info */}
                 <div>
-                  <img
-                    src={coupon.image ? coupon.image : "/food.avif"}
-                    alt={coupon.code}
-                    style={{ width: '100%', height: '8rem', objectFit: 'cover', borderRadius: '0.75rem' }}
-                  />
+
+                  <div className="relative">
+                    <img
+                      src={coupon.image ? coupon.image : "/food.avif"}
+                      alt={coupon.code}
+                      style={{
+                        width: "100%",
+                        height: "8rem",
+                        objectFit: "cover",
+                        borderRadius: "0.75rem",
+                      }}
+                    />
+                    {/* Edit Button Overlay */}
+                    <button
+                      className="absolute top-2 right-2 bg-black bg-opacity-50 p-2 rounded-full hover:bg-opacity-75 transition"
+                      onClick={() => console.log("Edit image clicked")}
+                    >
+                      <Pencil className="w-5 h-5 text-white" />
+                    </button>
+                  </div>
                   <p style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
                     {coupon.code}
                   </p>
