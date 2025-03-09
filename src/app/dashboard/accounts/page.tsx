@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { changepassword, deleteUser, getUserInfo, updateUserAttribute } from "@/app/lib/auth";
 import { apiFetch } from "@/app/lib/api";
 
-interface UserInfo {
+export interface UserInfo {
   family_name: string;
   given_name: string;
   birthdate: string;

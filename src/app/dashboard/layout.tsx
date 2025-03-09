@@ -17,10 +17,37 @@ import {
 import { useRouter } from "next/navigation";
 import { LoadScript } from "@react-google-maps/api";
 import packageJSON from "../../../package.json";
+import { useEffect, useState } from "react";
+import { UserInfo } from "./accounts/page";
+import { getUserInfo } from "../lib/auth";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const googleMapsApiKey = "AIzaSyBxeae0ftXUhPZ8bZWE1-xgaWEkJFKGjek";
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+
+   // Fetch user data
+    useEffect(() => {
+      const fetchUserData = async () => {
+        const data = await getUserInfo();
+  
+        if (data) {
+          const mappedUser: UserInfo = {
+            given_name: data.UserAttributes?.find(attr => attr.Name === "given_name")?.Value || "N/A",
+            family_name: data.UserAttributes?.find(attr => attr.Name === "family_name")?.Value || "N/A",
+            birthdate: data.UserAttributes?.find(attr => attr.Name === "birthdate")?.Value || "N/A",
+            phone_number: data.UserAttributes?.find(attr => attr.Name === "phone_number")?.Value || "N/A",
+            phone_number_verified: data.UserAttributes?.find(attr => attr.Name === "phone_number_verified")?.Value === "true",
+            address: data.UserAttributes?.find(attr => attr.Name === "address")?.Value || "N/A",
+            email: data.UserAttributes?.find(attr => attr.Name === "email")?.Value || "N/A",
+            email_verified: data.UserAttributes?.find(attr => attr.Name === "email_verified")?.Value === "true",
+            username: data.Username || "",
+          };
+          setUserInfo(mappedUser);
+        }
+      };
+      fetchUserData();
+    }, []);
 
   const handleLogout = async () => {
     const token: any = localStorage.getItem("authToken");
@@ -102,7 +129,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex flex-col flex-1 min-w-0 ml-64">
           {/* Top Header */}
           <div className="bg-green-500 text-white p-4 flex justify-between items-center fixed top-0 left-64 right-0 z-20">
-          <div className="text-xl">Hello, User! Today's Date: {new Date().toLocaleDateString()}</div>
+          <div className="text-xl">Hello, {userInfo?.given_name} {userInfo?.family_name}! Today's Date: {new Date().toLocaleDateString()}</div>
           </div>
 
           {/* Scrollable Content */}
