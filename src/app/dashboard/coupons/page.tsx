@@ -284,7 +284,7 @@ export default function CouponsPage() {
 
       {/* Location Selector */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-        <div style={{ position: 'relative', width: '16rem' }}>
+        <div style={{ width: '16rem' }}>
           <select
             style={{
               appearance: 'none',
