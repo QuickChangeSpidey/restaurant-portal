@@ -15,7 +15,7 @@ const SupportPage: React.FC = () => {
       </Head>
       <div className="flex">
         {/* Main Content Area */}
-          <section className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
+          <section className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md mt-16">
             <h2 className="text-2xl text-gray-800 font-semibold mb-6">
               Need Help? We&apos;re Here for You!
             </h2>
