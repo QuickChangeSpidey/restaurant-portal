@@ -180,178 +180,161 @@ const AccountPage: React.FC = () => {
         <title>My Account - Restaurant App</title>
       </Head>
 
-      <main className="flex-1 p-6 overflow-y-auto">
-        <section className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
-          <h2 className="text-2xl text-gray-800 font-semibold mb-6">My Account</h2>
-          <div className="space-y-4">
-            {/* User Details */}
+      <main className="flex-1 p-4 overflow-y-auto mt-8">
+        <section className="max-w-2xl mx-auto bg-white p-4 rounded-md shadow-md">
+          <h2 className="text-lg text-gray-800 font-semibold mb-3">My Account</h2>
+          <div className="space-y-2">
             <UserDetail label="Family Name" value={userInfo.family_name} onEdit={() => handleEdit("family_name")} />
             <UserDetail label="Given Name" value={userInfo.given_name} onEdit={() => handleEdit("given_name")} />
             <UserDetail label="Date of Birth" value={userInfo.birthdate} onEdit={() => handleEdit("birthdate")} />
-
-            {/* Phone with Verified/Unverified Badge */}
             <UserDetail
               label="Phone"
               value={`${userInfo.phone_number} (${userInfo.phone_number_verified ? "Verified" : "Unverified"})`}
               onEdit={() => handleEdit("phone_number")}
               onVerify={!userInfo.phone_number_verified ? () => handleVerify("phone_number") : undefined}
             />
-
-            {/* Email with Verified/Unverified Badge */}
             <UserDetail
               label="Email"
               value={`${userInfo.email} (${userInfo.email_verified ? "Verified" : "Unverified"})`}
               onEdit={() => handleEdit("email")}
             />
-
             <UserDetail label="Address" value={userInfo.address} onEdit={() => handleEdit("address")} />
-
-            <div className="mt-6">
-              <div className="flex justify-between items-center border-b pb-2">
-                <div>
-                  <p className="text-gray-600">Password</p>
-                  <p className="text-gray-800 font-medium">**********</p>
-                </div>
-                <button onClick={() => setShowChangePasswordDialog(true)}>
-                  <PencilIcon className="h-5 w-5 text-gray-500" />
-                </button>
+            <div className="mt-3 flex justify-between items-center border-b pb-2">
+              <div>
+                <p className="text-gray-600 text-sm">Password</p>
+                <p className="text-gray-800 font-medium">**********</p>
               </div>
+              <button onClick={() => setShowChangePasswordDialog(true)}>
+                <PencilIcon className="h-4 w-4 text-gray-500" />
+              </button>
             </div>
-
-
           </div>
-
-          {/* Delete Account Button */}
-          <div className="mt-6">
-            <button
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-              onClick={() => setShowDeleteDialog(true)}
-            >
+          <div className="mt-4 text-center">
+            <button className="bg-red-500 text-white px-3 py-1.5 rounded hover:bg-red-600" onClick={() => setShowDeleteDialog(true)}>
               Delete Account
             </button>
           </div>
         </section>
+        {/* Edit Modal */}
+        {isEditing && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+              <h3 className="text-xl font-semibold mb-4">Edit Field</h3>
+              <input
+                type="text"
+                value={fieldValue}
+                onChange={(e) => setFieldValue(e.target.value)}
+                className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+              />
+              <div className="flex justify-end space-x-2">
+                <button className="px-4 py-2 bg-gray-300 rounded" onClick={() => setIsEditing(false)}>Cancel</button>
+                <button className="px-4 py-2 bg-green-500 text-white rounded" onClick={handleSave}>Save</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Change Password Modal */}
+        {showChangePasswordDialog && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+              <h3 className="text-xl font-semibold mb-4">Change Password</h3>
+              <input
+                type="password"
+                placeholder="Current Password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+              />
+              <input
+                type="password"
+                placeholder="New Password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+              />
+              <input
+                type="password"
+                placeholder="Confirm New Password"
+                value={confirmNewPassword}
+                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+              />
+              <div className="flex justify-end space-x-2">
+                <button className="px-4 py-2 bg-gray-300 rounded" onClick={() => setShowChangePasswordDialog(false)}>Cancel</button>
+                <button className="px-4 py-2 bg-green-500 text-white rounded" onClick={handleChangePassword}>Save</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Verify Modal */}
+        {showVerifyDialog && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+              <h3 className="text-xl font-semibold mb-4">
+                Verify {verifyField === "phone_number" ? "Phone Number" : "Email"}
+              </h3>
+              <input
+                type="text"
+                placeholder={`Enter new ${verifyField}`}
+                value={verifyValue}
+                onChange={(e) => setVerifyValue(e.target.value)}
+                className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+              />
+              <button onClick={() => getVerificationCode()} className="w-full bg-blue-500 text-white px-3 py-2 rounded">
+                Send Code
+              </button>
+              <input
+                type="text"
+                placeholder="Enter verification code"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                className="w-full border border-gray-300 rounded px-3 py-2 mt-4"
+              />
+              <div className="flex justify-end space-x-2 mt-2">
+                <button
+                  className="px-4 py-2 bg-gray-300 rounded"
+                  onClick={() => setShowVerifyDialog(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-green-500 text-white rounded"
+                  onClick={() => { handleVerifyPhone() }}              >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Account Confirmation Dialog */}
+        {showDeleteDialog && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+              <h3 className="text-xl font-semibold mb-4 text-red-600">Confirm Account Deletion</h3>
+              <p className="text-gray-700 mb-4">Type <b>"I confirm"</b> to delete your account.</p>
+              <input
+                type="text"
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+              />
+              <div className="flex justify-end space-x-2">
+                <button className="px-4 py-2 bg-gray-300 rounded" onClick={() => setShowDeleteDialog(false)}>Cancel</button>
+                <button
+                  className="px-4 py-2 bg-red-500 text-white rounded"
+                  onClick={handleDeleteAccount}
+                  disabled={confirmText !== "I confirm"}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
-
-      {/* Edit Modal */}
-      {isEditing && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-xl font-semibold mb-4">Edit Field</h3>
-            <input
-              type="text"
-              value={fieldValue}
-              onChange={(e) => setFieldValue(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
-            />
-            <div className="flex justify-end space-x-2">
-              <button className="px-4 py-2 bg-gray-300 rounded" onClick={() => setIsEditing(false)}>Cancel</button>
-              <button className="px-4 py-2 bg-green-500 text-white rounded" onClick={handleSave}>Save</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Change Password Modal */}
-      {showChangePasswordDialog && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-xl font-semibold mb-4">Change Password</h3>
-            <input
-              type="password"
-              placeholder="Current Password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
-            />
-            <input
-              type="password"
-              placeholder="New Password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
-            />
-            <input
-              type="password"
-              placeholder="Confirm New Password"
-              value={confirmNewPassword}
-              onChange={(e) => setConfirmNewPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
-            />
-            <div className="flex justify-end space-x-2">
-              <button className="px-4 py-2 bg-gray-300 rounded" onClick={() => setShowChangePasswordDialog(false)}>Cancel</button>
-              <button className="px-4 py-2 bg-green-500 text-white rounded" onClick={handleChangePassword}>Save</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Verify Modal */}
-      {showVerifyDialog && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-xl font-semibold mb-4">
-              Verify {verifyField === "phone_number" ? "Phone Number" : "Email"}
-            </h3>
-            <input
-              type="text"
-              placeholder={`Enter new ${verifyField}`}
-              value={verifyValue}
-              onChange={(e) => setVerifyValue(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
-            />
-            <button onClick={() => getVerificationCode()} className="w-full bg-blue-500 text-white px-3 py-2 rounded">
-              Send Code
-            </button>
-            <input
-              type="text"
-              placeholder="Enter verification code"
-              value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 mt-4"
-            />
-            <div className="flex justify-end space-x-2 mt-2">
-              <button
-                className="px-4 py-2 bg-gray-300 rounded"
-                onClick={() => setShowVerifyDialog(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-2 bg-green-500 text-white rounded"
-                onClick={() => { handleVerifyPhone() }}              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Account Confirmation Dialog */}
-      {showDeleteDialog && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-xl font-semibold mb-4 text-red-600">Confirm Account Deletion</h3>
-            <p className="text-gray-700 mb-4">Type <b>"I confirm"</b> to delete your account.</p>
-            <input
-              type="text"
-              value={confirmText}
-              onChange={(e) => setConfirmText(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
-            />
-            <div className="flex justify-end space-x-2">
-              <button className="px-4 py-2 bg-gray-300 rounded" onClick={() => setShowDeleteDialog(false)}>Cancel</button>
-              <button
-                className="px-4 py-2 bg-red-500 text-white rounded"
-                onClick={handleDeleteAccount}
-                disabled={confirmText !== "I confirm"}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };
