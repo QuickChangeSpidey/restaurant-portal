@@ -7,12 +7,13 @@ import {
   ChevronDownIcon,
   PencilSquareIcon,
   TrashIcon,
-  UserPlusIcon,
 } from "@heroicons/react/24/outline";
 import AddMenuItemModal from "@/app/components/AddMenuModal";
 import EditMenuItemModal from "@/app/components/EditMenuItemModal";
 import DeleteMenuItemModal from "@/app/components/DeleteMenuItemModal";
 import Modal from "@/app/components/Modal";
+import { Plus } from "lucide-react";
+import { image } from "framer-motion/client";
 
 export interface Location {
   _id: string;
@@ -235,8 +236,6 @@ export default function MenuItemsPage() {
 
   return (
     <div className="p-8">
-      <br />
-
       <div className="flex items-center justify-between mb-4">
         {/* Locations Dropdown */}
         <div className="relative w-64">
@@ -298,11 +297,25 @@ export default function MenuItemsPage() {
                 >
                   <td className="border-t px-4 py-3">
                     {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="h-12 w-12 object-cover rounded"
-                      />
+                           <div className="relative">
+                           <img
+                             src={item.image}
+                             alt={item.name}
+                             className="h-12 w-12 object-cover rounded"
+                             onClick={() => {
+                               setUploadModalOpen(true);
+                               setItemToEdit(item);
+                              }}
+                           />
+                           <Plus
+                             className="absolute top-0 center-0 bg-white p-1 rounded-full shadow-md cursor-pointer"
+                             size={18}
+                             onClick={() => {
+                               setUploadModalOpen(true);
+                                setItemToEdit(item);
+                             }}
+                           />
+                         </div>
                     ) : (
                       <button
                         className="text-blue-600 hover:text-red-800"
@@ -311,7 +324,7 @@ export default function MenuItemsPage() {
                           setItemToEdit(item);
                         }}
                       >
-                        <UserPlusIcon className="h-5 w-5" />
+                        <PlusCircleIcon className="h-5 w-5" />
                       </button>
                     )}
 

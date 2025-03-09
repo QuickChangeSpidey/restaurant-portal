@@ -9,11 +9,11 @@ import {
   TrashIcon,
   ClockIcon,
   QrCodeIcon,
-  UserPlusIcon,
   PlusCircleIcon,
 } from "@heroicons/react/24/outline";
 import { QRCodeCanvas } from "qrcode.react";
 import { apiFetch, apiFileUpload } from "@/app/lib/api";
+import { Plus } from "lucide-react";
 
 interface Location {
   _id: string | null;
@@ -365,11 +365,25 @@ export default function LocationsPage() {
             <tr key={loc._id} className="hover:bg-gray-100 transition-colors">
               <td className="border-t px-4 py-3">
                 {loc.logo ? (
-                  <img
-                    src={loc.logo}
-                    alt={loc.name}
-                    className="h-12 w-12 object-cover rounded"
-                  />
+                  <div className="relative">
+                    <img
+                      src={loc.logo}
+                      alt={loc.name}
+                      className="h-12 w-12 object-cover rounded"
+                      onClick={() => {
+                        setUploadModalOpen(true);
+                        setSelectedLocationId(loc._id);
+                      }}
+                    />
+                    <Plus
+                      className="absolute top-0 center-0 bg-white p-1 rounded-full shadow-md cursor-pointer"
+                      size={18}
+                      onClick={() => {
+                        setUploadModalOpen(true);
+                        setSelectedLocationId(loc._id);
+                      }}
+                    />
+                  </div>
                 ) : (
                   <button
                     className="text-blue-600 hover:text-red-800"
@@ -378,7 +392,7 @@ export default function LocationsPage() {
                       setSelectedLocationId(loc._id);
                     }}
                   >
-                    <UserPlusIcon className="h-5 w-5" />
+                    <PlusCircleIcon className="h-5 w-5" />
                   </button>
                 )}
 
