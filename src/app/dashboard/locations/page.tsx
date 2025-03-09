@@ -16,7 +16,7 @@ import { QRCodeCanvas } from "qrcode.react";
 import { apiFetch, apiFileUpload } from "@/app/lib/api";
 
 interface Location {
-  _id: string;
+  _id: string | null;
   name: string;
   address: string;
   geolocation: {
@@ -49,7 +49,7 @@ export default function LocationsPage() {
   // Delete Confirmation
   const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] =
     useState(false);
-  const [locationToDelete, setLocationToDelete] = useState("");
+  const [locationToDelete, setLocationToDelete] = useState<string | null>(null);
 
   // QR Modal
   const [qrModalOpen, setQrModalOpen] = useState(false);
@@ -323,7 +323,6 @@ export default function LocationsPage() {
 
   // ----------- SUBMIT EDITED LOCATION -----------
   const handleEditSubmit = () => {
-    if(selectedLocationId){
     handleUpdateLocation({
       _id: selectedLocationId,
       name: editName,
@@ -334,7 +333,7 @@ export default function LocationsPage() {
         coordinates: [editGeo.lng, editGeo.lat],
       },
       hours: editHours,
-      logo: ""
+      logo: "",
     });
   };
 
@@ -411,7 +410,7 @@ export default function LocationsPage() {
                   className="text-red-600 hover:text-red-800"
                   onClick={() => {
                     setDeleteConfirmationModalOpen(true);
-                    setLocationToDelete(loc._id);
+                    setLocationToDelete(loc?._id);
                   }}
                 >
                   <TrashIcon className="h-5 w-5" />
@@ -420,7 +419,7 @@ export default function LocationsPage() {
                 {/* QR ICON */}
                 <button
                   className="text-black-600 hover:text-black-800"
-                  onClick={() => handleQrCodeClick(loc._id)}
+                  onClick={() => loc._id && handleQrCodeClick(loc._id)}
                 >
                   <QrCodeIcon className="h-5 w-5" />
                 </button>
@@ -756,5 +755,4 @@ export default function LocationsPage() {
       )}
     </div>
   );
-}
 }
