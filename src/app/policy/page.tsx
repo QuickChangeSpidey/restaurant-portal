@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function PolicyPage() {
+export function PolicyPage() {
     const router = useRouter();
     const [checked, setChecked] = useState(false);
 
@@ -78,5 +78,16 @@ export default function PolicyPage() {
                 </button>
             </div>
         </div>
+    );
+}
+
+const Loading = () => <div>Loading...</div>;
+
+// VerifyPage wrapped with Suspense boundary
+export default function PolicyPageWrapper() {
+    return (
+        <Suspense fallback={<Loading />}>
+            <PolicyPage />
+        </Suspense>
     );
 }

@@ -1,16 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function VerifyPage() {
+export function VerifyPage() {
     const router = useRouter();
     const [verificationCode, setVerificationCode] = useState("");
     const [isResending, setIsResending] = useState(false);
     const searchParams = useSearchParams();
 
     const email = searchParams.get("email") || "";
-    
+
     const handleVerify = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
 
@@ -51,7 +51,7 @@ export default function VerifyPage() {
             alert("Invalid email. Please try again.");
             return;
         }
-        
+
         setIsResending(true);
         try {
             const response = await fetch("/api/auth/reset-password", {
@@ -96,9 +96,9 @@ export default function VerifyPage() {
                     </button>
                 </form>
                 <p className="mt-4 text-center">
-                    Didn't receive the code? 
-                    <span 
-                        className={`text-blue-500 cursor-pointer ${isResending ? 'opacity-50' : ''}`} 
+                    Didn't receive the code?
+                    <span
+                        className={`text-blue-500 cursor-pointer ${isResending ? 'opacity-50' : ''}`}
                         onClick={isResending ? undefined : handleResend}
                     >
                         {isResending ? " Resending..." : " Resend"}
@@ -106,5 +106,16 @@ export default function VerifyPage() {
                 </p>
             </div>
         </div>
+    );
+}
+
+const Loading = () => <div>Loading...</div>;
+
+// VerifyPage wrapped with Suspense boundary
+export default function VerifyPageWrapper() {
+    return (
+        <Suspense fallback={<Loading />}>
+            <VerifyPage />
+        </Suspense>
     );
 }

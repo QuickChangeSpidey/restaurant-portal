@@ -169,7 +169,7 @@ export default function AuthPage() {
                                             key === "password" ? "password" :
                                                 key === "confirmPassword" ? "password" :
                                                     key === "phoneNumber" ? "tel" :
-                                                        key === "birthdate" ? "text" :
+                                                        key === "birthdate" ? "date" :
                                                             "text"
                                     }
                                     placeholder={
