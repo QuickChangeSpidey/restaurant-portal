@@ -129,7 +129,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex flex-col flex-1 min-w-0 ml-64">
           {/* Top Header */}
           <div className="bg-green-500 text-white p-4 flex justify-between items-center fixed top-0 left-64 right-0 z-20">
-          <div className="text-xl">Hello, {userInfo?.given_name} {userInfo?.family_name}! Today's Date: {new Date().toLocaleDateString()}</div>
+          <div className="ml-auto text-xl">Hello, {userInfo?.given_name} {userInfo?.family_name}! Today's Date: {new Date().toLocaleDateString()}</div>
           </div>
 
           {/* Scrollable Content */}
@@ -140,8 +140,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Bottom Footer */}
           <div className="bg-green-500 text-white p-4 fixed bottom-0 left-64 right-0 z-10">
             <div className="flex justify-center space-x-5">
-              <Link href="/privacy-policy" className="hover:text-gray-200">Privacy Policy</Link>
-              <Link href="/contact-us" className="hover:text-gray-200">Contact Us</Link>
+              <Link href="/policy" className="hover:text-gray-200">Privacy Policy</Link>
+              <Link href="/dashboard/support" className="hover:text-gray-200">Contact Us</Link>
               <span>&copy; 2025 Bogo Ninja. All Rights Reserved.</span>
             </div>
           </div>
