@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import { UserInfo } from "./accounts/page";
 import { getUserInfo } from "../lib/auth";
 import { EditIcon } from "lucide-react";
+import { FaCommentAlt } from "react-icons/fa";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -152,6 +153,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex justify-center space-x-5">
               <Link href="/dashboard/policy" className="hover:text-gray-200">Privacy Policy</Link>
               <Link href="/dashboard/support" className="hover:text-gray-200">Contact Us</Link>
+              <Link href="https://docs.google.com/forms/d/e/1FAIpQLSc7oCGSIRYa4WzaGirYakgkVz-icu0J4lkQ74MsjH_93kS-Ww/viewform" className="hover:text-gray-200">Feedback</Link>
               <span>&copy; 2025 Bogo Ninja. All Rights Reserved.</span>
               <span>
                 {new Intl.DateTimeFormat("en-US", {
