@@ -10,7 +10,7 @@ import {
   PencilIcon,
 } from "@heroicons/react/24/outline";
 
-import {Coupon as QRCoupon} from "@/app/components/QRCodeModal";
+import { Coupon as QRCoupon } from "@/app/components/QRCodeModal";
 
 // ----- Types -----
 export interface RestaurantLocation {
@@ -284,20 +284,10 @@ export default function CouponsPage() {
 
       {/* Location Selector */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-        <div style={{ width: '16rem' }}>
+        {/* Locations Dropdown */}
+        <div className="relative w-64">
           <select
-            style={{
-              appearance: 'none',
-              backgroundColor: '#22c55e',
-              color: 'white',
-              fontSize: '0.875rem',
-              padding: '0.5rem 1rem',
-              width: '100%',
-              borderRadius: '0.75rem',
-              cursor: 'pointer',
-              outline: 'none',
-              paddingRight: '2.5rem',
-            }}
+            className="appearance-none bg-green-500 text-white text-sm px-4 py-2 w-full rounded-lg cursor-pointer focus:outline-none pr-10"
             onChange={(e) => {
               const location = locations.find(
                 (loc) => loc._id === e.target.value
@@ -307,18 +297,17 @@ export default function CouponsPage() {
                 fetchCoupons(location._id);
               } else {
                 setSelectedLocation(null);
-                setCoupons([]);
               }
             }}
           >
-            <option value="">Select a location</option>
-            {locations.map((loc) => (
-              <option key={loc._id} value={loc._id}>
-                {loc.name}
+            <option value="">Select Location</option>
+            {locations.map((location) => (
+              <option key={location._id} value={location._id}>
+                {location.name}
               </option>
             ))}
           </select>
-          <ChevronDownIcon style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', width: '1.25rem', height: '1.25rem', color: 'white', pointerEvents: 'none' }} />
+          <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white pointer-events-none" />
         </div>
 
         {/* Filter Dropdown */}

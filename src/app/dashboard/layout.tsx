@@ -20,34 +20,35 @@ import packageJSON from "../../../package.json";
 import { useEffect, useState } from "react";
 import { UserInfo } from "./accounts/page";
 import { getUserInfo } from "../lib/auth";
+import { EditIcon } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const googleMapsApiKey = "AIzaSyBxeae0ftXUhPZ8bZWE1-xgaWEkJFKGjek";
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
-   // Fetch user data
-    useEffect(() => {
-      const fetchUserData = async () => {
-        const data = await getUserInfo();
-  
-        if (data) {
-          const mappedUser: UserInfo = {
-            given_name: data.UserAttributes?.find(attr => attr.Name === "given_name")?.Value || "N/A",
-            family_name: data.UserAttributes?.find(attr => attr.Name === "family_name")?.Value || "N/A",
-            birthdate: data.UserAttributes?.find(attr => attr.Name === "birthdate")?.Value || "N/A",
-            phone_number: data.UserAttributes?.find(attr => attr.Name === "phone_number")?.Value || "N/A",
-            phone_number_verified: data.UserAttributes?.find(attr => attr.Name === "phone_number_verified")?.Value === "true",
-            address: data.UserAttributes?.find(attr => attr.Name === "address")?.Value || "N/A",
-            email: data.UserAttributes?.find(attr => attr.Name === "email")?.Value || "N/A",
-            email_verified: data.UserAttributes?.find(attr => attr.Name === "email_verified")?.Value === "true",
-            username: data.Username || "",
-          };
-          setUserInfo(mappedUser);
-        }
-      };
-      fetchUserData();
-    }, []);
+  // Fetch user data
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const data = await getUserInfo();
+
+      if (data) {
+        const mappedUser: UserInfo = {
+          given_name: data.UserAttributes?.find(attr => attr.Name === "given_name")?.Value || "N/A",
+          family_name: data.UserAttributes?.find(attr => attr.Name === "family_name")?.Value || "N/A",
+          birthdate: data.UserAttributes?.find(attr => attr.Name === "birthdate")?.Value || "N/A",
+          phone_number: data.UserAttributes?.find(attr => attr.Name === "phone_number")?.Value || "N/A",
+          phone_number_verified: data.UserAttributes?.find(attr => attr.Name === "phone_number_verified")?.Value === "true",
+          address: data.UserAttributes?.find(attr => attr.Name === "address")?.Value || "N/A",
+          email: data.UserAttributes?.find(attr => attr.Name === "email")?.Value || "N/A",
+          email_verified: data.UserAttributes?.find(attr => attr.Name === "email_verified")?.Value === "true",
+          username: data.Username || "",
+        };
+        setUserInfo(mappedUser);
+      }
+    };
+    fetchUserData();
+  }, []);
 
   const handleLogout = async () => {
     const token: any = localStorage.getItem("authToken");
@@ -128,21 +129,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Main Content Area */}
         <div className="flex flex-col flex-1 min-w-0 ml-64">
           {/* Top Header */}
-          <div className="bg-green-500 text-white p-4 flex justify-between items-center fixed top-0 left-64 right-0 z-20">
-          <div className="ml-auto text-xl">Hello, {userInfo?.given_name} {userInfo?.family_name}! Today's Date: {new Date().toLocaleDateString()}</div>
+          <div className="bg-green-500 text-white p-2 flex justify-between items-center fixed top-0 left-64 right-0 z-20">
+            <div className="ml-auto text-xl">Hello, {userInfo?.given_name} {userInfo?.family_name}!</div>
+            <button onClick={() => { router.push("/dashboard/accounts") }} className="bg-green-500 hover:bg-green-600 rounded p-2">
+              <EditIcon className="text-white-1000" />
+            </button>
           </div>
 
           {/* Scrollable Content */}
           <div className="flex-1 overflow-auto bg-white text-black p-10 mt-15">
-          {children}
+            {children}
           </div>
 
           {/* Bottom Footer */}
           <div className="bg-green-500 text-white p-4 fixed bottom-0 left-64 right-0 z-10">
             <div className="flex justify-center space-x-5">
-              <Link href="/policy" className="hover:text-gray-200">Privacy Policy</Link>
+              <Link href="/dashboard/policy" className="hover:text-gray-200">Privacy Policy</Link>
               <Link href="/dashboard/support" className="hover:text-gray-200">Contact Us</Link>
               <span>&copy; 2025 Bogo Ninja. All Rights Reserved.</span>
+              <span>
+                {new Intl.DateTimeFormat("en-US", {
+                  weekday: "long",  // "Monday"
+                  year: "numeric",  // "2025"
+                  month: "long",    // "March"
+                  day: "numeric",   // "9"
+                  hour: "2-digit",  // "10" (12-hour format)
+                  minute: "2-digit",
+                  second: "2-digit",
+                  hour12: true,     // AM/PM format
+                }).format(new Date())}
+              </span>
             </div>
           </div>
         </div>

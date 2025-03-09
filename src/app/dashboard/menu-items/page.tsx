@@ -253,7 +253,7 @@ export default function MenuItemsPage() {
               }
             }}
           >
-            <option value="">Select a location</option>
+            <option value="">Select Location</option>
             {locations.map((location) => (
               <option key={location._id} value={location._id}>
                 {location.name}
