@@ -101,13 +101,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Main Content Area */}
         <div className="flex flex-col flex-1 min-w-0 ml-64">
           {/* Top Header */}
-          <div className="bg-green-500 text-white p-4 flex justify-between items-center fixed top-0 left-64 right-0 z-10">
-            <div className="text-xl">Hello, User! Today's Date: {new Date().toLocaleDateString()}</div>
+          <div className="bg-green-500 text-white p-4 flex justify-between items-center fixed top-0 left-64 right-0 z-20">
+          <div className="text-xl">Hello, User! Today's Date: {new Date().toLocaleDateString()}</div>
           </div>
 
           {/* Scrollable Content */}
-          <div className="flex-1 overflow-auto p-10 mt-16 bg-white text-black">
-            {children}
+          <div className="flex-1 overflow-auto bg-white text-black p-10 mt-15">
+          {children}
           </div>
 
           {/* Bottom Footer */}
