@@ -3,7 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export function VerifyPage() {
+function VerifyPage() {
     const router = useRouter();
     const [verificationCode, setVerificationCode] = useState("");
     const [isResending, setIsResending] = useState(false);

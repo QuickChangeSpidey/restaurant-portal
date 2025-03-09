@@ -3,7 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export function PolicyPage() {
+function PolicyPage() {
     const router = useRouter();
     const [checked, setChecked] = useState(false);
 
