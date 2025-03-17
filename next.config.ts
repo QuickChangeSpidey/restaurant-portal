@@ -95,6 +95,10 @@ const nextConfig: NextConfig = {
                 source: "/api/auth/coupons/:id/deactivate",
                 destination: "http://api.bogoninja.com/api/coupons/:id/deactivate",
             },
+            {
+                source: "/api/auth/:id/accept",
+                destination: "http://api.bogoninja.com/api/:id/accept-policy",
+            },
         ];
     },
 };

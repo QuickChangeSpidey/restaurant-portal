@@ -21,7 +21,6 @@ import { useEffect, useState } from "react";
 import { UserInfo } from "./accounts/page";
 import { getUserInfo } from "../lib/auth";
 import { EditIcon } from "lucide-react";
-import { FaCommentAlt } from "react-icons/fa";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -32,6 +31,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     const fetchUserData = async () => {
       const data = await getUserInfo();
+
+      if (data?.UserAttributes?.find(attr => attr.Name === "sub")?.Value) {
+        const result = await fetch(`/api/auth/${data?.UserAttributes?.find(attr => attr.Name === "sub")?.Value}/accept`, {
+          method: "PUT",
+          body: JSON.stringify({ isPolicyAccepted: localStorage.getItem("policyAccepted") === "true" }),
+          headers: {
+            "Content-Type": "application/json", 
+            "Authorization": `Bearer ${localStorage.getItem("authToken")}`
+          },
+        });
+        if (!result.ok) {
+          const errorData: { message?: string } = await result.json();
+          console.error("Policy acceptance error:", errorData.message
+            ? errorData.message
+            : "An error occurred while accepting the policy"); 
+            localStorage.setItem("policyAccepted", "false");
+          } else {
+            console.log("Policy acceptance successful");
+            localStorage.setItem("policyAccepted", "true");
+          }
+      }
 
       if (data) {
         const mappedUser: UserInfo = {

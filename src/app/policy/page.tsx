@@ -11,14 +11,6 @@ function PolicyPage() {
 
     const email = searchParams.get("email") || "";
 
-    const handleAcceptPolicy = () => {
-        // Store policy acceptance status
-        localStorage.setItem("policyAccepted", "true");
-
-        // Redirect to Verify Page with email
-        router.push(`/verify?email=${encodeURIComponent(email)}`);
-    };
-
     const handleAccept = () => {
         if (checked) {
             // Store policy acceptance status
