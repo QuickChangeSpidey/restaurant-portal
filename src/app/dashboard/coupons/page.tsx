@@ -438,22 +438,18 @@ export default function CouponsPage() {
                       }
                       let displayValue = value;
                       if (Array.isArray(value)) {
-                        // Check if the key corresponds to menu item IDs
                         if (["purchasedItemIds", "comboItems", "freeItemIds", "familyPackItems"].includes(key)) {
-                          displayValue = value
-                            .map((id) => menuItems.find((item) => item._id === id)?.name || "Unknown Item")
-                            .join(", ");
+                          displayValue = value.map((item: { _id: string; name: string }) => item.name || "Unknown Item").join(", ");
                         } else {
                           displayValue = value.join(", ");
                         }
                       } else if (typeof value === "boolean") {
                         displayValue = value ? "Yes" : "No";
                       } else if (["expirationDate", "createdAt", "updatedAt"].includes(key)) {
-                        // Format Date as "12, May, 2023"
                         displayValue = new Date(value).toLocaleDateString("en-GB", {
                           day: "2-digit",
                           month: "short",
-                          year: "numeric"
+                          year: "numeric",
                         }).replace(/ /g, ", ");
                       }
                       return (
