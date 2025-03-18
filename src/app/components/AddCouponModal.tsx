@@ -132,8 +132,11 @@ export default function AddCouponModal({
     setFamilyPackPrice(0);
     setPortionSize("");
     setStartHour(0);
+    setPreviewImage(null);
+    setSelectedFile(null);
     setEndHour(0);
     setStartTime("");
+    setDescription("");
     setEndTime("");
   }
 
