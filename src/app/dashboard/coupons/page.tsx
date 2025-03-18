@@ -439,7 +439,7 @@ export default function CouponsPage() {
                       let displayValue = value;
                       if (Array.isArray(value)) {
                         // Check if the key corresponds to menu item IDs
-                        if (["purchasedItemIds", "comboItems", "freeItemIds"].includes(key)) {
+                        if (["purchasedItemIds", "comboItems", "freeItemIds","familyPackItems"].includes(key)) {
                           displayValue = value
                             .map((id) => menuItems.find((item) => item._id === id)?.name || "Unknown Item")
                             .join(", ");
