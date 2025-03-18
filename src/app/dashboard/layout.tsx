@@ -32,26 +32,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const fetchUserData = async () => {
       const data = await getUserInfo();
 
-      if (data?.UserAttributes?.find(attr => attr.Name === "sub")?.Value) {
-        const result = await fetch(`/api/auth/${data?.UserAttributes?.find(attr => attr.Name === "sub")?.Value}/accept`, {
-          method: "PUT",
-          body: JSON.stringify({ isPolicyAccepted: localStorage.getItem("policyAccepted") === "true" }),
-          headers: {
-            "Content-Type": "application/json", 
-            "Authorization": `Bearer ${localStorage.getItem("authToken")}`
-          },
-        });
-        if (!result.ok) {
-          const errorData: { message?: string } = await result.json();
-          console.error("Policy acceptance error:", errorData.message
-            ? errorData.message
-            : "An error occurred while accepting the policy"); 
-            localStorage.setItem("policyAccepted", "false");
-          } else {
-            console.log("Policy acceptance successful");
-            localStorage.setItem("policyAccepted", "true");
-          }
-      }
+      // if (data?.UserAttributes?.find(attr => attr.Name === "sub")?.Value) {
+      //   const result = await fetch(`/api/auth/${data?.UserAttributes?.find(attr => attr.Name === "sub")?.Value}/accept`, {
+      //     method: "PUT",
+      //     body: JSON.stringify({ isPolicyAccepted: localStorage.getItem("policyAccepted") === "true" }),
+      //     headers: {
+      //       "Content-Type": "application/json", 
+      //       "Authorization": `Bearer ${localStorage.getItem("authToken")}`
+      //     },
+      //   });
+      //   if (!result.ok) {
+      //     const errorData: { message?: string } = await result.json();
+      //     console.error("Policy acceptance error:", errorData.message
+      //       ? errorData.message
+      //       : "An error occurred while accepting the policy"); 
+      //       localStorage.setItem("policyAccepted", "false");
+      //     } else {
+      //       console.log("Policy acceptance successful");
+      //       localStorage.setItem("policyAccepted", "true");
+      //     }
+      // }
 
       if (data) {
         const mappedUser: UserInfo = {
