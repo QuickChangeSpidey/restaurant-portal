@@ -36,6 +36,7 @@ export interface Coupon {
   comboItems?: string[];
   comboPrice?: number;
   portionSize?: string;
+  description?: string;
   familyPackItems?: string[];
   familyPackPrice?: number;
   startHour?: number;
@@ -50,7 +51,7 @@ export interface Coupon {
 interface AddCouponModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (newCoupon: Partial<Coupon>, selectedFile:File|null) => void;
+  onSave: (newCoupon: Partial<Coupon>, selectedFile: File | null) => void;
   location: RestaurantLocation | null;
   menuItems: MenuItem[];
   // New callback to update the menu items list in the parent
@@ -98,6 +99,8 @@ export default function AddCouponModal({
   // Menu Items (fetched from your API)
   const [quantity, setQuantitiy] = useState<number>(0);
 
+  const [description, setDescription] = useState<string>('');
+
   // ------ State to control AddMenuItemModal ------
   const [isAddMenuItemModalOpen, setIsAddMenuItemModalOpen] = useState(false);
 
@@ -142,6 +145,7 @@ export default function AddCouponModal({
       code,
       discountPercentage: discountValue,
       expirationDate,
+      description,
       quantity,
     };
 
@@ -242,20 +246,20 @@ export default function AddCouponModal({
       "SpendMoreSaveMore": "SM", "StorewideFlatDiscount": "SF", "ComboDeal": "CD", "FamilyPack": "FP",
       "LimitedTime": "LT", "HappyHour": "HH"
     }[couponType] || couponType.substring(0, 2).toUpperCase(); // Default first 2 chars of coupon type
-  
+
     // Get the first 2 characters of the location (uppercased)
     const locationPrefix = locationName.substring(0, 2).toUpperCase();
-  
+
     // Use current timestamp (milliseconds since Unix epoch)
     const timestamp = currentDate.getTime().toString().slice(-6); // Get the last 6 digits
-  
+
     // Generate 2 random alphanumeric characters
     const randomSuffix = Math.random().toString(36).substring(2, 4).toUpperCase();
-  
+
     // Return the 12-character coupon code
     return `${couponPrefix}${locationPrefix}${timestamp}${randomSuffix}`;
   }
-  
+
 
   // ------ Render the modal ------
   return (
@@ -708,6 +712,16 @@ export default function AddCouponModal({
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
                 />
+                {/* Description */}
+                <label className="block mb-2 text-black">
+                  Description
+                  <input
+                    type="text"
+                    className="block w-full mt-1 p-2 border rounded text-black"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </label>
               </div>
             )}
 
