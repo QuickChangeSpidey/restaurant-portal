@@ -427,7 +427,7 @@ export default function CouponsPage() {
                   <div>
                     {Object.entries(coupon).map(([key, value]) => {
                       if (
-                        ["_id", "locationId", "isActive", "code", "image"].includes(key) || // Exclude these keys
+                        ["_id", "locationId", "isActive", "code", "image" ].includes(key) || // Exclude these keys
                         value === undefined ||
                         value === null ||
                         value === "" ||
@@ -439,7 +439,7 @@ export default function CouponsPage() {
                       let displayValue = value;
                       if (Array.isArray(value)) {
                         // Check if the key corresponds to menu item IDs
-                        if (["purchasedItemIds", "comboItems", "freeItemIds","familyPackItems"].includes(key)) {
+                        if (["purchasedItemIds", "comboItems", "freeItemIds", "familyPackItems"].includes(key)) {
                           displayValue = value
                             .map((id) => menuItems.find((item) => item._id === id)?.name || "Unknown Item")
                             .join(", ");
